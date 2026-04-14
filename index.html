@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0065)file:///C:/Users/v.vossems/Downloads/salco_pallet_planner_56.html -->
+<!-- saved from url=(0065)file:///C:/Users/v.vossems/Downloads/salco_pallet_planner_57.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -694,6 +694,38 @@ const PLAN_STRUCTURE = [
 
 const MAX_P=1000, MAX_S=3000, OHD=1.06;
 
+// ═══ KLANTPROFIELEN ═══
+// Voeg hier nieuwe klanten toe. Detectie werkt op klantnaam of projectnummer (lowercase match).
+const KLANT_PROFIELEN = {
+  'psi': {
+    naam: 'PSI',
+    detectie: ['psi', 'polar specialized'],
+    regels: {
+      artikel_nm6: '66222',       // Dit artikel komt altijd op NM-6
+      artikel_nm6_std_qty: 160,   // Standaard aantal voor de vraag
+      nm5_nm6_swap: true,         // Swap NM-5/NM-6 als artikel op NM-5 terechtkomt
+    }
+  },
+  // Voorbeeld nieuwe klant:
+  // 'abc': {
+  //   naam: 'ABC Bedrijf',
+  //   detectie: ['abc bedrijf', 'abc'],
+  //   regels: {
+  //     artikel_nm6: '99999',
+  //     artikel_nm6_std_qty: 80,
+  //     nm5_nm6_swap: true,
+  //   }
+  // },
+};
+
+function getKlantProfiel(klantNaam, projNr){
+  const zoek = ((klantNaam||'')+(projNr||'')).toLowerCase();
+  for(const [key, profiel] of Object.entries(KLANT_PROFIELEN)){
+    if(profiel.detectie.some(d => zoek.includes(d))) return profiel;
+  }
+  return null; // geen specifiek profiel → standaard planningsregels
+}
+
 // ═══ STATE ═══
 let known=[], unknwn=[], plan=[], projNr='', klant='';
 let checkedItems = {};
@@ -851,13 +883,21 @@ function showReview(){
   if(known.length) aH+=`<div class="alert a-ok">&#10003; ${known.length} profieltype(s) herkend &mdash; gewicht berekend via profieldatabase (${known.reduce((s,p)=>s+p.qty,0)} stuks totaal).</div>`;
   document.getElementById('alertsReview').innerHTML=aH;
 
-  // Toon PSI-66222 kaart als klant PSI is
-  const isPSI = (klant||'').toLowerCase().includes('psi') || (projNr||'').toLowerCase().includes('psi');
-  const has66222 = known.some(p=>p.art==='66222');
+  // Toon klantspecifieke kaart als er een profiel is met een NM6-artikel
+  const _kp = getKlantProfiel(klant, projNr);
+  const _art6 = _kp?.regels?.artikel_nm6;
+  const _stdQty = _kp?.regels?.artikel_nm6_std_qty || 0;
+  const hasNm6Art = _art6 && known.some(p=>p.art===_art6);
   const psiCard = document.getElementById('card-psi-66222');
-  if(isPSI && has66222){
+  if(_kp && hasNm6Art){
+    // Update de tekst in de kaart dynamisch
+    psiCard.querySelector('p').innerHTML =
+      'Voor klant <strong>'+_kp.naam+'</strong> geldt: artikel <strong>'+_art6+'</strong> staat altijd op NM-6 (bovenste pallet stapel 2 — hoeft niet ingekrat te worden).<br>'
+      +'Zit er <strong>'+_stdQty+'&times; artikel '+_art6+'</strong> in deze order?';
+    document.getElementById('btn-psi-ja').textContent = '✓ Ja — '+_stdQty+'× '+_art6+' op NM-6';
+    document.getElementById('btn-psi-nee').textContent = 'Nee — ander aantal invullen';
     psiCard.classList.remove('hidden');
-    psi66222Mode = null; // reset keuze
+    psi66222Mode = null;
     document.getElementById('psi-nee-invoer').classList.add('hidden');
   } else {
     psiCard.classList.add('hidden');
@@ -917,26 +957,27 @@ function runPlanning(){
   const all=[...known];
   if(!all.length){alert('Geen profielen beschikbaar.');return;}
 
-  // PSI 66222 check
-  const isPSI2 = (klant||'').toLowerCase().includes('psi') || (projNr||'').toLowerCase().includes('psi');
-  const has66222b = all.some(p=>p.art==='66222');
-  if(isPSI2 && has66222b && psi66222Mode===null){
-    alert('Geef eerst aan of er 160× artikel 66222 in de order zit (zie de blauwe kaart hierboven).');
+  // Klantspecifieke NM6-artikel check
+  const _kp2 = getKlantProfiel(klant, projNr);
+  const _art62 = _kp2?.regels?.artikel_nm6;
+  const hasNm6Art2 = _art62 && all.some(p=>p.art===_art62);
+  if(_kp2 && hasNm6Art2 && psi66222Mode===null){
+    alert('Geef eerst aan hoeveel stuks artikel '+_art62+' in de order zitten (zie de blauwe kaart hierboven).');
     return;
   }
-  // Als vrij aantal: update qty van 66222
-  if(isPSI2 && has66222b && psi66222Mode===false){
-    const qty66 = parseInt(document.getElementById('inp-psi-qty').value)||0;
-    psi66222Qty = qty66;
-    const p66 = all.find(p=>p.art==='66222');
-    if(p66){ p66.qty=qty66; p66.gew=p66.gps*qty66; }
+  // Als vrij aantal: update qty van het NM6-artikel
+  if(_kp2 && hasNm6Art2 && psi66222Mode===false){
+    const qtyInp = parseInt(document.getElementById('inp-psi-qty').value)||0;
+    psi66222Qty = qtyInp;
+    const pNm6 = all.find(p=>p.art===_art62);
+    if(pNm6){ pNm6.qty=qtyInp; pNm6.gew=pNm6.gps*qtyInp; }
   }
 
-  plan=computePlan(all, isPSI2 && has66222b && psi66222Mode!==false);
+  plan=computePlan(all, _kp2 && hasNm6Art2 && psi66222Mode!==false, _kp2);
   showResults();
 }
 
-function computePlan(profiles, psiNm6Fixed=false){
+function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
   // ── Prioriteitsregels ──────────────────────────────────────────────
   // 1. Zo min mogelijk VERSCHILLENDE profieltypes per pallet
   // 2. Zelfde profiel op zo min mogelijk verschillende pallets
@@ -1063,19 +1104,21 @@ function computePlan(profiles, psiNm6Fixed=false){
   packItems(long,  'long');
   packItems(short, 'short');
 
-  // ── PSI REGEL: 66222 vaste NM-6, swap NM-5 en NM-6 inhoud ──
-  if(psiNm6Fixed){
-    const nm5 = pallets.find(p=>p.nm==='NM-5');
-    const nm6 = pallets.find(p=>p.nm==='NM-6');
-    if(nm5 && nm6){
-      // Check of 66222 op nm5 staat
-      const nm5has66222 = nm5.items.some(i=>i.art==='66222');
-      const nm6has66222 = nm6.items.some(i=>i.art==='66222');
-      if(nm5has66222 && !nm6has66222){
-        // Swap items en profW
-        const tmpItems = nm5.items; const tmpW = nm5.profW; const tmpUsed = nm5.used;
-        nm5.items = nm6.items; nm5.profW = nm6.profW; nm5.used = nm6.used;
-        nm6.items = tmpItems; nm6.profW = tmpW; nm6.used = tmpUsed;
+  // ── KLANTSPECIFIEKE NM6-REGEL: vast artikel op NM-6, swap indien nodig ──
+  if(nm6Fixed && klantProfiel?.regels){
+    const art6 = klantProfiel.regels.artikel_nm6;
+    const doSwap = klantProfiel.regels.nm5_nm6_swap;
+    if(art6 && doSwap){
+      const nm5 = pallets.find(p=>p.nm==='NM-5');
+      const nm6 = pallets.find(p=>p.nm==='NM-6');
+      if(nm5 && nm6){
+        const nm5hasArt = nm5.items.some(i=>i.art===art6);
+        const nm6hasArt = nm6.items.some(i=>i.art===art6);
+        if(nm5hasArt && !nm6hasArt){
+          const tmpItems=nm5.items; const tmpW=nm5.profW; const tmpUsed=nm5.used;
+          nm5.items=nm6.items; nm5.profW=nm6.profW; nm5.used=nm6.used;
+          nm6.items=tmpItems; nm6.profW=tmpW; nm6.used=tmpUsed;
+        }
       }
     }
   }
