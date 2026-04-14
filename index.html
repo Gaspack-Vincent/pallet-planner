@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0065)file:///C:/Users/v.vossems/Downloads/salco_pallet_planner_48.html -->
+<!-- saved from url=(0065)file:///C:/Users/v.vossems/Downloads/salco_pallet_planner_56.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -286,15 +286,37 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   body{background:#fff;font-size:11px}
   main{padding:0.5rem}
   .results-cols{grid-template-columns:1fr}
-  .pc{break-inside:avoid;border:1px solid #ccc;margin-bottom:6px}
+  .stack-section{break-inside:avoid;page-break-inside:avoid;margin-bottom:1rem}
+  .pallet-row{break-inside:avoid;page-break-inside:avoid}
+  .pc{break-inside:avoid;page-break-inside:avoid;border:1px solid #ccc;margin-bottom:6px}
   .ph{padding:6px 10px!important}
   .pb{padding:6px 10px}
-  .stack-section{margin-bottom:1rem}
   .stack-header{padding:4px 10px}
   h1{font-size:16px}
   .page-title{margin-bottom:0.5rem}
   .pr-item{padding:3px 0}
   .pnum{font-size:14px!important}
+  #print-header{display:block!important}
+
+  /* Paginavoettekst */
+  @page{
+    margin-bottom:20mm;
+  }
+  .print-footer{
+    display:block!important;
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    border-top:1px solid #ccc;
+    padding:5px 16px;
+    font-size:10px;
+    color:#888;
+    display:flex!important;
+    justify-content:space-between;
+    align-items:center;
+    background:#fff;
+  }
 }
 </style>
 </head>
@@ -365,7 +387,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
       <div class="db-header">
         <div class="db-title">Opgeslagen Projecten</div>
         <div style="display:flex;align-items:center;gap:10px">
-          <span class="db-count" id="db-count">1 project</span>
+          <span class="db-count" id="db-count">2 projecten</span>
         </div>
       </div>
       <div class="db-search">
@@ -373,11 +395,11 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
         <div class="db-filter">
           <button class="active" id="filt-all" onclick="setFilter(&#39;all&#39;)">Alle</button>
           <button id="filt-not_started" onclick="setFilter(&#39;not_started&#39;)">Not started</button>
-          <button id="filt-in_progress" onclick="setFilter(&#39;in_progress&#39;)" class="">In progress</button>
+          <button id="filt-in_progress" onclick="setFilter(&#39;in_progress&#39;)">In progress</button>
           <button id="filt-completed" onclick="setFilter(&#39;completed&#39;)">Completed</button>
         </div>
       </div>
-      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">14-04-2026<br><span style="color:var(--g300)">14:21</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.972 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
+      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508902</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">14-04-2026<br><span style="color:var(--g300)">15:29</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.466 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[1])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">14-04-2026<br><span style="color:var(--g300)">15:24</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[1])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.972 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[1].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
     </div>
   </div>
 
@@ -437,9 +459,21 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   <div id="sec-results" class="hidden">
     <div class="export-bar">
       <button class="btn btn-dark" onclick="exportExcel()"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>Excel exporteren</button>
-      <button class="btn btn-outline" onclick="window.print()">Afdrukken</button>
+      <button class="btn btn-outline" onclick="printPlan()">Afdrukken</button>
       <button class="btn btn-outline" onclick="goBack()">← Terug</button>
       <button class="btn btn-outline" onclick="resetTool()">Nieuw bestand</button>
+    </div>
+
+    <!-- Print header — alleen zichtbaar bij afdrukken -->
+    <div id="print-header" style="display:none;margin-bottom:16px;border-bottom:3px solid #172E3E;padding-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#172E3E">Gaspack — Palletindeling</div>
+          <div style="font-size:13px;color:#555;margin-top:4px" id="print-proj-info"></div>
+        </div>
+        <div style="text-align:right;font-size:12px;color:#555" id="print-date"></div>
+      </div>
+      <div style="display:flex;gap:32px;margin-top:10px" id="print-stats"></div>
     </div>
 
     <div class="results-cols">
@@ -459,6 +493,11 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
         <div class="card" id="alertsResults"></div>
       </div>
     </div>
+  </div>
+  <!-- Print footer — alleen zichtbaar bij afdrukken -->
+  <div class="print-footer" id="print-footer" style="display:none">
+    <span id="print-footer-proj"></span>
+    <span id="print-footer-page"></span>
   </div>
 </main>
 
@@ -1279,7 +1318,21 @@ async function sbGet(){
   try{
     const r = await fetch(SB_URL+'/rest/v1/projects?order=datum.desc', {headers: SB_HDR});
     if(!r.ok) throw new Error(await r.text());
-    return await r.json();
+    const projects = await r.json();
+
+    // Sortering: in_progress → not_started → completed, daarna projectnummer numeriek oplopend
+    const statusOrder = {'in_progress':0,'not_started':1,'completed':2};
+    projects.sort((a,b)=>{
+      const sa = statusOrder[a.status||'not_started'] ?? 1;
+      const sb = statusOrder[b.status||'not_started'] ?? 1;
+      if(sa!==sb) return sa-sb;
+      // Zelfde status: projectnummer numeriek oplopend
+      const na = parseInt((a.proj_nr||'').replace(/\D/g,''))||0;
+      const nb = parseInt((b.proj_nr||'').replace(/\D/g,''))||0;
+      return na-nb;
+    });
+
+    return projects;
   } catch(e){ console.error('Supabase GET:', e); return []; }
 }
 
@@ -1437,13 +1490,15 @@ async function cycleStatus(p){
   const cur = p.status || 'not_started';
   const next = order[(order.indexOf(cur)+1) % order.length];
   p.status = next;
-  // Save to Supabase
+  // Sla op in Supabase
   try{
-    await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(p.proj_nr), {
+    const r = await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(p.proj_nr), {
       method:'PATCH', headers: SB_HDR, body: JSON.stringify({status: next})
     });
-  } catch(e){ console.warn('Status opslaan mislukt:', e); }
-  renderDBRows();
+    if(!r.ok) throw new Error(await r.text());
+  } catch(e){ console.warn('Status opslaan mislukt:', e); alert('Status opslaan mislukt: '+e.message); return; }
+  // Herlaad volledige lijst van Supabase zodat sortering klopt
+  await renderDB();
 }
 
 async function showDB(){
@@ -1591,6 +1646,30 @@ function restoreCheckedItems(){
 
 // ═══ AFDRUKKEN ═══
 function printPlan(){
+  // Vul print-header in
+  const totKg = Math.round(plan.reduce((s,p)=>s+p.totalKg,0));
+  document.getElementById('print-proj-info').innerHTML =
+    '<strong>Project:</strong> '+(projNr||'—')+'&nbsp;&nbsp;&nbsp;<strong>Klant:</strong> '+(klant||'—');
+  document.getElementById('print-date').textContent =
+    'Afdrukdatum: '+new Date().toLocaleDateString('nl-NL',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('print-stats').innerHTML =
+    '<div><span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888">Pallets</span><br><strong style="font-size:18px">'+plan.length+'</strong></div>'
+    +'<div><span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888">Totaal kg</span><br><strong style="font-size:18px">'+totKg.toLocaleString('nl-NL')+'</strong></div>'
+    +'<div><span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888">Stapels</span><br><strong style="font-size:18px">'+Object.keys(plan.reduce((a,p)=>{a[p.sid]=1;return a},{})).length+'</strong></div>'
+    +'<div><span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888">7350mm pallets</span><br><strong style="font-size:18px">'+plan.filter(p=>p.t==='long').length+'</strong></div>'
+    +'<div><span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888">5900mm pallets</span><br><strong style="font-size:18px">'+plan.filter(p=>p.t==='short').length+'</strong></div>';
+
+  // Vul print-footer in
+  document.getElementById('print-footer-proj').textContent =
+    'Project: '+(projNr||'—')+'          Klant: '+(klant||'—');
+
+  // Bereken aantal pagina's via bladhoogte
+  const body = document.body;
+  const pageH = 1122; // A4 pixels bij 96dpi
+  const totalPages = Math.ceil(body.scrollHeight / pageH) || 1;
+  document.getElementById('print-footer-page').textContent =
+    'Pagina 1 van '+totalPages;
+
   // Zet alle geminimaliseerde pallets even open voor print
   document.querySelectorAll('.pc.pallet-done .pb').forEach(pb=>{
     pb.dataset.wasHidden = pb.style.display;
