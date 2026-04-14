@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0065)file:///C:/Users/v.vossems/Downloads/salco_pallet_planner_45.html -->
+<!-- saved from url=(0065)file:///C:/Users/v.vossems/Downloads/salco_pallet_planner_48.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -247,16 +247,55 @@ tbody td.r{text-align:right}
 .db-row{display:grid;grid-template-columns:140px 1fr 120px 80px 100px 80px;align-items:center;padding:10px 1.25rem;border-bottom:1px solid var(--g100);gap:12px;transition:background .1s;cursor:pointer}
 .db-row:hover{background:var(--red-lt)}
 .db-row:last-child{border-bottom:none}
-.db-row-proj{font-family:var(--fc);font-weight:700;font-size:13px;color:var(--g900);letter-spacing:.5px}
-.db-row-klant{font-size:12px;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.db-row-date{font-size:11px;color:var(--g500)}
-.db-row-stats{font-size:11px;color:var(--g500);text-align:right}
+.db-row-proj{font-family:var(--fc);font-weight:700;font-size:16px;color:var(--g900);letter-spacing:.5px}
+.db-row-klant{font-size:15px;color:var(--g700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-row-date{font-size:14px;color:var(--g500)}
+.db-row-stats{font-size:14px;color:var(--g500);text-align:right}
 .db-badge{display:inline-block;padding:2px 7px;font-size:10px;font-family:var(--fc);font-weight:600;letter-spacing:1px;text-transform:uppercase;background:var(--green-lt);color:var(--green)}
 .db-col-hdr{display:grid;grid-template-columns:140px 1fr 120px 80px 100px 80px;padding:6px 1.25rem;background:var(--g50);border-bottom:1px solid var(--g200);gap:12px}
-.db-col-hdr span{font-family:var(--fc);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--g500)}
+.db-col-hdr span{font-family:var(--fc);font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--g500)}
 footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;font-size:12px;letter-spacing:1px;border-top:3px solid var(--red)}
 @media(max-width:768px){main{padding:1rem}.steps{display:none}}
-@media print{header,.steps,.card:has(.drop),.btn,.export-bar,.summary-sidebar{display:none}.pc{break-inside:avoid}body{background:#fff}.results-cols{grid-template-columns:1fr}}
+
+/* STATUS BADGES */
+.status-badge{display:inline-block;padding:3px 10px;font-size:12px;font-family:var(--fc);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-radius:2px;cursor:pointer;white-space:nowrap}
+.status-not_started{background:#F5F5F5;color:#757575;border:1px solid #BDBDBD}
+.status-in_progress{background:#FFF8E1;color:#F57F17;border:1px solid #FFD54F}
+.status-completed{background:var(--green-lt);color:var(--green);border:1px solid #81C784}
+
+/* SEARCH BAR */
+.db-search{display:flex;gap:8px;padding:10px 1.25rem;border-bottom:1px solid var(--g100);background:var(--g50)}
+.db-search input{flex:1;padding:7px 12px;border:1px solid var(--g300);font-family:var(--fn);font-size:15px;color:var(--g800);outline:none}
+.db-search input:focus{border-color:var(--red)}
+.db-filter{display:flex;gap:6px}
+.db-filter button{padding:5px 12px;font-size:12px;font-family:var(--fc);letter-spacing:1px;text-transform:uppercase;border:1px solid var(--g300);background:#fff;cursor:pointer;color:var(--g600)}
+.db-filter button.active{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* DB grid — add status column */
+.db-row{display:grid;grid-template-columns:140px 1fr 110px 120px 80px 90px 70px;align-items:center;padding:12px 1.25rem;border-bottom:1px solid var(--g100);gap:10px;transition:background .1s;cursor:pointer}
+.db-row:hover{background:var(--red-lt)}
+.db-row:last-child{border-bottom:none}
+.db-col-hdr{display:grid;grid-template-columns:140px 1fr 110px 120px 80px 90px 70px;padding:6px 1.25rem;background:var(--g50);border-bottom:1px solid var(--g200);gap:10px}
+.db-col-hdr span{font-family:var(--fc);font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--g500)}
+
+/* PRINT STYLES */
+@media print{
+  header,.steps,.card:has(.drop),.btn,.export-bar,.summary-sidebar,
+  #download-bar,footer,.db-panel,.stack-header .stack-weight div,
+  .pallet-expand-btn,.pr-check{display:none!important}
+  body{background:#fff;font-size:11px}
+  main{padding:0.5rem}
+  .results-cols{grid-template-columns:1fr}
+  .pc{break-inside:avoid;border:1px solid #ccc;margin-bottom:6px}
+  .ph{padding:6px 10px!important}
+  .pb{padding:6px 10px}
+  .stack-section{margin-bottom:1rem}
+  .stack-header{padding:4px 10px}
+  h1{font-size:16px}
+  .page-title{margin-bottom:0.5rem}
+  .pr-item{padding:3px 0}
+  .pnum{font-size:14px!important}
+}
 </style>
 </head>
 <body>
@@ -329,7 +368,16 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           <span class="db-count" id="db-count">1 project</span>
         </div>
       </div>
-      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">14-04-2026<br><span style="color:var(--g300)">14:15</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.972 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
+      <div class="db-search">
+        <input type="text" id="db-search-inp" placeholder="Zoek op projectnummer of klantnaam..." oninput="filterDB()">
+        <div class="db-filter">
+          <button class="active" id="filt-all" onclick="setFilter(&#39;all&#39;)">Alle</button>
+          <button id="filt-not_started" onclick="setFilter(&#39;not_started&#39;)">Not started</button>
+          <button id="filt-in_progress" onclick="setFilter(&#39;in_progress&#39;)" class="">In progress</button>
+          <button id="filt-completed" onclick="setFilter(&#39;completed&#39;)">Completed</button>
+        </div>
+      </div>
+      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">14-04-2026<br><span style="color:var(--g300)">14:21</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.972 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
     </div>
   </div>
 
@@ -1272,7 +1320,8 @@ async function saveCurrentProject(){
     total_kg: Math.round(plan.reduce((s,p)=>s+p.totalKg,0)),
     known: known.map(p=>({art:p.art,artOrig:p.artOrig,desc:p.desc,l:p.l,gps:p.gps,qty:p.qty,gew:p.gew,loks:p.loks})),
     plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items})),
-    checked_items: checkedItems
+    checked_items: checkedItems,
+    status: 'not_started'
   };
   await sbUpsert(entry);
   try{ await renderDB(); } catch(e){ console.warn("DB:", e); }
@@ -1307,39 +1356,94 @@ function loadProject(entry){
   showResults();
 }
 
+let _dbAllProjects = [];
+let _dbFilter = 'all';
+
+const STATUS_LABELS = {
+  'not_started': 'Not started',
+  'in_progress': 'In progress',
+  'completed': 'Completed'
+};
+
 async function renderDB(){
   const body = document.getElementById('db-body');
   body.innerHTML='<div class="db-empty" style="color:var(--g500)">&#8635; Projecten laden...</div>';
 
   const projects = await sbGet();
+  _dbAllProjects = projects;
+  window._dbProjects = projects;
+
   const cnt = document.getElementById('db-count');
   if(cnt) cnt.textContent = projects.length+' project'+(projects.length!==1?'en':'');
 
+  renderDBRows();
+}
+
+function filterDB(){ renderDBRows(); }
+
+function setFilter(f){
+  _dbFilter = f;
+  ['all','not_started','in_progress','completed'].forEach(k=>{
+    const btn = document.getElementById('filt-'+k);
+    if(btn) btn.classList.toggle('active', k===f);
+  });
+  renderDBRows();
+}
+
+function renderDBRows(){
+  const body = document.getElementById('db-body');
+  if(!body) return;
+
+  const q = (document.getElementById('db-search-inp')?.value||'').toLowerCase().trim();
+  let projects = _dbAllProjects.filter(p=>{
+    const matchFilter = _dbFilter==='all' || (p.status||'not_started')===_dbFilter;
+    const matchSearch = !q || (p.proj_nr||'').toLowerCase().includes(q) || (p.klant||'').toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+
   if(!projects.length){
-    body.innerHTML='<div class="db-empty">Nog geen projecten opgeslagen. Laad uw eerste BROWSOM-bestand om te beginnen.</div>';
+    body.innerHTML = _dbAllProjects.length
+      ? '<div class="db-empty">Geen projecten gevonden voor deze zoekopdracht.</div>'
+      : '<div class="db-empty">Nog geen projecten opgeslagen. Laad uw eerste BROWSOM-bestand om te beginnen.</div>';
     return;
   }
 
-  let html = '<div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div>';
+  let html = '<div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div>';
 
-  // Store projects in a global map so onclick can reference by index
-  window._dbProjects = projects;
-
-  projects.forEach((p, idx)=>{
+  // Map filtered projects back to global index
+  projects.forEach((p)=>{
+    const globalIdx = window._dbProjects.indexOf(p);
     const d = new Date(p.datum);
     const dateStr = d.toLocaleDateString('nl-NL',{day:'2-digit',month:'2-digit',year:'numeric'});
     const timeStr = d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
-    html+='<div class="db-row" onclick="loadProject(window._dbProjects['+idx+'])">'
+    const status = p.status || 'not_started';
+    const statusLabel = STATUS_LABELS[status] || status;
+    html+='<div class="db-row" onclick="loadProject(window._dbProjects['+globalIdx+'])">'
       +'<div class="db-row-proj">'+esc(p.proj_nr)+'</div>'
       +'<div class="db-row-klant">'+esc(p.klant||'—')+'</div>'
       +'<div class="db-row-date">'+dateStr+'<br><span style="color:var(--g300)">'+timeStr+'</span></div>'
+      +'<div><span class="status-badge status-'+status+'" onclick="event.stopPropagation();cycleStatus(window._dbProjects['+globalIdx+'])">'+statusLabel+'</span></div>'
       +'<div class="db-row-stats" style="text-align:right">'+p.pallets+'</div>'
       +'<div class="db-row-stats" style="text-align:right">'+(p.total_kg||0).toLocaleString('nl-NL')+' kg</div>'
-      +'<div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects['+idx+'].proj_nr,event)" title="Verwijderen">&#10005;</button></div>'
+      +'<div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects['+globalIdx+'].proj_nr,event)" title="Verwijderen">&#10005;</button></div>'
       +'</div>';
   });
 
   body.innerHTML=html;
+}
+
+async function cycleStatus(p){
+  const order = ['not_started','in_progress','completed'];
+  const cur = p.status || 'not_started';
+  const next = order[(order.indexOf(cur)+1) % order.length];
+  p.status = next;
+  // Save to Supabase
+  try{
+    await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(p.proj_nr), {
+      method:'PATCH', headers: SB_HDR, body: JSON.stringify({status: next})
+    });
+  } catch(e){ console.warn('Status opslaan mislukt:', e); }
+  renderDBRows();
 }
 
 async function showDB(){
@@ -1483,6 +1587,22 @@ function restoreCheckedItems(){
       checkPalletComplete(pal.nm, pal.items.length);
     });
   }
+}
+
+// ═══ AFDRUKKEN ═══
+function printPlan(){
+  // Zet alle geminimaliseerde pallets even open voor print
+  document.querySelectorAll('.pc.pallet-done .pb').forEach(pb=>{
+    pb.dataset.wasHidden = pb.style.display;
+    pb.style.display='block';
+  });
+  window.print();
+  // Herstel na print
+  setTimeout(()=>{
+    document.querySelectorAll('.pc.pallet-done .pb').forEach(pb=>{
+      pb.style.display = pb.dataset.wasHidden||'';
+    });
+  }, 1000);
 }
 
 // ═══ HELPERS ═══
