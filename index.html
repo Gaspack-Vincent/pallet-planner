@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_24.html -->
+<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_25.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -385,12 +385,12 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   </div>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" id="tab-pallet" onclick="switchTab(&#39;pallet&#39;)">🏗 Pallet Planner</button>
-    <button class="nav-tab" id="tab-planning" onclick="switchTab(&#39;planning&#39;)">📅 Planning</button>
+    <button class="nav-tab" id="tab-pallet" onclick="switchTab(&#39;pallet&#39;)">🏗 Pallet Planner</button>
+    <button class="nav-tab active" id="tab-planning" onclick="switchTab(&#39;planning&#39;)">📅 Planning</button>
   </div>
 
   <!-- ═══ PLANNING SECTIE ═══ -->
-  <div id="sec-planning" class="hidden">
+  <div id="sec-planning" class="">
     <div class="plan-header">
       <div class="plan-nav">
         <button onclick="planNav(-1)">←</button>
@@ -415,14 +415,14 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
     </div>
   </div>
 
-  <div class="steps" id="steps-bar" style="display: flex;">
+  <div class="steps" id="steps-bar" style="display: none;">
     <div class="step active" id="stp1"><span class="sn">1</span>Bestand laden</div>
     <div class="step" id="stp2"><span class="sn">2</span>Controleren</div>
     <div class="step" id="stp3"><span class="sn">3</span>Palletindeling</div>
   </div>
 
   <!-- ═══ STAP 1: UPLOAD ═══ -->
-  <div id="sec-upload" class="">
+  <div id="sec-upload" class="hidden">
     <div class="card">
       <div class="card-title">Projectgegevens</div>
       <div class="proj-row">
