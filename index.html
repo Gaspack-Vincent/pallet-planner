@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_32.html -->
+<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_34.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -174,6 +174,7 @@ tbody td.r{text-align:right}
 .pstk-badge.long{background:var(--red);color:#fff}
 .pstk-badge.short{background:var(--gold);color:#fff}
 .pstk-badge.xp{background:var(--g700);color:#fff}
+.pstk-badge.nm6special{background:#6A1B9A;color:#fff}
 .pb{padding:12px 16px;border-left:1px solid var(--g200)}
 .pr-item{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--g100);font-size:12px}
 .pr-item:last-child{border-bottom:none}
@@ -385,9 +386,9 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   </div>
 
   <div class="nav-tabs">
-    <button class="nav-tab" id="tab-pallet" onclick="switchTab(&#39;pallet&#39;)">🏗 Pallet Planner</button>
+    <button class="nav-tab active" id="tab-pallet" onclick="switchTab(&#39;pallet&#39;)">🏗 Pallet Planner</button>
     <button class="nav-tab" id="tab-planning" onclick="switchTab(&#39;planning&#39;)">📅 Planning</button>
-    <button class="nav-tab active" id="tab-artikeldb" onclick="switchTab(&#39;artikeldb&#39;)">🗄 Artikeldatabase</button>
+    <button class="nav-tab" id="tab-artikeldb" onclick="switchTab(&#39;artikeldb&#39;)">🗄 Artikeldatabase</button>
   </div>
 
   <!-- ═══ PLANNING SECTIE ═══ -->
@@ -416,14 +417,14 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
     </div>
   </div>
 
-  <div class="steps" id="steps-bar" style="display: none;">
+  <div class="steps" id="steps-bar" style="display: flex;">
     <div class="step active" id="stp1"><span class="sn">1</span>Bestand laden</div>
     <div class="step" id="stp2"><span class="sn">2</span>Controleren</div>
     <div class="step" id="stp3"><span class="sn">3</span>Palletindeling</div>
   </div>
 
   <!-- ═══ STAP 1: UPLOAD ═══ -->
-  <div id="sec-upload" class="hidden">
+  <div id="sec-upload" class="">
     <div class="card">
       <div class="card-title">Projectgegevens</div>
       <div class="proj-row">
@@ -483,7 +484,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           <button id="filt-completed" onclick="setFilter(&#39;completed&#39;)">Completed</button>
         </div>
       </div>
-      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508901</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">21-04-2026<br><span style="color:var(--g300)">15:31</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.406 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[1])"><div class="db-row-proj">2508902</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">20-04-2026<br><span style="color:var(--g300)">15:58</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[1])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.466 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[1].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[2])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">17-04-2026<br><span style="color:var(--g300)">15:52</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[2])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.972 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[2].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
+      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508901</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">21-04-2026<br><span style="color:var(--g300)">16:27</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.406 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[1])"><div class="db-row-proj">2508902</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">20-04-2026<br><span style="color:var(--g300)">15:58</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[1])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.466 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[1].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[2])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">17-04-2026<br><span style="color:var(--g300)">15:52</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[2])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.972 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[2].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
     </div>
   </div>
 
@@ -588,6 +589,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
 
     <div class="results-cols">
       <!-- LINKS: PALLETS -->
+      <div id="plan-warnings" style="display:none"></div>
       <div id="palletResults"><div class="stack-section">
       <div class="stack-header long">
         <div>
@@ -913,7 +915,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   </div>
 
   <!-- ═══ ARTIKEL DATABASE TAB ═══ -->
-  <div id="sec-artikeldb" class="">
+  <div id="sec-artikeldb" class="hidden">
     <div class="card" style="margin-bottom:1rem">
       <div class="card-title">Artikeldatabase</div>
       <p style="font-size:13px;color:var(--g500);margin-bottom:1rem">
@@ -1033,6 +1035,8 @@ const KLANT_PROFIELEN = {
       artikel_nm6: '66222',       // Dit artikel komt altijd op NM-6
       artikel_nm6_std_qty: 160,   // Standaard aantal voor de vraag
       nm5_nm6_swap: true,         // Swap NM-5/NM-6 als artikel op NM-5 terechtkomt
+      artikel_nm6_aanvulling: '72065-H', // Aanvullen met dit artikel na 66222 op NM-6
+      nm6_label: 'Kliklijstpallet (aangeleverd)',  // Speciale badge voor NM-6
     }
   },
   // Voorbeeld nieuwe klant:
@@ -1088,16 +1092,25 @@ function normArtStrip(r){return normArt(r).replace(/-H$/i,'');}
 // Zoek DB record: eerst exact, dan zonder suffix
 function dbLookup(artRaw){
   const exact = normArt(artRaw);
+  const cdb = window._customDB || {};
+
+  // 1. Exacte match in vaste DB
   if(DB[exact]) return {key: exact, rec: DB[exact], suffixStripped: false};
-  // Check custom DB
-  if(window._customDB && window._customDB[exact]) return {key: exact, rec: window._customDB[exact], suffixStripped: false, custom: true};
+  // 2. Exacte match in eigen DB
+  if(cdb[exact]) return {key: exact, rec: cdb[exact], suffixStripped: false, custom: true};
+
+  // 3. Gestripte match (73773-H → 73773)
   const stripped = normArtStrip(artRaw);
   if(stripped !== exact){
     if(DB[stripped]) return {key: stripped, rec: DB[stripped], suffixStripped: true};
-    if(window._customDB && window._customDB[stripped]) return {key: stripped, rec: window._customDB[stripped], suffixStripped: true, custom: true};
+    if(cdb[stripped]) return {key: stripped, rec: cdb[stripped], suffixStripped: true, custom: true};
   }
-  // Also check custom DB for exact
-  if(window._customDB && window._customDB[exact]) return {key: exact, rec: window._customDB[exact], suffixStripped: false, custom: true};
+
+  // 4. -H variant zoeken (73773 → 73773-H) voor projecten opgeslagen vóór -H fix
+  const withH = exact + '-H';
+  if(DB[withH]) return {key: withH, rec: DB[withH], suffixStripped: false, addedH: true};
+  if(cdb[withH]) return {key: withH, rec: cdb[withH], suffixStripped: false, custom: true, addedH: true};
+
   return null;
 }
 
@@ -1370,6 +1383,7 @@ function runPlanning(){
 }
 
 function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
+  window._planWarnings = []; // reset waarschuwingen
   // ── Prioriteitsregels ──────────────────────────────────────────────
   // 1. Zo min mogelijk VERSCHILLENDE profieltypes per pallet
   // 2. Zelfde profiel op zo min mogelijk verschillende pallets
@@ -1456,9 +1470,10 @@ function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
           }
         }
       }
-      // Still no fit: open next free slot
+      // Still no fit: open next free slot, or use slot with most room if all used
       if(!bestSlot){
-        bestSlot = slots.find(s=>!s.used);
+        bestSlot = slots.find(s=>!s.used) ||
+          slots.slice().sort((a,b)=>(absMaxProfW(b.kg)-b.profW)-(absMaxProfW(a.kg)-a.profW))[0];
       }
 
       if(bestSlot){
@@ -1466,27 +1481,33 @@ function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
         if(canFit(bestSlot, grp.gew, true)){
           addItem(bestSlot, grp);
         } else {
-          // Split: fill bestSlot to its absolute max, rest to next slot
-          const maxW = absMaxProfW(bestSlot);
-          const fitKg = Math.max(0, maxW - bestSlot.profW);
-          if(fitKg>0 && grp.gps>0){
-            const fitQty = Math.floor(fitKg / grp.gps);
-            if(fitQty>0){
-              addItem(bestSlot, {...grp, qty:fitQty, gew:fitQty*grp.gps});
-              const remQty = grp.qty - fitQty;
-              const remGew = remQty * grp.gps;
-              if(remQty>0){
-                const nextSlot = slots.find(s=>!s.used) || slots[slots.length-1];
-                addItem(nextSlot, {...grp, qty:remQty, gew:remGew});
-              }
-            } else {
-              // Even 1 item doesn't fit; force onto next slot
-              const nextSlot = slots.find(s=>!s.used) || slots[slots.length-1];
-              addItem(nextSlot, grp);
+          // Split across multiple pallets until all items are placed
+          let remQty = grp.qty;
+          let remGew = grp.gew;
+          // Try to fill pallets in order of available space (most room first)
+          const splitSlots = slots.slice().sort((a,b)=>(absMaxProfW(b.kg)-b.profW)-(absMaxProfW(a.kg)-a.profW));
+          for(const slot of splitSlots){
+            if(remQty <= 0) break;
+            const maxW = absMaxProfW(slot.kg);
+            const fitKg = Math.max(0, maxW - slot.profW);
+            if(fitKg <= 0 || grp.gps <= 0) continue;
+            // Check stapel limiet
+            if(!stackOkAfterAdd(slot, Math.min(fitKg, remGew))) continue;
+            const fitQty = Math.min(remQty, Math.floor(fitKg / grp.gps));
+            if(fitQty > 0){
+              addItem(slot, {...grp, qty:fitQty, gew:fitQty*grp.gps});
+              remQty -= fitQty;
+              remGew = remQty * grp.gps;
             }
-          } else {
-            const nextSlot = slots.find(s=>!s.used) || slots[slots.length-1];
-            addItem(nextSlot, grp);
+          }
+          // Als er nog stuks overblijven: log als waarschuwing
+          if(remQty > 0){
+            // Forceer op het laatste slot als echt geen ruimte
+            const lastSlot = slots[slots.length-1];
+            addItem(lastSlot, {...grp, qty:remQty, gew:remGew});
+            // Markeer als overschrijding
+            if(!window._planWarnings) window._planWarnings = [];
+            window._planWarnings.push('Artikel '+grp.art+' ('+grp.qty+'×): niet volledig ingedeeld wegens ruimtegebrek — '+remQty+' stuks geforceerd op '+lastSlot.nm+'.');
           }
         }
       }
@@ -1515,8 +1536,46 @@ function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
     }
   }
 
+  // ── NM-6 AANVULLING: vul NM-6 aan met aanvullingsartikel na het vaste artikel ──
+  if(nm6Fixed && klantProfiel?.regels?.artikel_nm6_aanvulling){
+    const art6 = klantProfiel.regels.artikel_nm6;
+    const artAanv = klantProfiel.regels.artikel_nm6_aanvulling;
+    const nm6 = pallets.find(p=>p.nm==='NM-6');
+    if(nm6 && nm6.items.some(i=>i.art===art6 || i.art===art6+'-H')){
+      // Zoek het aanvullingsartikel in de andere pallets
+      for(const otherPal of pallets.filter(p=>p.nm!=='NM-6')){
+        const aanvItem = otherPal.items.find(i=>i.art===artAanv || i.art===artAanv.replace(/-H$/,'') || i.art===(artAanv.endsWith('-H')?artAanv:artAanv+'-H'));
+        if(!aanvItem) continue;
+        // Bereken hoeveel stuks op NM-6 passen
+        const ruimte = absMaxProfW(nm6.kg) - nm6.profW;
+        if(ruimte <= 0 || aanvItem.gps <= 0) continue;
+        if(!stackOkAfterAdd(nm6, Math.min(ruimte, aanvItem.gew))) continue;
+        const fitQty = Math.min(aanvItem.qty, Math.floor(ruimte / aanvItem.gps));
+        if(fitQty <= 0) continue;
+        const fitGew = fitQty * aanvItem.gps;
+        // Verplaats van andere pallet naar NM-6
+        addItem(nm6, {...aanvItem, qty:fitQty, gew:fitGew});
+        otherPal.profW -= fitGew;
+        if(fitQty >= aanvItem.qty){
+          otherPal.items = otherPal.items.filter(i=>i!==aanvItem);
+        } else {
+          aanvItem.qty -= fitQty;
+          aanvItem.gew -= fitGew;
+        }
+        if(otherPal.items.length === 0) otherPal.used = false;
+        break; // één keer aanvullen
+      }
+    }
+  }
+
   // Finalize: sort items by weight-per-piece desc (zwaarste individueel onderop = positie 1)
   // Tie-breaker: langste profiel eerder onderop
+  // Markeer NM-6 als speciaal pallet als klantprofiel nm6_label heeft
+  if(klantProfiel?.regels?.nm6_label){
+    const nm6 = pallets.find(p=>p.nm==='NM-6');
+    if(nm6){ nm6.nm6Special = true; nm6.nm6Label = klantProfiel.regels.nm6_label; }
+  }
+
   pallets.forEach(p=>{
     p.items.sort((a,b)=> b.gps!==a.gps ? b.gps-a.gps : b.l-a.l);
     p.totalKg = (p.profW+p.kg)*OHD;
@@ -1604,7 +1663,7 @@ function showResults(){
             <span class="pnum">${esc(pal.nm)}</span>
             <div class="ptags" style="margin-top:6px">
               <span class="ptyp">${esc(pal.lbl)}</span>
-              <span class="pstk-badge ${pal.x?'xp':typeCls}" style="margin-top:3px">${pal.x?'X-PALLET':'Normaal'}</span>
+              <span class="pstk-badge ${pal.x?'xp':pal.nm6Special?'nm6special':typeCls}" style="margin-top:3px">${pal.x?'X-PALLET':pal.nm6Special?pal.nm6Label:'Normaal'}</span>
             </div>
           </div>
           <div style="margin-top:auto">
@@ -1625,6 +1684,21 @@ function showResults(){
     html+='</div></div>';
   }
   document.getElementById('palletResults').innerHTML=html;
+
+  // Toon planningswaarschuwingen als die er zijn
+  const warnEl = document.getElementById('plan-warnings');
+  if(warnEl){
+    const warns = window._planWarnings||[];
+    if(warns.length){
+      warnEl.innerHTML = '<div style="background:#FFF3E0;border-left:4px solid #E65100;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#BF360C">'
+        +'<strong style="font-family:var(--fc);letter-spacing:.5px">&#9888; PLANNING WAARSCHUWING</strong><br>'
+        +warns.map(w=>'• '+esc(w)).join('<br>')+'</div>';
+      warnEl.style.display='block';
+    } else {
+      warnEl.style.display='none';
+    }
+  }
+
   // Sla originele pb HTML op per pallet (voor expand/collapse)
   plan.forEach(pal=>{
     const pc = document.getElementById('pc_'+pal.nm);
@@ -2860,14 +2934,27 @@ function cdbImportExcel(input){
         return;
       }
 
-      let added=0, updated=0, skipped=0;
-      rows.slice(1).forEach(row=>{
+      // Sla instructierijen over (beginnen met → of zijn leeg)
+      const dataRows = rows.slice(1).filter(row=>{
+        const first = String(row[colArt]||'').trim();
+        return first && !first.startsWith('→') && !first.startsWith('->');
+      });
+
+      let added=0, updated=0, skipped=0, skippedRows=[];
+      dataRows.forEach(row=>{
         const artRaw = String(row[colArt]||'').trim();
         if(!artRaw) return;
         const desc = colDesc>=0 ? String(row[colDesc]||'').trim() : artRaw;
-        const len  = parseFloat(row[colLen])||0;
-        const gew  = parseFloat(row[colGew])||0;
-        if(len<=0||gew<=0){ skipped++; return; }
+        // Robuuste parsing: vervang komma door punt voor Europese getallen
+        const lenRaw = String(row[colLen]||'').replace(',','.');
+        const gewRaw = String(row[colGew]||'').replace(',','.');
+        const len  = parseFloat(lenRaw)||0;
+        const gew  = parseFloat(gewRaw)||0;
+        if(len<=0||gew<=0){
+          skipped++;
+          skippedRows.push(artRaw+' (l='+row[colLen]+', g='+row[colGew]+')');
+          return;
+        }
         const art = artRaw.toUpperCase().replace(/^0+(?=\d)/,'');
         const isUpdate = !!(window._customDB&&window._customDB[art]);
         if(!window._customDB) window._customDB={};
@@ -2877,8 +2964,13 @@ function cdbImportExcel(input){
       cdbSave();
       cdbRender();
       input.value='';
-      if(status) status.textContent = added+' toegevoegd, '+updated+' bijgewerkt'+(skipped?' ('+skipped+' overgeslagen – ongeldige lengte/gewicht)':'')+'.';
-      setTimeout(()=>{ if(status) status.textContent=''; }, 6000);
+      if(status){
+        let msg = added+' toegevoegd, '+updated+' bijgewerkt';
+        if(skipped) msg += ' — '+skipped+' overgeslagen (ongeldig): '+skippedRows.join(', ');
+        msg += '.';
+        status.textContent = msg;
+      }
+      setTimeout(()=>{ if(status) status.textContent=''; }, 8000);
     } catch(err){
       if(status) status.textContent='Fout bij inlezen: '+err.message;
     }
