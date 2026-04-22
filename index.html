@@ -424,7 +424,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   </div>
 
   <!-- ═══ STAP 1: UPLOAD ═══ -->
-  <div id="sec-upload" class="hidden">
+  <div id="sec-upload" class="">
     <div class="card">
       <div class="card-title">Projectgegevens</div>
       <div class="proj-row">
@@ -541,7 +541,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   
 
   <!-- ═══ STAP 3: RESULTATEN ═══ -->
-  <div id="sec-results" class="">
+  <div id="sec-results" class="hidden">
     <div class="export-bar">
       <button class="btn btn-dark" onclick="exportExcel()"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>Excel exporteren</button>
       <button class="btn btn-outline" onclick="printPlan()">Afdrukken</button>
@@ -981,7 +981,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
 </main>
 
 <!-- DOWNLOAD BUTTON BOTTOM -->
-<div id="download-bar" class="" style="background:var(--g800);border-top:3px solid var(--red);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:center;gap:16px;position:sticky;bottom:0;z-index:50">
+<div id="download-bar" class="hidden" style="background:var(--g800);border-top:3px solid var(--red);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:center;gap:16px;position:sticky;bottom:0;z-index:50">
   <span style="font-family:var(--fc);color:var(--g300);letter-spacing:1px;text-transform:uppercase;font-size:12px">Indeling gereed</span>
   <button onclick="exportExcel()" style="background: rgb(200, 16, 46); color: rgb(255, 255, 255); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 12px 32px; font-family: var(--fc); font-size: 15px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.15s;" onmouseover="this.style.background=&#39;#9A0B22&#39;" onmouseout="this.style.background=&#39;#C8102E&#39;">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>
