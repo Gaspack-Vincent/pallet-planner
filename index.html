@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_38.html -->
+<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_43.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -374,7 +374,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
     </div>
   </div>
   <div class="header-right">
-    <div id="proj-display" class="proj-badge" style="display: none;">2508901 | Polar Specialized Industries (PSI)</div>
+    <div id="proj-display" class="proj-badge" style="display: block;">2508901 | Polar Specialized Industries (PSI)</div>
     <div class="header-tag">Pallet Planning Tool</div>
   </div>
 </header>
@@ -418,13 +418,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   </div>
 
   <div class="steps" id="steps-bar" style="display: flex;">
-    <div class="step active" id="stp1"><span class="sn">1</span>Bestand laden</div>
-    <div class="step" id="stp2"><span class="sn">2</span>Controleren</div>
-    <div class="step" id="stp3"><span class="sn">3</span>Palletindeling</div>
+    <div class="step done" id="stp1"><span class="sn">1</span>Bestand laden</div>
+    <div class="step done" id="stp2"><span class="sn">2</span>Controleren</div>
+    <div class="step active" id="stp3"><span class="sn">3</span>Palletindeling</div>
   </div>
 
   <!-- ═══ STAP 1: UPLOAD ═══ -->
-  <div id="sec-upload" class="">
+  <div id="sec-upload" class="hidden">
     <div class="card">
       <div class="card-title">Projectgegevens</div>
       <div class="proj-row">
@@ -484,7 +484,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           <button id="filt-completed" onclick="setFilter(&#39;completed&#39;)">Completed</button>
         </div>
       </div>
-      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508901</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">22-04-2026<br><span style="color:var(--g300)">12:28</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.613 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[1])"><div class="db-row-proj">2508902</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">20-04-2026<br><span style="color:var(--g300)">15:58</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[1])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.466 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[1].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[2])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">17-04-2026<br><span style="color:var(--g300)">15:52</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[2])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.972 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[2].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
+      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508901</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">22-04-2026<br><span style="color:var(--g300)">15:45</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.411 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[1])"><div class="db-row-proj">2508902</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">20-04-2026<br><span style="color:var(--g300)">15:58</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[1])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.466 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[1].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[2])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">17-04-2026<br><span style="color:var(--g300)">15:52</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[2])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.972 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[2].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
     </div>
   </div>
 
@@ -541,7 +541,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   
 
   <!-- ═══ STAP 3: RESULTATEN ═══ -->
-  <div id="sec-results" class="hidden">
+  <div id="sec-results" class="">
     <div class="export-bar">
       <button class="btn btn-dark" onclick="exportExcel()"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>Excel exporteren</button>
       <button class="btn btn-outline" onclick="printPlan()">Afdrukken</button>
@@ -597,11 +597,11 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           <div style="font-size:11px;color:var(--g500);margin-top:2px">3 pallets · X-pallet onderop</div>
         </div>
         <div class="stack-weight ok">
-          2.909 kg ✓
+          2.856 kg ✓
           <div style="font-size:10px;font-weight:400;color:var(--g500)">max. 3.000 kg</div>
         </div>
       </div>
-      <div class="pallet-row"><div class="pc long xpallet pallet-done" id="pc_NM-1">
+      <div class="pallet-row"><div class="pc long xpallet" id="pc_NM-1">
         <div class="ph">
           <div>
             <span class="pnum">NM-1</span>
@@ -612,16 +612,35 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           </div>
           <div style="margin-top:auto">
             <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">1 type · Art. 11246</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:99.3%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              993.2 kg incl. 6%
-              
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:100.0%"></div></div>
+            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#FFD54F">
+              1010.7 kg incl. 6%
+               <span style="font-size:10px">(toegestaan)</span>
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 807.0 + Pallet 130 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 823.5 + Pallet 130 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 1 type afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">993.2 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-1&#39;)">TOON</button></div>
-      </div><div class="pc long pallet-done" id="pc_NM-2">
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-1_0" data-pallet="NM-1" data-total="1">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-1_0" onchange="toggleDone(&#39;chk_NM-1_0&#39;,&#39;NM-1&#39;,1)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">72073-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">deurkozijnprof.ano 30x97 L=7300mm</div>
+                <span class="pr-loc">9730CA1</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">50×</div>
+            <div class="pr-gew">7.300 mm</div>
+            <div class="pr-gew">823.5 kg</div>
+          </div>
+        </div>
+        </div>
+      </div><div class="pc long" id="pc_NM-2">
         <div class="ph">
           <div>
             <span class="pnum">NM-2</span>
@@ -631,17 +650,36 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">3 types · Art. 11249</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:92.9%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              929.2 kg incl. 6%
-              
+            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">1 type · Art. 11249</div>
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:100.0%"></div></div>
+            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#FFD54F">
+              1009.8 kg incl. 6%
+               <span style="font-size:10px">(toegestaan)</span>
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 796.6 + Pallet 80 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 872.6 + Pallet 80 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 3 types afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">929.2 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-2&#39;)">TOON</button></div>
-      </div><div class="pc long pallet-done" id="pc_NM-3">
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-2_0" data-pallet="NM-2" data-total="1">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-2_0" onchange="toggleDone(&#39;chk_NM-2_0&#39;,&#39;NM-2&#39;,1)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">72973-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">vh omrand.prof. 1414 ano L=7250mm</div>
+                
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">40×</div>
+            <div class="pr-gew">7.250 mm</div>
+            <div class="pr-gew">872.6 kg</div>
+          </div>
+        </div>
+        </div>
+      </div><div class="pc long" id="pc_NM-3">
         <div class="ph">
           <div>
             <span class="pnum">NM-3</span>
@@ -651,16 +689,69 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">1 type · Art. 11249</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:98.7%"></div></div>
+            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">3 types · Art. 11249</div>
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:83.6%"></div></div>
             <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              986.6 kg incl. 6%
+              835.8 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 850.8 + Pallet 80 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 708.5 + Pallet 80 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 1 type afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">986.6 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-3&#39;)">TOON</button></div>
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-3_0" data-pallet="NM-3" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-3_0" onchange="toggleDone(&#39;chk_NM-3_0&#39;,&#39;NM-3&#39;,3)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">72973-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">vh omrand.prof. 1414 ano L=7250mm</div>
+                
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">2×</div>
+            <div class="pr-gew">7.250 mm</div>
+            <div class="pr-gew">43.6 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-3_1" data-pallet="NM-3" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-3_1" onchange="toggleDone(&#39;chk_NM-3_1&#39;,&#39;NM-3&#39;,3)">
+            <div class="pr-pos">2</div>
+            <div class="pr-info">
+              <div class="pr-code">73873-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA250 afwerkk.EB2 ano L=7350mm</div>
+                <span class="pr-loc">9730CA4</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">26×</div>
+            <div class="pr-gew">7.350 mm</div>
+            <div class="pr-gew">296.6 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-3_2" data-pallet="NM-3" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-3_2" onchange="toggleDone(&#39;chk_NM-3_2&#39;,&#39;NM-3&#39;,3)">
+            <div class="pr-pos">3</div>
+            <div class="pr-info">
+              <div class="pr-code">70001-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">ondergeleider GAT ano L=6100mm</div>
+                <span class="pr-loc">9730GA3</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">50×</div>
+            <div class="pr-gew">6.100 mm</div>
+            <div class="pr-gew">368.3 kg</div>
+          </div>
+        </div>
+        </div>
       </div></div></div><div class="stack-section">
       <div class="stack-header long">
         <div>
@@ -668,11 +759,11 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           <div style="font-size:11px;color:var(--g500);margin-top:2px">3 pallets · X-pallet onderop</div>
         </div>
         <div class="stack-weight ok">
-          2.779 kg ✓
+          2.837 kg ✓
           <div style="font-size:10px;font-weight:400;color:var(--g500)">max. 3.000 kg</div>
         </div>
       </div>
-      <div class="pallet-row"><div class="pc long xpallet pallet-done" id="pc_NM-4">
+      <div class="pallet-row"><div class="pc long xpallet" id="pc_NM-4">
         <div class="ph">
           <div>
             <span class="pnum">NM-4</span>
@@ -683,16 +774,69 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           </div>
           <div style="margin-top:auto">
             <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">3 types · Art. 11246</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:98.2%"></div></div>
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:85.3%"></div></div>
             <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              981.6 kg incl. 6%
+              853.1 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 796.0 + Pallet 130 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 674.8 + Pallet 130 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 3 types afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">981.6 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-4&#39;)">TOON</button></div>
-      </div><div class="pc long pallet-done" id="pc_NM-5">
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-4_0" data-pallet="NM-4" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-4_0" onchange="toggleDone(&#39;chk_NM-4_0&#39;,&#39;NM-4&#39;,3)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">72073-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">deurkozijnprof.ano 30x97 L=7300mm</div>
+                <span class="pr-loc">9730CA1</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">7×</div>
+            <div class="pr-gew">7.300 mm</div>
+            <div class="pr-gew">115.3 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-4_1" data-pallet="NM-4" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-4_1" onchange="toggleDone(&#39;chk_NM-4_1&#39;,&#39;NM-4&#39;,3)">
+            <div class="pr-pos">2</div>
+            <div class="pr-info">
+              <div class="pr-code">72669</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">KD-1010 omrand.prof. ano L=7000mm</div>
+                <span class="pr-loc">9730GA2</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">32×</div>
+            <div class="pr-gew">7.000 mm</div>
+            <div class="pr-gew">364.0 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-4_2" data-pallet="NM-4" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-4_2" onchange="toggleDone(&#39;chk_NM-4_2&#39;,&#39;NM-4&#39;,3)">
+            <div class="pr-pos">3</div>
+            <div class="pr-info">
+              <div class="pr-code">73773-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA250 afwerkk.EB1 ano L=7350mm</div>
+                <span class="pr-loc">9730DA2</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">26×</div>
+            <div class="pr-gew">7.350 mm</div>
+            <div class="pr-gew">195.5 kg</div>
+          </div>
+        </div>
+        </div>
+      </div><div class="pc long" id="pc_NM-5">
         <div class="ph">
           <div>
             <span class="pnum">NM-5</span>
@@ -702,36 +846,125 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11249</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:95.2%"></div></div>
+            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">3 types · Art. 11249</div>
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:98.5%"></div></div>
             <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              951.8 kg incl. 6%
+              984.9 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 817.9 + Pallet 80 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 849.2 + Pallet 80 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 2 types afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">951.8 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-5&#39;)">TOON</button></div>
-      </div><div class="pc long pallet-done" id="pc_NM-6">
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-5_0" data-pallet="NM-5" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-5_0" onchange="toggleDone(&#39;chk_NM-5_0&#39;,&#39;NM-5&#39;,3)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">70373-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">kh omrand.prof. 1010 ano L=7250mm</div>
+                
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">32×</div>
+            <div class="pr-gew">7.250 mm</div>
+            <div class="pr-gew">508.3 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-5_1" data-pallet="NM-5" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-5_1" onchange="toggleDone(&#39;chk_NM-5_1&#39;,&#39;NM-5&#39;,3)">
+            <div class="pr-pos">2</div>
+            <div class="pr-info">
+              <div class="pr-code">69764</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA350 loopvlak ano L=6250mm</div>
+                <span class="pr-loc">9710CG8</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">32×</div>
+            <div class="pr-gew">6.250 mm</div>
+            <div class="pr-gew">309.6 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-5_2" data-pallet="NM-5" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-5_2" onchange="toggleDone(&#39;chk_NM-5_2&#39;,&#39;NM-5&#39;,3)">
+            <div class="pr-pos">3</div>
+            <div class="pr-info">
+              <div class="pr-code">66551</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">Aanrijbev. Zijmontage houder L=6100mm</div>
+                <span class="pr-loc">6100YR5</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">25×</div>
+            <div class="pr-gew">6.100 mm</div>
+            <div class="pr-gew">31.3 kg</div>
+          </div>
+        </div>
+        </div>
+      </div><div class="pc long" id="pc_NM-6">
         <div class="ph">
           <div>
             <span class="pnum">NM-6</span>
             <div class="ptags" style="margin-top:6px">
               <span class="ptyp">Pallet 7350mm</span>
-              <span class="pstk-badge long" style="margin-top:3px">Normaal</span>
+              <span class="pstk-badge nm6special" style="margin-top:3px">Kliklijsten</span>
             </div>
           </div>
           <div style="margin-top:auto">
             <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11249</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:84.5%"></div></div>
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:99.9%"></div></div>
             <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              845.2 kg incl. 6%
+              998.6 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 717.4 + Pallet 80 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 862.0 + Pallet 80 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 2 types afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">845.2 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-6&#39;)">TOON</button></div>
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-6_0" data-pallet="NM-6" data-total="2">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-6_0" onchange="toggleDone(&#39;chk_NM-6_0&#39;,&#39;NM-6&#39;,2)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">72065-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">deurkozijnprof.ano 30x97 L=6500mm</div>
+                <span class="pr-loc">9730CA3</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">12×</div>
+            <div class="pr-gew">6.500 mm</div>
+            <div class="pr-gew">176.0 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-6_1" data-pallet="NM-6" data-total="2">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-6_1" onchange="toggleDone(&#39;chk_NM-6_1&#39;,&#39;NM-6&#39;,2)">
+            <div class="pr-pos">2</div>
+            <div class="pr-info">
+              <div class="pr-code">66222</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">kliklijst dekst. grys h318 L=6700mm</div>
+                <span class="pr-loc">9730AE4</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">160×</div>
+            <div class="pr-gew">6.700 mm</div>
+            <div class="pr-gew">686.1 kg</div>
+          </div>
+        </div>
+        </div>
       </div></div></div><div class="stack-section">
       <div class="stack-header short">
         <div>
@@ -739,11 +972,11 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           <div style="font-size:11px;color:var(--g500);margin-top:2px">3 pallets · X-pallet onderop</div>
         </div>
         <div class="stack-weight ok">
-          2.905 kg ✓
+          2.980 kg ✓
           <div style="font-size:10px;font-weight:400;color:var(--g500)">max. 3.000 kg</div>
         </div>
       </div>
-      <div class="pallet-row"><div class="pc short xpallet pallet-done" id="pc_NM-7">
+      <div class="pallet-row"><div class="pc short xpallet" id="pc_NM-7">
         <div class="ph">
           <div>
             <span class="pnum">NM-7</span>
@@ -753,17 +986,70 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">1 type · Art. 11247</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:99.2%"></div></div>
+            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">3 types · Art. 11247</div>
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:99.6%"></div></div>
             <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              991.8 kg incl. 6%
+              995.7 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 840.7 + Pallet 95 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 844.4 + Pallet 95 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 1 type afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">991.8 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-7&#39;)">TOON</button></div>
-      </div><div class="pc short pallet-done" id="pc_NM-8">
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-7_0" data-pallet="NM-7" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-7_0" onchange="toggleDone(&#39;chk_NM-7_0&#39;,&#39;NM-7&#39;,3)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">72956-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">vh omrand.prof. 1414 ano L=5850mm</div>
+                <span class="pr-loc">9730EA1</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">30×</div>
+            <div class="pr-gew">5.850 mm</div>
+            <div class="pr-gew">528.1 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-7_1" data-pallet="NM-7" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-7_1" onchange="toggleDone(&#39;chk_NM-7_1&#39;,&#39;NM-7&#39;,3)">
+            <div class="pr-pos">2</div>
+            <div class="pr-info">
+              <div class="pr-code">66882</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">Koudebrug verbr.prof. extrusie L=6000mm</div>
+                <span class="pr-loc">7000CR6</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">60×</div>
+            <div class="pr-gew">6.000 mm</div>
+            <div class="pr-gew">240.5 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-7_2" data-pallet="NM-7" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-7_2" onchange="toggleDone(&#39;chk_NM-7_2&#39;,&#39;NM-7&#39;,3)">
+            <div class="pr-pos">3</div>
+            <div class="pr-info">
+              <div class="pr-code">74005</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA125 loopvlak ano L=5000mm</div>
+                <span class="pr-loc">9710BG6</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">38×</div>
+            <div class="pr-gew">5.000 mm</div>
+            <div class="pr-gew">75.8 kg</div>
+          </div>
+        </div>
+        </div>
+      </div><div class="pc short" id="pc_NM-8">
         <div class="ph">
           <div>
             <span class="pnum">NM-8</span>
@@ -773,17 +1059,36 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11248</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:95.0%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              950.2 kg incl. 6%
-              
+            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">1 type · Art. 11248</div>
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:100.0%"></div></div>
+            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#FFD54F">
+              1019.3 kg incl. 6%
+               <span style="font-size:10px">(toegestaan)</span>
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 826.4 + Pallet 70 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 891.6 + Pallet 70 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 2 types afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">950.2 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-8&#39;)">TOON</button></div>
-      </div><div class="pc short pallet-done" id="pc_NM-9">
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-8_0" data-pallet="NM-8" data-total="1">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-8_0" onchange="toggleDone(&#39;chk_NM-8_0&#39;,&#39;NM-8&#39;,1)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">72356-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA250 rail ano L=5680mm</div>
+                <span class="pr-loc">9730BA3</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">35×</div>
+            <div class="pr-gew">5.680 mm</div>
+            <div class="pr-gew">891.6 kg</div>
+          </div>
+        </div>
+        </div>
+      </div><div class="pc short" id="pc_NM-9">
         <div class="ph">
           <div>
             <span class="pnum">NM-9</span>
@@ -794,15 +1099,68 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           </div>
           <div style="margin-top:auto">
             <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">3 types · Art. 11248</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:96.3%"></div></div>
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:96.4%"></div></div>
             <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              963.1 kg incl. 6%
+              964.5 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 838.6 + Pallet 70 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 839.9 + Pallet 70 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 3 types afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">963.1 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-9&#39;)">TOON</button></div>
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-9_0" data-pallet="NM-9" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-9_0" onchange="toggleDone(&#39;chk_NM-9_0&#39;,&#39;NM-9&#39;,3)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">72356-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA250 rail ano L=5680mm</div>
+                <span class="pr-loc">9730BA3</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">21×</div>
+            <div class="pr-gew">5.680 mm</div>
+            <div class="pr-gew">535.0 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-9_1" data-pallet="NM-9" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-9_1" onchange="toggleDone(&#39;chk_NM-9_1&#39;,&#39;NM-9&#39;,3)">
+            <div class="pr-pos">2</div>
+            <div class="pr-info">
+              <div class="pr-code">70000</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">bumperprof. RAL 3000 gecoat L=6000mm</div>
+                <span class="pr-loc">6100TL4</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">8×</div>
+            <div class="pr-gew">6.000 mm</div>
+            <div class="pr-gew">70.2 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-9_2" data-pallet="NM-9" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-9_2" onchange="toggleDone(&#39;chk_NM-9_2&#39;,&#39;NM-9&#39;,3)">
+            <div class="pr-pos">3</div>
+            <div class="pr-info">
+              <div class="pr-code">72200-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">Kliklijst alu ano L=6000mm</div>
+                <span class="pr-loc">9730CE4</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">254×</div>
+            <div class="pr-gew">6.000 mm</div>
+            <div class="pr-gew">234.7 kg</div>
+          </div>
+        </div>
+        </div>
       </div></div></div><div class="stack-section">
       <div class="stack-header short">
         <div>
@@ -810,11 +1168,11 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           <div style="font-size:11px;color:var(--g500);margin-top:2px">3 pallets · X-pallet onderop</div>
         </div>
         <div class="stack-weight ok">
-          2.813 kg ✓
+          2.739 kg ✓
           <div style="font-size:10px;font-weight:400;color:var(--g500)">max. 3.000 kg</div>
         </div>
       </div>
-      <div class="pallet-row"><div class="pc short xpallet pallet-done" id="pc_NM-10">
+      <div class="pallet-row"><div class="pc short xpallet" id="pc_NM-10">
         <div class="ph">
           <div>
             <span class="pnum">NM-10</span>
@@ -833,8 +1191,61 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 829.2 + Pallet 95 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 3 types afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">979.7 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-10&#39;)">TOON</button></div>
-      </div><div class="pc short pallet-done" id="pc_NM-11">
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-10_0" data-pallet="NM-10" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-10_0" onchange="toggleDone(&#39;chk_NM-10_0&#39;,&#39;NM-10&#39;,3)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">74057</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA125 rail ano L=5680mm</div>
+                
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">18×</div>
+            <div class="pr-gew">5.680 mm</div>
+            <div class="pr-gew">231.7 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-10_1" data-pallet="NM-10" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-10_1" onchange="toggleDone(&#39;chk_NM-10_1&#39;,&#39;NM-10&#39;,3)">
+            <div class="pr-pos">2</div>
+            <div class="pr-info">
+              <div class="pr-code">70359-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">kh omrand.prof. 1010 ano L=5850mm</div>
+                
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">32×</div>
+            <div class="pr-gew">5.850 mm</div>
+            <div class="pr-gew">410.1 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-10_2" data-pallet="NM-10" data-total="3">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-10_2" onchange="toggleDone(&#39;chk_NM-10_2&#39;,&#39;NM-10&#39;,3)">
+            <div class="pr-pos">3</div>
+            <div class="pr-info">
+              <div class="pr-code">74257</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA125 afwerkk.EB1 ano L=5730mm</div>
+                <span class="pr-loc">9710AG6</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">30×</div>
+            <div class="pr-gew">5.730 mm</div>
+            <div class="pr-gew">187.4 kg</div>
+          </div>
+        </div>
+        </div>
+      </div><div class="pc short" id="pc_NM-11">
         <div class="ph">
           <div>
             <span class="pnum">NM-11</span>
@@ -853,8 +1264,78 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 828.8 + Pallet 70 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 4 types afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">952.7 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-11&#39;)">TOON</button></div>
-      </div><div class="pc short pallet-done" id="pc_NM-12">
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-11_0" data-pallet="NM-11" data-total="4">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-11_0" onchange="toggleDone(&#39;chk_NM-11_0&#39;,&#39;NM-11&#39;,4)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">73656</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA250 afwerkk.HB ano L=5680mm</div>
+                <span class="pr-loc">9710DA4</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">34×</div>
+            <div class="pr-gew">5.680 mm</div>
+            <div class="pr-gew">319.4 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-11_1" data-pallet="NM-11" data-total="4">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-11_1" onchange="toggleDone(&#39;chk_NM-11_1&#39;,&#39;NM-11&#39;,4)">
+            <div class="pr-pos">2</div>
+            <div class="pr-info">
+              <div class="pr-code">67231</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">afwerkingsprof. 1414 onderzijde L=6000mm</div>
+                <span class="pr-loc">6100TL5</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">25×</div>
+            <div class="pr-gew">6.000 mm</div>
+            <div class="pr-gew">209.0 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-11_2" data-pallet="NM-11" data-total="4">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-11_2" onchange="toggleDone(&#39;chk_NM-11_2&#39;,&#39;NM-11&#39;,4)">
+            <div class="pr-pos">3</div>
+            <div class="pr-info">
+              <div class="pr-code">74156</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA125 afwerkk.HB ano L=5680mm</div>
+                <span class="pr-loc">9730---</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">27×</div>
+            <div class="pr-gew">5.680 mm</div>
+            <div class="pr-gew">156.9 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-11_3" data-pallet="NM-11" data-total="4">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-11_3" onchange="toggleDone(&#39;chk_NM-11_3&#39;,&#39;NM-11&#39;,4)">
+            <div class="pr-pos">4</div>
+            <div class="pr-info">
+              <div class="pr-code">74357</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA125 afwerkk.EB2 ano L=5730mm</div>
+                <span class="pr-loc">9710AG5</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">30×</div>
+            <div class="pr-gew">5.730 mm</div>
+            <div class="pr-gew">143.5 kg</div>
+          </div>
+        </div>
+        </div>
+      </div><div class="pc short" id="pc_NM-12">
         <div class="ph">
           <div>
             <span class="pnum">NM-12</span>
@@ -864,16 +1345,86 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">5 types · Art. 11248</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:88.1%"></div></div>
+            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">4 types · Art. 11248</div>
+            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:80.6%"></div></div>
             <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
-              880.8 kg incl. 6%
+              806.4 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 760.9 + Pallet 70 kg</div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 690.7 + Pallet 70 kg</div>
           </div>
         </div>
-        <div class="pb"><div class="pallet-done-label">✓ KLAAR — alle 5 types afgevinkt &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">880.8 kg incl. 6%</span></div><button class="pallet-expand-btn" onclick="expandPallet(&#39;NM-12&#39;)">TOON</button></div>
+        <div class="pb">
+          <div class="pr-item" id="row_chk_NM-12_0" data-pallet="NM-12" data-total="4">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-12_0" onchange="toggleDone(&#39;chk_NM-12_0&#39;,&#39;NM-12&#39;,4)">
+            <div class="pr-pos">1</div>
+            <div class="pr-info">
+              <div class="pr-code">73480-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA250 kapbeugel brute L=5500mm</div>
+                <span class="pr-loc">9730CA6</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">50×</div>
+            <div class="pr-gew">5.500 mm</div>
+            <div class="pr-gew">282.7 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-12_1" data-pallet="NM-12" data-total="4">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-12_1" onchange="toggleDone(&#39;chk_NM-12_1&#39;,&#39;NM-12&#39;,4)">
+            <div class="pr-pos">2</div>
+            <div class="pr-info">
+              <div class="pr-code">73490-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA250 klemkap ano L=6000mm</div>
+                <span class="pr-loc">9730AH3</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">50×</div>
+            <div class="pr-gew">6.000 mm</div>
+            <div class="pr-gew">204.9 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-12_2" data-pallet="NM-12" data-total="4">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-12_2" onchange="toggleDone(&#39;chk_NM-12_2&#39;,&#39;NM-12&#39;,4)">
+            <div class="pr-pos">3</div>
+            <div class="pr-info">
+              <div class="pr-code">73500-H</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">SRA250 loopvlak ano L=6000mm</div>
+                <span class="pr-loc">9730DA3</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">40×</div>
+            <div class="pr-gew">6.000 mm</div>
+            <div class="pr-gew">152.6 kg</div>
+          </div>
+        </div><div class="pr-item" id="row_chk_NM-12_3" data-pallet="NM-12" data-total="4">
+          <div class="pr-left">
+            <input type="checkbox" class="pr-check" id="chk_NM-12_3" onchange="toggleDone(&#39;chk_NM-12_3&#39;,&#39;NM-12&#39;,4)">
+            <div class="pr-pos">4</div>
+            <div class="pr-info">
+              <div class="pr-code">67951</div>
+              <div class="pr-desc-row">
+                <div class="pr-desc">Sluitrubber deurstel L=3600mm</div>
+                <span class="pr-loc">7000CR7</span>
+              </div>
+            </div>
+          </div>
+          <div class="pr-right">
+            <div class="pr-qty">19×</div>
+            <div class="pr-gew">3.600 mm</div>
+            <div class="pr-gew">50.5 kg</div>
+          </div>
+        </div>
+        </div>
       </div></div></div></div>
 
       <!-- RECHTS: SAMENVATTING -->
@@ -891,8 +1442,8 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
       <div class="sum-block"><div class="sum-label">Pallets</div><div class="sum-val">12</div></div>
       <div class="sum-block"><div class="sum-label">Stapels</div><div class="sum-val">4</div></div>
-      <div class="sum-block"><div class="sum-label">Totaal kg</div><div class="sum-val">11406</div></div>
-      <div class="sum-block"><div class="sum-label">&gt;1.000 kg</div><div class="sum-val" style="color:var(--green)">0</div></div>
+      <div class="sum-block"><div class="sum-label">Totaal kg</div><div class="sum-val">11411</div></div>
+      <div class="sum-block"><div class="sum-label">&gt;1.000 kg</div><div class="sum-val" style="color:var(--red)">3</div></div>
     </div>
     <div class="sum-divider"></div>
     <table class="sum-table">
@@ -902,9 +1453,9 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
       <tr><td style="color:var(--g500)">Norm. pallets</td><td>8</td></tr>
     </tbody></table>
     <div class="sum-divider"></div>
-    <table class="sum-table"><tbody><tr><td style="color:var(--g500)">NM-1</td><td>993.2 kg</td></tr><tr><td style="color:var(--g500)">NM-2</td><td>929.2 kg</td></tr><tr><td style="color:var(--g500)">NM-3</td><td>986.6 kg</td></tr><tr><td style="color:var(--g500)">NM-4</td><td>981.6 kg</td></tr><tr><td style="color:var(--g500)">NM-5</td><td>951.8 kg</td></tr><tr><td style="color:var(--g500)">NM-6</td><td>845.2 kg</td></tr><tr><td style="color:var(--g500)">NM-7</td><td>991.8 kg</td></tr><tr><td style="color:var(--g500)">NM-8</td><td>950.2 kg</td></tr><tr><td style="color:var(--g500)">NM-9</td><td>963.1 kg</td></tr><tr><td style="color:var(--g500)">NM-10</td><td>979.7 kg</td></tr><tr><td style="color:var(--g500)">NM-11</td><td>952.7 kg</td></tr><tr><td style="color:var(--g500)">NM-12</td><td>880.8 kg</td></tr></tbody></table></div>
+    <table class="sum-table"><tbody><tr><td style="color:var(--g500)">NM-1</td><td>1010.7 kg ⚠</td></tr><tr><td style="color:var(--g500)">NM-2</td><td>1009.8 kg ⚠</td></tr><tr><td style="color:var(--g500)">NM-3</td><td>835.8 kg</td></tr><tr><td style="color:var(--g500)">NM-4</td><td>853.1 kg</td></tr><tr><td style="color:var(--g500)">NM-5</td><td>984.9 kg</td></tr><tr><td style="color:var(--g500)">NM-6</td><td>998.6 kg</td></tr><tr><td style="color:var(--g500)">NM-7</td><td>995.7 kg</td></tr><tr><td style="color:var(--g500)">NM-8</td><td>1019.3 kg ⚠</td></tr><tr><td style="color:var(--g500)">NM-9</td><td>964.5 kg</td></tr><tr><td style="color:var(--g500)">NM-10</td><td>979.7 kg</td></tr><tr><td style="color:var(--g500)">NM-11</td><td>952.7 kg</td></tr><tr><td style="color:var(--g500)">NM-12</td><td>806.4 kg</td></tr></tbody></table></div>
         </div>
-        <div class="card" id="alertsResults"><div class="alert a-danger">⚠ Maximum van 12 pallets bereikt.</div></div>
+        <div class="card" id="alertsResults"><div class="alert a-warn">ⓘ 3 pallet(s) boven 1.000 kg — toegestaan via de uitzondering (stapel ≤ 3.000 kg).</div><div class="alert a-danger">⚠ Maximum van 12 pallets bereikt.</div></div>
       </div>
     </div>
   </div>
@@ -981,7 +1532,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
 </main>
 
 <!-- DOWNLOAD BUTTON BOTTOM -->
-<div id="download-bar" class="hidden" style="background:var(--g800);border-top:3px solid var(--red);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:center;gap:16px;position:sticky;bottom:0;z-index:50">
+<div id="download-bar" class="" style="background:var(--g800);border-top:3px solid var(--red);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:center;gap:16px;position:sticky;bottom:0;z-index:50">
   <span style="font-family:var(--fc);color:var(--g300);letter-spacing:1px;text-transform:uppercase;font-size:12px">Indeling gereed</span>
   <button onclick="exportExcel()" style="background:var(--red);color:#fff;border:none;padding:12px 32px;font-family:var(--fc);font-size:15px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background .15s" onmouseover="this.style.background=&#39;#9A0B22&#39;" onmouseout="this.style.background=&#39;#C8102E&#39;">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>
@@ -1036,7 +1587,9 @@ const KLANT_PROFIELEN = {
       artikel_nm6_std_qty: 160,   // Standaard aantal voor de vraag
       nm5_nm6_swap: true,         // Swap NM-5/NM-6 als artikel op NM-5 terechtkomt
       artikel_nm6_aanvulling: '72065-H', // Aanvullen met dit artikel na 66222 op NM-6
-      nm6_label: 'Kliklijstpallet (aangeleverd)',  // Speciale badge voor NM-6
+      artikel_nm6_aanvulling_qty: 12,       // Vast aantal van aanvullingsartikel op NM-6
+      nm6_label: 'Kliklijsten',  // Speciale badge voor NM-6
+      nm1_nm4_voorkeur: ['72073-H','72065-H'], // Deze artikelen bij voorkeur op NM-1 en NM-4
     }
   },
   // Voorbeeld nieuwe klant:
@@ -1280,8 +1833,8 @@ function showReview(){
   if(_kp && hasNm6Art){
     // Update de tekst in de kaart dynamisch
     psiCard.querySelector('p').innerHTML =
-      'Voor klant <strong>'+_kp.naam+'</strong> geldt: artikel <strong>'+_art6+'</strong> staat altijd op NM-6 (bovenste pallet stapel 2 — hoeft niet ingekrat te worden).<br>'
-      +'Zit er <strong>'+_stdQty+'&times; artikel '+_art6+'</strong> in deze order?';
+      'Voor klant <strong>'+_kp.naam+'</strong>: Kliklijsten (<strong>'+_art6+'</strong>) worden altijd op NM-6 geplaatst, aangevuld met zoveel mogelijk 72065-H.<br>'
+      +'Standaard <strong>'+_stdQty+'&times; artikel '+_art6+'</strong> — klopt dit aantal voor deze order?';
     document.getElementById('btn-psi-ja').textContent = '✓ Ja — '+_stdQty+'× '+_art6+' op NM-6';
     document.getElementById('btn-psi-nee').textContent = 'Nee — ander aantal invullen';
     psiCard.classList.remove('hidden');
@@ -1365,7 +1918,12 @@ function runPlanning(){
   // Klantspecifieke NM6-artikel check
   const _kp2 = getKlantProfiel(klant, projNr);
   const _art62 = _kp2?.regels?.artikel_nm6;
-  const hasNm6Art2 = _art62 && all.some(p=>p.art===_art62);
+  // Zoek 66222 ook als artOrig of via dbLookup (verdekt door -H of opgeslagen als artOrig)
+  const hasNm6Art2 = _art62 && all.some(p=>{
+    const a = (p.art||'').toUpperCase();
+    const b = _art62.toUpperCase();
+    return a===b || a===b+'-H' || (p.artOrig||'').toUpperCase()===b;
+  });
   if(_kp2 && hasNm6Art2 && psi66222Mode===null){
     alert('Geef eerst aan hoeveel stuks artikel '+_art62+' in de order zitten (zie de blauwe kaart hierboven).');
     return;
@@ -1378,51 +1936,56 @@ function runPlanning(){
     if(pNm6){ pNm6.qty=qtyInp; pNm6.gew=pNm6.gps*qtyInp; }
   }
 
-  plan=computePlan(all, _kp2 && hasNm6Art2 && psi66222Mode!==false, _kp2);
+  // nm6Fixed = altijd true als PSI-klant met 66222 (vraag is beantwoord)
+  // Qty van 66222 is al bijgesteld via psi66222Mode (160 of eigen getal)
+  plan=computePlan(all, !!(_kp2 && hasNm6Art2), _kp2);
   showResults();
 }
 
 function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
-  window._planWarnings = []; // reset waarschuwingen
-  // ── Prioriteitsregels ──────────────────────────────────────────────
-  // 1. Zo min mogelijk VERSCHILLENDE profieltypes per pallet
-  // 2. Zelfde profiel op zo min mogelijk verschillende pallets
-  // 3. Overload-uitzondering: pallet MAG >1000 kg als dat types/pallets
-  //    vermindert, mits stapel van 3 samen ≤3000 kg blijft
-  // 4. Positienummer = gewicht desc (zwaarste = pos 1)
-  // ──────────────────────────────────────────────────────────────────
+  window._planWarnings = [];
+
+  // ── Constanten ──
+  // MAX_P   = streefgewicht per pallet (1000 kg totaal incl. OHD)
+  // MARGE   = toegestane afwijking boven streef als stapel ≤ MAX_S (±25 kg)
+  // MAX_S   = maximaal stapelgewicht (3000 kg totaal incl. OHD)
+  // OHD     = opheffingsfactor (1.06)
+  const MARGE = 25; // kg afwijking toegestaan boven 1000 kg mits stapel OK
 
   const long  = profiles.filter(p=>p.l>6000);
   const short = profiles.filter(p=>p.l<=6000);
 
   const pallets = PLAN_STRUCTURE.map(s=>({...s,items:[],profW:0,used:false}));
 
-  // Normale pallet limiet (1000 kg incl OHD)
-  function normMaxProfW(palDef){ return MAX_P/OHD - palDef.kg; }
-
-  // Absolute max per pallet op basis van werkelijke stapelruimte
-  // (gebruikt door split-logica: verdeelt ruimte eerlijk over stapelgenoten)
-  function trueMaxProfW(slot){
-    const siblings = pallets.filter(p=>p.sid===slot.sid && p.nm!==slot.nm);
-    const siblingKg = siblings.reduce((s,p)=>s+(p.profW+p.kg)*OHD, 0);
-    // Nooit meer dan normMaxProfW - pallet heeft een fysieke grens
-    return Math.min(normMaxProfW(slot), Math.max(0, (MAX_S - siblingKg)/OHD - slot.kg));
+  // ── Limiet helpers ──
+  // Profiel-ruimte op pallet bij streefgewicht (1000 kg incl. OHD)
+  function normLim(p){ return MAX_P/OHD - p.kg; }
+  // Profiel-ruimte met marge (+25 kg), mits stapel het toelaat
+  function margeLim(p){ return (MAX_P + MARGE)/OHD - p.kg; }
+  // Harde stapellimiet: hoeveel profiel mag dit pallet maximaal hebben
+  // gegeven wat de stapelgenoten al wegen
+  function stapelLim(p){
+    const sibs = pallets.filter(s=>s.sid===p.sid && s.nm!==p.nm);
+    const sibKg = sibs.reduce((s,x)=>s+(x.profW+x.kg)*OHD, 0);
+    return Math.max(0, (MAX_S - sibKg)/OHD - p.kg);
+  }
+  // Effectieve limiet: normaal streef, maar nooit meer dan stapelruimte toelaat
+  function effectiefLim(p, metMarge=false){
+    const basis = metMarge ? margeLim(p) : normLim(p);
+    return Math.min(basis, stapelLim(p));
   }
 
-  // absMaxProfW behouden voor backwards compat
-  function absMaxProfW(palDef){ return normMaxProfW(palDef); }
-
-  // Check of stapel binnen 3000 kg blijft na toevoeging
-  function stackOkAfterAdd(slot, addW){
-    const siblings = pallets.filter(p=>p.sid===slot.sid);
-    const currentStackKg = siblings.reduce((s,p)=>s+(p.profW+p.kg)*OHD, 0);
-    return currentStackKg + addW * OHD <= MAX_S;
+  // Hoeveel kg profiel past er nog op dit pallet?
+  function ruimte(p, metMarge=false){
+    return Math.max(0, effectiefLim(p, metMarge) - p.profW);
   }
 
-  function canFit(slot, addW, allowOverload){
-    if(!stackOkAfterAdd(slot, addW)) return false;
-    const limit = allowOverload ? normMaxProfW(slot) : normMaxProfW(slot);
-    return slot.profW + addW <= limit;
+  // Mag dit gewicht toegevoegd worden? (streef + optioneel marge, stapel OK)
+  function pasPast(p, addW, metMarge=false){
+    if(p.profW + addW > effectiefLim(p, metMarge)) return false;
+    const sibs = pallets.filter(s=>s.sid===p.sid);
+    const cur   = sibs.reduce((s,x)=>s+(x.profW+x.kg)*OHD, 0);
+    return cur + addW*OHD <= MAX_S;
   }
 
   function addItem(slot, item){
@@ -1430,88 +1993,160 @@ function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
     if(ex){ ex.qty+=item.qty; ex.gew+=item.gew; }
     else slot.items.push({...item});
     slot.profW += item.gew;
-    slot.used = true;
+    slot.used   = true;
   }
 
-  // Score a pallet for placing a given item (lower = better)
-  // Prefers: fewest existing different types, item already on pallet
+  // Score: voorkeur voor pallet dat dit artikel al heeft, daarna minste types
   function score(slot, item){
-    const alreadyHas = slot.items.some(x=>x.art===item.art);
-    const typeCount  = slot.items.length;
-    return (alreadyHas ? -1000 : 0) + typeCount;
+    const heeft = slot.items.some(x=>x.art===item.art);
+    return (heeft ? -1000 : 0) + slot.items.length;
   }
 
+  // ── NM-6 KLIKLIJSTEN: harde eis voor PSI ──
+  // Uitvoeren zodra vraag beantwoord is (ja=160, nee=eigen aantal) — qty al bijgesteld
+  // NM-6 = correcte qty 66222 + zoveel mogelijk 72065-H
+  if(nm6Fixed && klantProfiel?.regels?.artikel_nm6){
+    const art6    = klantProfiel.regels.artikel_nm6;            // '66222'
+    const artAanv = klantProfiel.regels.artikel_nm6_aanvulling; // '72065-H'
+    const nm6     = pallets.find(p=>p.nm==='NM-6');
+
+    if(nm6 && art6){
+      // 1. Harde plaatsing: 66222 altijd op NM-6, verwijder uit long-lijst
+      // Zoek in zowel long als short (66222 heeft l=6700 → long, maar voor zekerheid)
+      const allProfiles = [...long, ...short];
+      // Zoek 66222 in long[] (l=6700 > 6000), check ook artOrig en -H variant
+      let vIdx = long.findIndex(p=>{
+        const a=(p.art||'').toUpperCase(), b=art6.toUpperCase();
+        const ao=(p.artOrig||'').toUpperCase();
+        return a===b || a===b+'-H' || ao===b || ao===b+'-H';
+      });
+      if(vIdx>=0){ addItem(nm6, long[vIdx]); long.splice(vIdx,1); }
+      else {
+        // Fallback: zoek ook in short[] (zou niet moeten maar zekerheidshalve)
+        const sIdx = short.findIndex(p=>{
+          const a=(p.art||'').toUpperCase(), b=art6.toUpperCase();
+          return a===b || a===b+'-H' || (p.artOrig||'').toUpperCase()===b;
+        });
+        if(sIdx>=0){ addItem(nm6, short[sIdx]); short.splice(sIdx,1); }
+      }
+
+      // 2. Vul NM-6 aan met zoveel mogelijk 72065-H (harde eis)
+      if(artAanv){
+        const aIdx = long.findIndex(p=>{
+          const a = p.art.toUpperCase();
+          const b = artAanv.toUpperCase();
+          return a===b || a===b.replace(/-H$/,'') || a+(a.endsWith('-H')?'':'-H')===b;
+        });
+        if(aIdx>=0){
+          const aanv = long[aIdx];
+          const r = ruimte(nm6, true);
+          if(r >= aanv.gps){
+            const maxAanv = klantProfiel.regels.artikel_nm6_aanvulling_qty || Infinity;
+          const fitQty = Math.min(aanv.qty, maxAanv, Math.floor(r / aanv.gps));
+            if(fitQty>0){
+              addItem(nm6, {...aanv, qty:fitQty, gew:fitQty*aanv.gps});
+              if(fitQty>=aanv.qty){ long.splice(aIdx,1); }
+              else { aanv.qty-=fitQty; aanv.gew=aanv.qty*aanv.gps; }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ── NM-1 / NM-4 VOORKEUR: vul X-pallets met voorkeur-artikelen ──
+  // Regel: 72073-H zoveel mogelijk op NM-1/NM-4, aangevuld met 72065-H, streef ~1000 kg
+  if(nm6Fixed && klantProfiel?.regels?.nm1_nm4_voorkeur){
+    const voorkeursArts = klantProfiel.regels.nm1_nm4_voorkeur; // ['72073-H','72065-H']
+    const xPallets = ['NM-1','NM-4'].map(nm=>pallets.find(p=>p.nm===nm)).filter(Boolean);
+
+    for(const xPal of xPallets){
+      for(const voorkArt of voorkeursArts){
+        const vIdx = long.findIndex(p=>{
+          const a=(p.art||'').toUpperCase(), b=voorkArt.toUpperCase();
+          const ao=(p.artOrig||'').toUpperCase();
+          return a===b || a===b.replace(/-H$/,'') || ao===b || ao===b.replace(/-H$/,'');
+        });
+        if(vIdx<0) continue;
+        const item = long[vIdx];
+        const r = ruimte(xPal, true);
+        if(r < item.gps) continue;
+        const fitQty = Math.min(item.qty, Math.floor(r / item.gps));
+        if(fitQty<=0) continue;
+        addItem(xPal, {...item, qty:fitQty, gew:fitQty*item.gps});
+        if(fitQty>=item.qty){ long.splice(vIdx,1); }
+        else { item.qty-=fitQty; item.gew=item.qty*item.gps; }
+      }
+    }
+  }
+
+  // ── Hoofdverdeling: long en short profielen ──
   function packItems(items, type){
     if(!items.length) return;
     const slots = pallets.filter(p=>p.t===type);
 
-    // Groepeer identieke artikelen en sorteer op totaalgewicht desc
+    // Groepeer per artikel, zwaarste groep eerst
     const groups = {};
     items.forEach(item=>{
       if(!groups[item.art]) groups[item.art]={...item,qty:0,gew:0};
-      groups[item.art].qty += item.qty;
-      groups[item.art].gew += item.gew;
+      groups[item.art].qty+=item.qty;
+      groups[item.art].gew+=item.gew;
     });
     const sorted = Object.values(groups).sort((a,b)=>b.gew-a.gew);
 
-    // Helper: vult pallet 1 zo vol mogelijk, restant naar pallet 2, restant naar pallet 3, etc.
-    // Een profiel blijft zoveel mogelijk bij elkaar — pas als een pallet vol is gaat de rest door.
-    function distribueer(grp){
+    for(const grp of sorted){
+      // Pass 1: past de hele groep op één pallet binnen streefgewicht?
+      let best=null, bestSc=Infinity;
+      for(const slot of slots){
+        if(pasPast(slot, grp.gew, false)){
+          const s = score(slot, grp);
+          if(s<bestSc){ bestSc=s; best=slot; }
+        }
+      }
+      if(best){ addItem(best, grp); continue; }
+
+      // Pass 2: past met marge (+25 kg)?
+      for(const slot of slots){
+        if(pasPast(slot, grp.gew, true)){
+          const s = score(slot, grp);
+          if(s<bestSc){ bestSc=s; best=slot; }
+        }
+      }
+      if(best){ addItem(best, grp); continue; }
+
+      // Pass 3: groep past niet in één keer → vul pallet vol, restant naar volgende
       let remQty = grp.qty;
 
-      // Stap 1: zoek het beste startpallet (voorkeur: artikel staat er al op, anders meeste ruimte)
-      const gesorteerdSlots = slots.slice().sort((a,b)=>{
-        const aHas = a.items.some(i=>i.art===grp.art) ? -10000 : 0;
-        const bHas = b.items.some(i=>i.art===grp.art) ? -10000 : 0;
-        const aRuimte = trueMaxProfW(a) - a.profW;
-        const bRuimte = trueMaxProfW(b) - b.profW;
-        return (bHas + bRuimte) - (aHas + aRuimte);
+      // Sorteer: pallet met dit artikel heeft sterk voorkeur, daarna meeste ruimte
+      const srtSlots = slots.slice().sort((a,b)=>{
+        const aH = a.items.some(x=>x.art===grp.art)?10000:0;
+        const bH = b.items.some(x=>x.art===grp.art)?10000:0;
+        return (bH + ruimte(b,true)) - (aH + ruimte(a,true));
       });
 
-      // Stap 2: vul pallet voor pallet — zo min mogelijk pallets gebruiken
-      for(const slot of gesorteerdSlots){
-        if(remQty <= 0) break;
-        const ruimte = Math.max(0, trueMaxProfW(slot) - slot.profW);
-        if(ruimte < grp.gps) continue; // zelfs 1 stuk past niet
-        const fitQty = Math.min(remQty, Math.floor(ruimte / grp.gps));
-        if(fitQty > 0){
+      for(const slot of srtSlots){
+        if(remQty<=0) break;
+        // Gebruik marge-limiet bij splitsen (maximaal benutten)
+        const r = ruimte(slot, true);
+        if(r < grp.gps) continue; // zelfs 1 stuk past niet
+        const fitQty = Math.min(remQty, Math.floor(r/grp.gps));
+        if(fitQty>0){
           addItem(slot, {...grp, qty:fitQty, gew:fitQty*grp.gps});
           remQty -= fitQty;
-          // Stop zodra alles geplaatst is — ga niet onnodig naar het volgende pallet
         }
       }
 
-      // Stap 3: als er echt niets meer past (alle pallets vol), forceer op pallet met meeste ruimte
-      if(remQty > 0){
-        const noodSlot = slots.slice().sort((a,b)=>
-          (trueMaxProfW(b)-b.profW)-(trueMaxProfW(a)-a.profW))[0] || slots[slots.length-1];
-        addItem(noodSlot, {...grp, qty:remQty, gew:remQty*grp.gps});
-        if(!window._planWarnings) window._planWarnings = [];
-        const overKg = ((noodSlot.profW+noodSlot.kg)*OHD).toFixed(1);
+      // Noodgeval: nog steeds rest → forceer op pallet met meeste ruimte + waarschuwing
+      if(remQty>0){
+        const nood = slots.slice().sort((a,b)=>ruimte(b,true)-ruimte(a,true))[0]||slots[slots.length-1];
+        addItem(nood, {...grp, qty:remQty, gew:remQty*grp.gps});
+        const overKg = ((nood.profW+nood.kg)*OHD).toFixed(1);
+        if(!window._planWarnings) window._planWarnings=[];
         window._planWarnings.push(
           'Artikel '+(grp.artOrig||grp.art)+' ('+grp.qty+'×, '+grp.gps.toFixed(3)+' kg/st): '+
-          remQty+' stuk(s) passen niet binnen 1.000 kg — '+
-          'geforceerd op '+noodSlot.nm+' (nu '+overKg+' kg incl. 6%).'
+          remQty+' stuk(s) overschrijden beschikbare ruimte — '+
+          'geforceerd op '+nood.nm+' (nu '+overKg+' kg incl. 6%).'
         );
-      }
-    }
-
-    for(const grp of sorted){
-      // Pass 1: zoek het beste pallet voor de hele groep (score: fewest types, voorkeur eigen artikel)
-      // Alleen als het binnen de 1000 kg norm past
-      let bestSlot = null;
-      let bestScore = Infinity;
-      for(const slot of slots){
-        if(canFit(slot, grp.gew, false)){
-          const s = score(slot, grp);
-          if(s < bestScore){ bestScore=s; bestSlot=slot; }
-        }
-      }
-      if(bestSlot){
-        addItem(bestSlot, grp);
-      } else {
-        // Past niet op één pallet binnen norm → verdeel slim
-        distribueer(grp);
       }
     }
   }
@@ -1519,72 +2154,60 @@ function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
   packItems(long,  'long');
   packItems(short, 'short');
 
-  // ── KLANTSPECIFIEKE NM6-REGEL: vast artikel op NM-6, swap indien nodig ──
-  if(nm6Fixed && klantProfiel?.regels){
+  // ── NM-5/NM-6 swap indien 66222 toch op NM-5 belandde ──
+  if(nm6Fixed && klantProfiel?.regels?.nm5_nm6_swap && klantProfiel?.regels?.artikel_nm6){
     const art6 = klantProfiel.regels.artikel_nm6;
-    const doSwap = klantProfiel.regels.nm5_nm6_swap;
-    if(art6 && doSwap){
-      const nm5 = pallets.find(p=>p.nm==='NM-5');
-      const nm6 = pallets.find(p=>p.nm==='NM-6');
-      if(nm5 && nm6){
-        const nm5hasArt = nm5.items.some(i=>i.art===art6);
-        const nm6hasArt = nm6.items.some(i=>i.art===art6);
-        if(nm5hasArt && !nm6hasArt){
-          const tmpItems=nm5.items; const tmpW=nm5.profW; const tmpUsed=nm5.used;
-          nm5.items=nm6.items; nm5.profW=nm6.profW; nm5.used=nm6.used;
-          nm6.items=tmpItems; nm6.profW=tmpW; nm6.used=tmpUsed;
-        }
+    const nm5  = pallets.find(p=>p.nm==='NM-5');
+    const nm6  = pallets.find(p=>p.nm==='NM-6');
+    if(nm5&&nm6){
+      const nm5H = nm5.items.some(i=>i.art===art6||i.art===art6+'-H');
+      const nm6H = nm6.items.some(i=>i.art===art6||i.art===art6+'-H');
+      if(nm5H&&!nm6H){
+        [nm5.items,nm6.items]=[nm6.items,nm5.items];
+        [nm5.profW,nm6.profW]=[nm6.profW,nm5.profW];
+        [nm5.used, nm6.used ]=[nm6.used, nm5.used ];
       }
     }
   }
 
-  // ── NM-6 AANVULLING: vul NM-6 aan met aanvullingsartikel na het vaste artikel ──
+  // ── NM-6 aanvulling (verplaats resterende 72065-H naar NM-6 indien ruimte) — harde eis ──
   if(nm6Fixed && klantProfiel?.regels?.artikel_nm6_aanvulling){
-    const art6 = klantProfiel.regels.artikel_nm6;
     const artAanv = klantProfiel.regels.artikel_nm6_aanvulling;
     const nm6 = pallets.find(p=>p.nm==='NM-6');
-    if(nm6 && nm6.items.some(i=>i.art===art6 || i.art===art6+'-H')){
-      // Zoek het aanvullingsartikel in de andere pallets
+    if(nm6){
       for(const otherPal of pallets.filter(p=>p.nm!=='NM-6')){
-        const aanvItem = otherPal.items.find(i=>i.art===artAanv || i.art===artAanv.replace(/-H$/,'') || i.art===(artAanv.endsWith('-H')?artAanv:artAanv+'-H'));
+        const aanvItem = otherPal.items.find(i=>{
+          const a=i.art.toUpperCase(), b=artAanv.toUpperCase();
+          return a===b||a===b.replace(/-H$/,'')||a===b+'-H';
+        });
         if(!aanvItem) continue;
-        // Bereken hoeveel stuks op NM-6 passen
-        const ruimte = trueMaxProfW(nm6) - nm6.profW;
-        if(ruimte <= 0 || aanvItem.gps <= 0) continue;
-        if(!stackOkAfterAdd(nm6, Math.min(ruimte, aanvItem.gew))) continue;
-        const fitQty = Math.min(aanvItem.qty, Math.floor(ruimte / aanvItem.gps));
-        if(fitQty <= 0) continue;
-        const fitGew = fitQty * aanvItem.gps;
-        // Verplaats van andere pallet naar NM-6
+        const r = ruimte(nm6, true);
+        if(r < aanvItem.gps) continue;
+        const fitQty = Math.min(aanvItem.qty, Math.floor(r/aanvItem.gps));
+        if(fitQty<=0) continue;
+        const fitGew = fitQty*aanvItem.gps;
         addItem(nm6, {...aanvItem, qty:fitQty, gew:fitGew});
         otherPal.profW -= fitGew;
-        if(fitQty >= aanvItem.qty){
-          otherPal.items = otherPal.items.filter(i=>i!==aanvItem);
-        } else {
-          aanvItem.qty -= fitQty;
-          aanvItem.gew -= fitGew;
-        }
-        if(otherPal.items.length === 0) otherPal.used = false;
-        break; // één keer aanvullen
+        if(fitQty>=aanvItem.qty){ otherPal.items=otherPal.items.filter(i=>i!==aanvItem); }
+        else { aanvItem.qty-=fitQty; aanvItem.gew-=fitGew; }
+        if(otherPal.items.length===0) otherPal.used=false;
+        break;
       }
     }
   }
 
-  // Finalize: sort items by weight-per-piece desc (zwaarste individueel onderop = positie 1)
-  // Tie-breaker: langste profiel eerder onderop
-  // Markeer NM-6 als speciaal pallet als klantprofiel nm6_label heeft
-  if(klantProfiel?.regels?.nm6_label){
+  // ── Markeer NM-6 als speciaal pallet ──
+  if(nm6Fixed && klantProfiel?.regels?.nm6_label){
     const nm6 = pallets.find(p=>p.nm==='NM-6');
-    if(nm6){ nm6.nm6Special = true; nm6.nm6Label = klantProfiel.regels.nm6_label; }
+    if(nm6){ nm6.nm6Special=true; nm6.nm6Label=klantProfiel.regels.nm6_label; }
   }
 
+  // ── Finaliseer: sorteer items per pallet en bereken gewichten ──
   pallets.forEach(p=>{
     p.items.sort((a,b)=> b.gps!==a.gps ? b.gps-a.gps : b.l-a.l);
-    p.totalKg = (p.profW+p.kg)*OHD;
-    // Overloaded = above normal 1000kg limit (may still be valid via exception rule)
+    p.totalKg    = (p.profW+p.kg)*OHD;
     p.overloaded = p.totalKg > MAX_P;
-    // Stack violation = this pallet's stack exceeds 3000 kg
-    const stackKg = pallets.filter(x=>x.sid===p.sid&&x.used).reduce((s,x)=>(s+(x.profW+x.kg)*OHD),0);
+    const stackKg    = pallets.filter(x=>x.sid===p.sid&&x.used).reduce((s,x)=>(s+(x.profW+x.kg)*OHD),0);
     p.stackViolation = stackKg > MAX_S;
   });
 
@@ -1907,9 +2530,10 @@ function loadProject(entry){
   known = (entry.known || []).map(item => {
     const origArt = item.artOrig || item.art;
     const match = dbLookup(origArt);
-    if(match && match.key !== item.art){
-      // artOrig geeft een betere match dan art -> gebruik die
-      return {...item, art: match.key, desc: match.rec.d, l: match.rec.l, gps: match.rec.g};
+    if(match){
+      // Altijd l, gps, desc bijwerken vanuit DB — ook als art key gelijk is
+      // Zo worden artikelen met l=0 (opgeslagen vóór DB fix) correct hersteld
+      return {...item, art: match.key, artOrig: origArt, desc: match.rec.d, l: match.rec.l, gps: match.rec.g, gew: (item.qty||0)*match.rec.g};
     }
     return item;
   });
@@ -1935,6 +2559,24 @@ function loadProject(entry){
   document.getElementById('sec-results').classList.remove('hidden');
   document.getElementById('download-bar').classList.remove('hidden');
   document.getElementById('dl-proj-label').textContent=projNr;
+
+  // Herbereken altijd bij laden — gebruik opgeslagen known[], niet cached plan
+  // Zo worden NM-6 regels en DB-updates altijd correct toegepast
+  const _kpLoad = getKlantProfiel(klant, projNr);
+  const _art6Load = _kpLoad?.regels?.artikel_nm6;
+  const hasNm6Load = _art6Load && known.some(p=>{
+    const a=(p.art||'').toUpperCase(), b=_art6Load.toUpperCase();
+    return a===b || a===b+'-H' || (p.artOrig||'').toUpperCase()===b;
+  });
+
+  if(_kpLoad && hasNm6Load){
+    // PSI order: zet psi66222Mode automatisch op true (standaard 160 stuks)
+    // tenzij opgeslagen project een afwijkend aantal had
+    if(psi66222Mode === null) psi66222Mode = true;
+    plan = computePlan([...known], true, _kpLoad);
+  } else {
+    plan = computePlan([...known], false, _kpLoad);
+  }
   showResults();
 }
 
