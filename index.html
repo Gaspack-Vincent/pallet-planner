@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_62.html -->
+<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_64.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -473,7 +473,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
       <div class="db-header">
         <div class="db-title">Opgeslagen Projecten</div>
         <div style="display:flex;align-items:center;gap:10px">
-          <span class="db-count" id="db-count">3 projecten</span>
+          <span class="db-count" id="db-count">1 project</span>
         </div>
       </div>
       <div class="db-search">
@@ -485,7 +485,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           <button id="filt-completed" onclick="setFilter(&#39;completed&#39;)">Completed</button>
         </div>
       </div>
-      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508901</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">06-05-2026<br><span style="color:var(--g300)">10:31</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.967 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[1])"><div class="db-row-proj">2508902</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">20-04-2026<br><span style="color:var(--g300)">15:58</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[1])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">11.466 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[1].proj_nr,event)" title="Verwijderen">✕</button></div></div><div class="db-row" onclick="loadProject(window._dbProjects[2])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">17-04-2026<br><span style="color:var(--g300)">15:52</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[2])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.972 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[2].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
+      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508901</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">06-05-2026<br><span style="color:var(--g300)">12:03</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">10.967 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
     </div>
   </div>
 
@@ -4049,7 +4049,7 @@ function renderRegels(){
   // Bewerkbare waarden uit KLANT_PROFIELEN (live)
   const generiek = [
     {label:'Streefgewicht per pallet', key:'MAX_P_display', waarde: MAX_P + ' kg (incl. 6% opheffing)', editable:false, toelichting:'Doel bij het vullen van elk pallet'},
-    {label:'Marge boven streefgewicht', key:'MARGE', waarde: MARGE + ' kg', editable:true, type:'number', live:'MARGE', toelichting:'Toegestaan mits stapel ≤ 3.000 kg; alleen als nodig'},
+    {label:'Marge boven streefgewicht', key:'MARGE', waarde: (window._margeOverride||75) + ' kg', editable:true, type:'number', live:'MARGE', toelichting:'Toegestaan mits stapel ≤ 3.000 kg; alleen als nodig'},
     {label:'Max. stapelgewicht', key:'MAX_S_display', waarde: MAX_S + ' kg', editable:false, toelichting:'Hard maximum voor de totale stapel (3 pallets)'},
     {label:'Opheffingsfactor', key:'OHD_display', waarde: OHD.toFixed(2) + ' (6%)', editable:false, toelichting:'Alle gewichten worden vermenigvuldigd met 1,06'},
     {label:'Lange pallets (7.350mm)', waarde:'Profielen langer dan 6.000mm', editable:false, toelichting:'NM-1 t/m NM-6'},
@@ -4105,7 +4105,7 @@ function renderRegels(){
     +  '<table class="sum-table" style="font-size:13px"><tbody>';
   generiek.forEach(r => {
     const valHtml = r.editable
-      ? '<input id="regel_'+r.live+'" type="number" value="'+MARGE+'" disabled style="width:70px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;background:var(--g50)">'
+      ? '<input id="regel_'+r.live+'" type="number" value="'+(window._margeOverride||75)+'" disabled style="width:70px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;background:var(--g50)">'
       : '<span style="font-weight:700;color:var(--g900)">'+r.waarde+'</span>';
     h += '<tr>'
       +  '<td style="color:var(--g500);width:220px;padding:6px 0">'+r.label+'</td>'
