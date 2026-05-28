@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_81.html -->
+<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_83.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -177,6 +177,16 @@ tbody td.r{text-align:right}
 .pstk-badge.nm6special{background:#6A1B9A;color:#fff}
 .pb{padding:12px 16px;border-left:1px solid var(--g200)}
 .pr-item{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--g100);font-size:12px}
+.bewerk-actief .pr-item{cursor:grab;transition:background .15s}
+.bewerk-actief .pr-item:hover{background:var(--g50)}
+.pr-item.drag-over{border-top:2px solid var(--blue);background:#EEF2FF}
+.pr-item.dragging{opacity:.4}
+.pr-drag-handle{cursor:grab;color:var(--g400);font-size:14px;padding:0 6px 0 0;flex-shrink:0;display:none;align-items:center}
+.bewerk-actief .pr-drag-handle{display:flex}
+.bewerk-actief .pr-check{display:none}
+.pr-qty-input{width:52px;padding:2px 5px;border:1px solid var(--g300);font-size:14px;font-weight:600;font-family:var(--fn);text-align:right;border-radius:2px}
+.bewerk-bar{display:none;background:#EEF2FF;border:1px solid #C7D2FE;padding:8px 14px;margin-bottom:8px;align-items:center;gap:10px;font-size:13px}
+.bewerk-bar.zichtbaar{display:flex}
 .pr-item:last-child{border-bottom:none}
 .pr-left{display:flex;align-items:center;gap:16px;min-width:0}
 .pr-pos{width:18px;height:18px;background:var(--g800);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--fc);font-weight:700;font-size:11px;flex-shrink:0}
@@ -552,30 +562,6 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
       <button class="btn btn-outline" onclick="resetTool()">Nieuw bestand</button>
     </div>
 
-    <!-- ═══ BEWERKPANEEL ═══ -->
-    <div id="bewerk-panel" style="display:none;margin-bottom:1rem">
-      <div class="card" style="border-top:3px solid var(--blue);padding:0">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--g200)">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-family:var(--fc);font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--blue)">✏️ Artikelen bewerken</span>
-            <span style="font-size:11px;color:var(--g500)">Wijzig aantallen of vervang artikelnummers — daarna wordt de palletverdeling herberekend</span>
-          </div>
-          <button onclick="sluitBewerkPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--g500);padding:0 4px" title="Sluiten">✕</button>
-        </div>
-        <div style="padding:12px 16px">
-          <div id="bewerk-tabel"></div>
-          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
-            <button class="btn btn-primary" onclick="bewerkOpslaan()">
-              <svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path></svg>
-              Herberekenen &amp; opslaan
-            </button>
-            <span id="bewerk-save-status" style="display:none;align-items:center;font-size:13px;font-family:var(--fn);color:var(--g700);padding:6px 12px;background:var(--g50);border:1px solid var(--g200);border-radius:2px"></span>
-            <button class="btn btn-outline" onclick="bewerkRijToevoegen()">+ Artikel toevoegen</button>
-            <button class="btn btn-outline" onclick="sluitBewerkPanel()">Annuleren</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Print header — alleen zichtbaar bij afdrukken -->
     <div id="print-header" style="display:none;margin-bottom:16px;border-bottom:3px solid #172E3E;padding-bottom:10px">
@@ -589,6 +575,14 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
       <div style="display:flex;gap:32px;margin-top:10px" id="print-stats"></div>
     </div>
 
+    <div class="bewerk-bar" id="bewerk-bar">
+      <span style="font-family:var(--fc);font-weight:700;font-size:12px;letter-spacing:1px;color:#4338CA">✏️ BEWERKMODE</span>
+      <span style="color:var(--g500);font-size:12px">Sleep profielen tussen pallets · pas aantallen aan</span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="bewerkOpslaanInline()" style="font-size:12px">✓ Opslaan</button>
+        <button class="btn btn-outline" onclick="sluitBewerkPanel()" style="font-size:12px">Annuleren</button>
+      </div>
+    </div>
     <div id="overflow-warning" style="display:none;background:#FFF3E0;border:1px solid #FFCC80;border-left:4px solid #E65100;padding:20px 24px;margin-bottom:1.5rem">
       <div style="font-family:var(--fc);font-weight:700;font-size:13px;letter-spacing:1px;color:#BF360C;margin-bottom:10px">⚠ PLANNING WAARSCHUWING</div>
       <div id="overflow-warning-body" style="font-size:13px;color:#BF360C;line-height:1.7"></div>
@@ -1655,7 +1649,14 @@ function showResults(){
         const locHtml=item.loks&&item.loks.length?`<span class="pr-loc">${esc(item.loks.join(', '))}</span>`:'';
         const palVkHtml=item.palletVoorkeur?`<span class="pr-loc" style="background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7" title="Handmatig toegewezen pallet">📌 ${esc(item.palletVoorkeur)}</span>`:'';
         const itemId='chk_'+pal.nm+'_'+idx;
-        return `<div class="pr-item" id="row_${itemId}" data-pallet="${esc(pal.nm)}" data-total="${pal.items.length}">
+        const palIdx=plan.indexOf(pal);
+        return `<div class="pr-item" id="row_${itemId}"
+            data-pallet="${esc(pal.nm)}"
+            data-palindx="${palIdx}"
+            data-itemidx="${idx}"
+            data-total="${pal.items.length}"
+            draggable="false">
+          <div class="pr-drag-handle" title="Sleep naar ander pallet">⠇</div>
           <div class="pr-left">
             <input type="checkbox" class="pr-check" id="${itemId}" onchange="toggleDone('${itemId}','${esc(pal.nm)}',${pal.items.length})">
             <div class="pr-pos">${idx+1}</div>
@@ -1668,7 +1669,12 @@ function showResults(){
             </div>
           </div>
           <div class="pr-right">
-            <div class="pr-qty">${item.qty}&times;</div>
+            <div class="pr-qty">
+              <input class="pr-qty-input" type="number" min="1" max="9999"
+                value="${item.qty}" style="display:none"
+                data-palindx="${palIdx}" data-itemidx="${idx}">
+              <span class="pr-qty-display">${item.qty}×</span>
+            </div>
             <div class="pr-gew">${item.l?item.l.toLocaleString('nl-NL')+' mm':''}</div>
             <div class="pr-gew">${item.gew.toFixed(1)} kg</div>
           </div>
@@ -2854,214 +2860,224 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 // ═══ BEWERKPANEEL ═══
 function openBewerkPanel(){
-  document.getElementById('bewerk-panel').style.display='block';
-  document.getElementById('btn-bewerk').style.display='none';
-  renderBewerkTabel();
-  document.getElementById('bewerk-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
+  window._bewerkActief = true;
+  window._planSnapshot = JSON.parse(JSON.stringify(plan)); // snapshot voor annuleren
+
+  // Activeer bewerkmode op palletResults
+  const pr = document.getElementById('palletResults');
+  if(pr) pr.classList.add('bewerk-actief');
+
+  // Toon bewerk-bar, verberg bewerk-knop
+  const bar = document.getElementById('bewerk-bar');
+  if(bar) bar.classList.add('zichtbaar');
+  const btn = document.getElementById('btn-bewerk');
+  if(btn) btn.style.display = 'none';
+
+  // Activeer drag en qty inputs
+  activeerBewerkmode();
 }
+
 function sluitBewerkPanel(){
-  document.getElementById('bewerk-panel').style.display='none';
-  document.getElementById('btn-bewerk').style.display='';
+  window._bewerkActief = false;
+
+  // Herstel snapshot als annuleren
+  if(window._planSnapshot){
+    plan = window._planSnapshot;
+    window._planSnapshot = null;
+    showResults();
+  }
+
+  const bar = document.getElementById('bewerk-bar');
+  if(bar) bar.classList.remove('zichtbaar');
+  const btn = document.getElementById('btn-bewerk');
+  if(btn) btn.style.display = '';
+
+  const pr = document.getElementById('palletResults');
+  if(pr) pr.classList.remove('bewerk-actief');
+}
+
+function activeerBewerkmode(){
+  // Zet draggable op alle pr-items, toon qty inputs
+  const items = document.querySelectorAll('#palletResults .pr-item');
+  items.forEach(el => {
+    el.setAttribute('draggable', 'true');
+    el.addEventListener('dragstart', onDragStart);
+    el.addEventListener('dragover',  onDragOver);
+    el.addEventListener('dragleave', onDragLeave);
+    el.addEventListener('drop',      onDrop);
+    el.addEventListener('dragend',   onDragEnd);
+  });
+
+  // Toon qty inputs, verberg qty display
+  document.querySelectorAll('#palletResults .pr-qty-input').forEach(inp => {
+    inp.style.display = 'inline-block';
+  });
+  document.querySelectorAll('#palletResults .pr-qty-display').forEach(sp => {
+    sp.style.display = 'none';
+  });
+
+  // Voeg drop-targets toe op pallet-cards (pb divs)
+  document.querySelectorAll('#palletResults .pb').forEach(pb => {
+    pb.addEventListener('dragover', e => { e.preventDefault(); pb.style.outline = '2px dashed var(--blue)'; });
+    pb.addEventListener('dragleave', e => { pb.style.outline = ''; });
+    pb.addEventListener('drop', e => {
+      pb.style.outline = '';
+      e.preventDefault();
+      e.stopPropagation();
+      // Drop op lege pallet: voeg toe aan einde
+      const pc = pb.closest('.pc');
+      if(!pc) return;
+      const targetNm = pc.id.replace('pc_','');
+      verplaatsItem(window._dragPalIdx, window._dragItemIdx, targetNm, null);
+    });
+  });
+}
+
+// Drag state
+let _dragEl = null;
+function onDragStart(e){
+  _dragEl = e.currentTarget;
+  window._dragPalIdx  = parseInt(_dragEl.dataset.palindx);
+  window._dragItemIdx = parseInt(_dragEl.dataset.itemidx);
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => _dragEl.classList.add('dragging'), 0);
+}
+function onDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if(e.currentTarget !== _dragEl) e.currentTarget.classList.add('drag-over');
+}
+function onDragLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+function onDragEnd(e){
+  if(_dragEl) _dragEl.classList.remove('dragging');
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+function onDrop(e){
+  e.preventDefault();
+  e.stopPropagation();
+  const target = e.currentTarget;
+  target.classList.remove('drag-over');
+  if(!_dragEl || target === _dragEl) return;
+
+  const toPalNm  = target.dataset.pallet;
+  const toItemIdx = parseInt(target.dataset.itemidx);
+  verplaatsItem(window._dragPalIdx, window._dragItemIdx, toPalNm, toItemIdx);
+}
+
+function verplaatsItem(fromPalIdx, fromItemIdx, toNm, toItemIdx){
+  const fromPal = plan[fromPalIdx];
+  const toPal   = plan.find(p => p.nm === toNm);
+  if(!fromPal || !toPal) return;
+  if(fromPal === toPal && fromItemIdx === toItemIdx) return;
+
+  // Verplaats item
+  const item = fromPal.items.splice(fromItemIdx, 1)[0];
+  if(!item) return;
+
+  // Gewicht bijwerken op bronpallet
+  fromPal.profW -= item.gew;
+  if(!fromPal.items.length) fromPal.used = false;
+
+  // Voeg toe aan doelpallet
+  if(fromPal === toPal){
+    // Volgorde binnen zelfde pallet
+    const insertAt = toItemIdx !== null ? toItemIdx : toPal.items.length;
+    toPal.items.splice(insertAt, 0, item);
+  } else {
+    // Check of artikel al op doelpallet staat — samenvoegen
+    const bestaand = toPal.items.find(x => x.art === item.art);
+    if(bestaand){
+      bestaand.qty += item.qty;
+      bestaand.gew += item.gew;
+    } else {
+      const insertAt = toItemIdx !== null ? toItemIdx : toPal.items.length;
+      toPal.items.splice(insertAt, 0, item);
+    }
+    toPal.profW += item.gew;
+    toPal.used = true;
+  }
+
+  // Herrender — bewerkmode actief houden
+  showResults();
+  const pr = document.getElementById('palletResults');
+  if(pr) pr.classList.add('bewerk-actief');
+  const bar = document.getElementById('bewerk-bar');
+  if(bar) bar.classList.add('zichtbaar');
+  document.getElementById('btn-bewerk').style.display = 'none';
+  activeerBewerkmode();
+}
+
+function bewerkQtyChange(inp){
+  const palIdx  = parseInt(inp.dataset.palindx);
+  const itemIdx = parseInt(inp.dataset.itemidx);
+  const qty = parseInt(inp.value) || 0;
+  if(qty <= 0 || !plan[palIdx]) return;
+  const item = plan[palIdx].items[itemIdx];
+  if(!item) return;
+  const oudeGew = item.gew;
+  item.qty = qty;
+  item.gew = qty * item.gps;
+  plan[palIdx].profW += (item.gew - oudeGew);
+  // Update display zonder volledige re-render
+  const display = inp.nextElementSibling;
+  if(display) display.textContent = qty + '×';
+}
+
+function bewerkOpslaanInline(){
+  // Lees eventuele openstaande qty-wijzigingen uit de inputs
+  document.querySelectorAll('#palletResults .pr-qty-input').forEach(inp => {
+    const palIdx  = parseInt(inp.dataset.palindx);
+    const itemIdx = parseInt(inp.dataset.itemidx);
+    const qty = parseInt(inp.value) || 0;
+    if(qty > 0 && plan[palIdx] && plan[palIdx].items[itemIdx]){
+      const item = plan[palIdx].items[itemIdx];
+      const oudeGew = item.gew;
+      item.qty = qty;
+      item.gew = qty * item.gps;
+      plan[palIdx].profW += (item.gew - oudeGew);
+    }
+  });
+
+  // Herbereken totalKg en overloaded per pallet
+  plan.forEach(p => {
+    p.totalKg = (p.profW + p.kg) * OHD;
+    p.overloaded = p.totalKg > MAX_P;
+    const stackKg = plan.filter(x=>x.sid===p.sid&&x.used).reduce((s,x)=>(s+(x.profW+x.kg)*OHD),0);
+    p.stackViolation = stackKg > MAX_S;
+  });
+
+  // Verwijder lege pallets
+  plan = plan.filter(p => p.items.length > 0 || p.used);
+
+  window._bewerkActief = false;
+  window._planSnapshot = null;
+
+  showResults();
+
+  // Opslaan
+  saveCurrentProject();
+
+  const btn = document.getElementById('btn-bewerk');
+  if(btn) btn.style.display = '';
 }
 
 // Bouw een gesorteerde lijst van alle DB-artikelen voor de dropdown
-function buildDbOpties(){
-  const combined = Object.assign({}, DB, window._customDB||{});
-  return Object.entries(combined)
-    .sort((a,b)=>b[1].l-a[1].l||a[0].localeCompare(b[0]))
-    .map(([art,rec])=>`<option value="${esc(art)}">${esc(art)} — ${esc(rec.d)} (${rec.l}mm, ${rec.g}kg/st${rec.klasse?' · '+rec.klasse:''})</option>`)
-    .join('');
-}
 
-function renderBewerkTabel(){
-  const dbOpties = buildDbOpties();
-  const tdSt = 'padding:6px 8px;vertical-align:middle;border-bottom:1px solid var(--g200)';
-  let html = `<table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead>
-      <tr style="background:var(--g100)">
-        <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600);width:200px">Huidig art.nr</th>
-        <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600)">Omschrijving</th>
-        <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600);width:90px">Lengte</th>
-        <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600);width:90px">Aantal</th>
-        <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600);width:120px">Pallet</th>
-        <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600);width:260px">Vervangen door</th>
-        <th style="${tdSt};width:36px"></th>
-      </tr>
-    </thead>
-    <tbody id="bewerk-tbody">`;
 
-  known.forEach((item, idx) => {
-    html += bewerkRijHTML(idx, item, dbOpties, tdSt);
-  });
 
-  html += `</tbody></table>`;
-  document.getElementById('bewerk-tabel').innerHTML = html;
-}
 
-function bewerkRijHTML(idx, item, dbOpties, tdSt){
-  tdSt = tdSt || 'padding:6px 8px;vertical-align:middle;border-bottom:1px solid var(--g200)';
-  dbOpties = dbOpties || buildDbOpties();
-  // Gebruik dbLookup zodat -H nummers en eigen DB ook gevonden worden
-  // Gebruik artOrig als primaire sleutel (behoudt -H suffix)
-  const _displayArt = item.artOrig || item.art;
-  const _match = dbLookup(_displayArt);
-  const dbRec = (_match && _match.rec) || {};
-  return `<tr id="bewerk-rij-${idx}">
-    <td style="${tdSt}">
-      <span style="font-family:var(--fc);font-weight:700;font-size:12px;color:var(--g700)">${esc(_displayArt)}</span>
-    </td>
-    <td style="${tdSt};color:var(--g600);font-size:12px">${esc(item.desc||dbRec.d||'—')}</td>
-    <td style="${tdSt};color:var(--g500);font-size:12px">${item.l||dbRec.l||'—'} mm</td>
-    <td style="${tdSt}">
-      <input type="number" id="bewerk-qty-${idx}" value="${item.qty}" min="1" max="9999"
-        style="width:75px;padding:5px 8px;border:1px solid var(--g300);font-size:13px;font-family:var(--fn);border-radius:2px"
-        title="Aantal stuks">
-    </td>
-    <td style="${tdSt}">
-      <select id="bewerk-pallet-${idx}"
-        style="width:100%;padding:5px 6px;border:1px solid var(--g300);font-size:12px;font-family:var(--fn);border-radius:2px"
-        title="Wijs toe aan specifiek pallet (optioneel)">
-        <option value="" ${!item.palletVoorkeur?'selected':''}>— Automatisch —</option>
-        ${['NM-1','NM-2','NM-3','NM-4','NM-5','NM-6','NM-7','NM-8','NM-9','NM-10','NM-11','NM-12'].map(nm=>`<option value="${nm}" ${item.palletVoorkeur===nm?'selected':''}>  ${nm}</option>`).join('')}
-      </select>
-    </td>
-    <td style="${tdSt}">
-      <select id="bewerk-art-${idx}"
-        style="width:100%;padding:5px 8px;border:1px solid var(--g300);font-size:12px;font-family:var(--fn);border-radius:2px;max-width:250px"
-        title="Vervang door ander artikelnummer (laat op huidig staan om niet te wijzigen)">
-        <option value="${esc(_displayArt)}" selected>— Niet wijzigen (${esc(_displayArt)}) —</option>
-        ${dbOpties}
-      </select>
-    </td>
-    <td style="${tdSt};text-align:center">
-      <button onclick="bewerkRijVerwijderen(${idx})"
-        style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--red);padding:3px 7px;font-size:13px;border-radius:2px"
-        title="Verwijder dit artikel uit de order">✕</button>
-    </td>
-  </tr>`;
-}
 
-function bewerkRijToevoegen(){
-  const dbOpties = buildDbOpties();
-  const idx = known.length;
-  // Voeg tijdelijk een leeg item toe
-  known.push({art:'',artOrig:'',desc:'',l:0,gps:0,qty:1,gew:0,loks:[]});
-  const tbody = document.getElementById('bewerk-tbody');
-  if(!tbody) return;
-  const tdSt = 'padding:6px 8px;vertical-align:middle;border-bottom:1px solid var(--g200)';
-  // Nieuw artikel: geen "huidig" — toon alleen de dropdown + qty
-  const tr = document.createElement('tr');
-  tr.id = 'bewerk-rij-'+idx;
-  tr.innerHTML = `
-    <td style="${tdSt}" colspan="3">
-      <span style="font-size:12px;color:var(--g500);font-style:italic">Nieuw artikel</span>
-    </td>
-    <td style="${tdSt}">
-      <input type="number" id="bewerk-qty-${idx}" value="1" min="1" max="9999"
-        style="width:75px;padding:5px 8px;border:1px solid var(--g300);font-size:13px;font-family:var(--fn);border-radius:2px">
-    </td>
-    <td style="${tdSt}">
-      <select id="bewerk-art-${idx}"
-        style="width:100%;padding:5px 8px;border:1px solid var(--g300);font-size:12px;font-family:var(--fn);border-radius:2px;max-width:250px">
-        <option value="">— Kies artikelnummer —</option>
-        ${dbOpties}
-      </select>
-    </td>
-    <td style="${tdSt};text-align:center">
-      <button onclick="bewerkRijVerwijderen(${idx})"
-        style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--red);padding:3px 7px;font-size:13px;border-radius:2px">✕</button>
-    </td>`;
-  tbody.appendChild(tr);
-}
 
-function bewerkRijVerwijderen(idx){
-  const rij = document.getElementById('bewerk-rij-'+idx);
-  if(rij) rij.style.opacity='0.35';
-  // markeer als verwijderd via een hidden input
-  const qtyEl = document.getElementById('bewerk-qty-'+idx);
-  if(qtyEl){ qtyEl.value='0'; qtyEl.disabled=true; }
-}
+
+
+
 
 function loadProjectEnBewerk(entry){
   loadProject(entry);
   setTimeout(function(){ openBewerkPanel(); }, 150);
 }
 
-async function bewerkOpslaan(){
-  const tbody = document.getElementById('bewerk-tbody');
-  if(!tbody){ sluitBewerkPanel(); return; }
-
-  const nieuweKnown = [];
-  const rijen = tbody.querySelectorAll('tr[id^="bewerk-rij-"]');
-
-  for(const rij of rijen){
-    const idx = parseInt(rij.id.replace('bewerk-rij-',''));
-    const qtyEl = document.getElementById('bewerk-qty-'+idx);
-    const artEl = document.getElementById('bewerk-art-'+idx);
-    if(!qtyEl || !artEl) continue;
-
-    const qty = parseInt(qtyEl.value)||0;
-    if(qty <= 0) continue; // verwijderd of 0
-
-    // Bepaal artikelnummer: dropdown-waarde of origineel
-    // artOud = artOrig zodat -H suffix bewaard blijft
-    let artNieuw = (artEl.value||'').trim();
-    const artOud = known[idx]?.artOrig || known[idx]?.art || '';
-
-    // Nieuw artikel zonder keuze → overslaan
-    if(!artNieuw && !artOud) continue;
-    // Als dropdown op "niet wijzigen" staat (waarde = artOud) of leeg → gebruik oud
-    if(!artNieuw || artNieuw === artOud) artNieuw = artOud;
-
-    // Gebruik dbLookup zodat -H nummers en eigen DB ook gevonden worden
-    const match = dbLookup(artNieuw);
-    if(!match){ alert('Artikel '+artNieuw+' niet gevonden in de profieldatabase. Controleer het artikelnummer.'); return; }
-    const dbRec = match.rec;
-
-    const gewTot = dbRec.g * qty;
-    const origItem = known[idx] || {};
-
-    const palletEl = document.getElementById('bewerk-pallet-'+idx);
-    const palletVoorkeur = palletEl ? (palletEl.value || null) : (origItem.palletVoorkeur || null);
-
-    nieuweKnown.push({
-      art: artNieuw,
-      artOrig: artNieuw !== artOud ? artNieuw : (origItem.artOrig || artNieuw),
-      desc: dbRec.d,
-      l: dbRec.l,
-      gps: dbRec.g,
-      qty,
-      gew: gewTot,
-      loks: origItem.loks || [],
-      lokQty: origItem.lokQty || undefined,
-      palletVoorkeur: palletVoorkeur || undefined
-    });
-  }
-
-  if(!nieuweKnown.length){ alert('Geen geldige artikelen over. Voeg minstens één artikel toe.'); return; }
-
-  // Sortering herstellen: langste profielen eerst (zelfde als parseBrowsom)
-  known = nieuweKnown.sort((a,b)=>b.l-a.l);
-
-  // Herberekenen — bypass PSI-vraag (al eerder beantwoord), ga direct naar stap 3
-  const _kp = getKlantProfiel(klant, projNr);
-  const _art6 = _kp?.regels?.artikel_nm6;
-  const hasNm6Art = _art6 && known.some(p=>p.art===_art6);
-  plan = computePlan([...known], hasNm6Art && psi66222Mode!==false, _kp && hasNm6Art ? _kp : null);
-  showResults();
-  sluitBewerkPanel();
-
-  // Auto-opslaan na bewerken
-  try {
-    const statusEl = document.getElementById('bewerk-save-status');
-    if(statusEl){ statusEl.textContent='💾 Opslaan…'; statusEl.style.display='inline-flex'; }
-    await saveCurrentProject();
-    if(statusEl){
-      statusEl.textContent='✅ Opgeslagen in database';
-      setTimeout(()=>{ statusEl.style.display='none'; }, 3000);
-    }
-  } catch(e){ console.warn('Auto-opslaan mislukt:', e); }
-}
+async 
 
 // ═══════════════════════════════════════════════════
 // EIGEN ARTIKELDATABASE (localStorage)
