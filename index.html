@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_78.html -->
+<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_80.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -386,10 +386,10 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   </div>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" id="tab-pallet" onclick="switchTab(&#39;pallet&#39;)">🏗 Pallet Planner</button>
+    <button class="nav-tab" id="tab-pallet" onclick="switchTab(&#39;pallet&#39;)">🏗 Pallet Planner</button>
     <button class="nav-tab" id="tab-planning" onclick="switchTab(&#39;planning&#39;)">📅 Planning</button>
     <button class="nav-tab" id="tab-artikeldb" onclick="switchTab(&#39;artikeldb&#39;)">🗄 Artikeldatabase</button>
-    <button class="nav-tab" id="tab-regels" onclick="switchTab(&#39;regels&#39;)">📋 Verdelingsregels</button>
+    <button class="nav-tab active" id="tab-regels" onclick="switchTab(&#39;regels&#39;)">📋 Verdelingsregels</button>
   </div>
 
   <!-- ═══ PLANNING SECTIE ═══ -->
@@ -418,14 +418,14 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
     </div>
   </div>
 
-  <div class="steps" id="steps-bar" style="display: flex;">
+  <div class="steps" id="steps-bar" style="display: none;">
     <div class="step done" id="stp1"><span class="sn">1</span>Bestand laden</div>
     <div class="step done" id="stp2"><span class="sn">2</span>Controleren</div>
     <div class="step active" id="stp3"><span class="sn">3</span>Palletindeling</div>
   </div>
 
   <!-- ═══ STAP 1: UPLOAD ═══ -->
-  <div id="sec-upload" class="">
+  <div id="sec-upload" class="hidden">
     <div class="card">
       <div class="card-title">Projectgegevens</div>
       <div class="proj-row">
@@ -627,8 +627,8 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
 
 
   <!-- ═══ VERDELINGSREGELS TAB ═══ -->
-  <div id="sec-regels" class="hidden">
-    <div id="regels-content"></div>
+  <div id="sec-regels" class="">
+    <div id="regels-content"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem"><div style="display:flex;align-items:center;gap:12px"><div style="font-family:var(--fc);font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--g900)">Verdelingsregels</div><span style="font-size:11px;background:var(--red);color:#fff;padding:2px 8px;font-family:var(--fc);letter-spacing:1px">PSI</span></div><div style="display:flex;gap:8px"><button id="btn-regels-bewerk" class="btn btn-outline" onclick="regelBewerk(true)" style="font-size:12px">✏️ Bewerken</button><button id="btn-regels-opslaan" class="btn btn-primary" onclick="regelOpslaan()" style="display:none;font-size:12px">✓ Opslaan</button><button id="btn-regels-annuleer" class="btn btn-outline" onclick="regelBewerk(false)" style="display:none;font-size:12px">Annuleren</button></div></div><div class="card" style="margin-bottom:1rem"><div class="card-title">Algemene gewichtsregels</div><table class="sum-table" style="font-size:13px"><tbody><tr><td style="color:var(--g500);width:220px;padding:6px 0">Streefgewicht per pallet</td><td style="padding:6px 8px"><span style="font-weight:700;color:var(--g900)">1.000 kg (incl. 6% opheffing)</span></td><td style="color:var(--g400);font-size:11px;padding:6px 0">Doel bij het vullen van elk pallet</td></tr><tr><td style="color:var(--g500);width:220px;padding:6px 0">Marge boven streefgewicht</td><td style="padding:6px 8px"><input id="regel_MARGE" type="number" value="25" disabled="" style="width:70px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;background:var(--g50)"></td><td style="color:var(--g400);font-size:11px;padding:6px 0">Toegestaan mits stapel ≤ 3.000 kg; alleen als nodig</td></tr><tr><td style="color:var(--g500);width:220px;padding:6px 0">Max. stapelgewicht</td><td style="padding:6px 8px"><span style="font-weight:700;color:var(--g900)">3.000 kg</span></td><td style="color:var(--g400);font-size:11px;padding:6px 0">Hard maximum voor de totale stapel (3 pallets)</td></tr><tr><td style="color:var(--g500);width:220px;padding:6px 0">Opheffingsfactor</td><td style="padding:6px 8px"><span style="font-weight:700;color:var(--g900)">1,06 (6%)</span></td><td style="color:var(--g400);font-size:11px;padding:6px 0">Alle gewichten worden vermenigvuldigd met 1,06</td></tr><tr><td style="color:var(--g500);width:220px;padding:6px 0">Lange pallets (7.350mm)</td><td style="padding:6px 8px"><span style="font-weight:700;color:var(--g900)">Profielen langer dan 6.000mm</span></td><td style="color:var(--g400);font-size:11px;padding:6px 0">NM-1 t/m NM-6</td></tr><tr><td style="color:var(--g500);width:220px;padding:6px 0">Korte pallets (5.900mm)</td><td style="padding:6px 8px"><span style="font-weight:700;color:var(--g900)">Profielen ≤ 6.000mm</span></td><td style="color:var(--g400);font-size:11px;padding:6px 0">NM-7 t/m NM-12</td></tr><tr><td style="color:var(--g500);width:220px;padding:6px 0">6.000mm profielen</td><td style="padding:6px 8px"><span style="font-weight:700;color:var(--g900)">Altijd op korte pallets — harde eis</span></td><td style="color:var(--g400);font-size:11px;padding:6px 0">Min. verlengingen van 5.900mm pallets</td></tr><tr><td style="color:var(--g500);width:220px;padding:6px 0">Marge alleen indien nodig</td><td style="padding:6px 8px"><span style="font-weight:700;color:var(--g900)">Ja</span></td><td style="color:var(--g400);font-size:11px;padding:6px 0">Marge nooit gebruiken als artikel binnen streef past</td></tr></tbody></table></div><div class="card" style="margin-bottom:1rem"><div class="card-title">Prioriteitvolgorde bij verdeling</div><ol style="margin:0;padding-left:20px;font-size:13px;line-height:2"><li>NM-6: exact 160× 66222 (hoogste prioriteit)</li><li>NM-6: max 12× 72065-H (vóór NM-1/NM-4)</li><li>NM-1 / NM-4: voorkeur 72073-H, dan 72065-H</li><li>6.000mm profielen op korte pallets (NM-7–NM-12) — harde eis</li><li>Laaglogica: volle lagen per artikel, restant naar volgend pallet</li><li>Vrije verdeling: overige artikelen op basis van gewicht</li></ol></div><div class="card" style="margin-bottom:1rem"><div class="card-title">NM-6 specifieke regels</div><table class="sum-table" style="font-size:13px"><tbody><tr><td style="color:var(--g500);width:220px;padding:6px 0">Artikel op NM-6</td><td style="font-weight:700;color:var(--g900);padding:6px 8px">66222</td><td></td></tr><tr><td style="color:var(--g500);padding:6px 0">Standaard aantal 66222</td><td style="padding:6px 8px"><input id="regel_nm6_qty" type="number" value="160" disabled="" style="width:70px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;background:var(--g50)"></td><td style="color:var(--g400);font-size:11px">Harde eis — exact dit aantal op NM-6</td></tr><tr><td style="color:var(--g500);padding:6px 0">Max. 72065-H op NM-6</td><td style="padding:6px 8px"><input id="regel_nm6_aanv_qty" type="number" value="12" disabled="" style="width:70px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;background:var(--g50)"></td><td style="color:var(--g400);font-size:11px">NM-6 heeft voorrang boven NM-1/NM-4</td></tr></tbody></table></div><div class="card" style="margin-bottom:1rem"><div class="card-title">Laaglogica per artikel</div><p style="font-size:12px;color:var(--g500);margin-bottom:10px">Artikelen worden in volle lagen verdeeld. Aantal lagen per pallet bepaald door gewicht. Restant naar volgend pallet.</p><div class="tw"><table id="laag-tabel"><thead><tr><th>Artikelnummer</th><th class="r">Stuks per laag</th><th>Opmerking</th></tr></thead><tbody><tr><td style="font-family:var(--fc);font-weight:600;color:var(--g800)">70373</td><td class="r"><input id="laag_70373" type="number" value="8" disabled="" style="width:60px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;text-align:right;background:var(--g50)"></td><td style="font-size:11px;color:var(--g500)"></td></tr><tr><td style="font-family:var(--fc);font-weight:600;color:var(--g800)">72356</td><td class="r"><input id="laag_72356" type="number" value="8" disabled="" style="width:60px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;text-align:right;background:var(--g50)"></td><td style="font-size:11px;color:var(--g500)">Aanvullen met kleine profielen toegestaan na volle lagen</td></tr><tr><td style="font-family:var(--fc);font-weight:600;color:var(--g800)">72669</td><td class="r"><input id="laag_72669" type="number" value="10" disabled="" style="width:60px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;text-align:right;background:var(--g50)"></td><td style="font-size:11px;color:var(--g500)"></td></tr><tr><td style="font-family:var(--fc);font-weight:600;color:var(--g800)">72973</td><td class="r"><input id="laag_72973" type="number" value="6" disabled="" style="width:60px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;text-align:right;background:var(--g50)"></td><td style="font-size:11px;color:var(--g500)"></td></tr><tr><td style="font-family:var(--fc);font-weight:600;color:var(--g800)">72356-H</td><td class="r"><input id="laag_72356_H" type="number" value="8" disabled="" style="width:60px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;text-align:right;background:var(--g50)"></td><td style="font-size:11px;color:var(--g500)">Aanvullen met kleine profielen toegestaan na volle lagen</td></tr><tr><td style="font-family:var(--fc);font-weight:600;color:var(--g800)">72065-H</td><td class="r"><input id="laag_72065_H" type="number" value="12" disabled="" style="width:60px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;text-align:right;background:var(--g50)"></td><td style="font-size:11px;color:var(--g500)"></td></tr><tr><td style="font-family:var(--fc);font-weight:600;color:var(--g800)">72073-H</td><td class="r"><input id="laag_72073_H" type="number" value="12" disabled="" style="width:60px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;text-align:right;background:var(--g50)"></td><td style="font-size:11px;color:var(--g500)"></td></tr><tr><td style="font-family:var(--fc);font-weight:600;color:var(--g800)">72956-H</td><td class="r"><input id="laag_72956_H" type="number" value="6" disabled="" style="width:60px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;text-align:right;background:var(--g50)"></td><td style="font-size:11px;color:var(--g500)"></td></tr><tr><td style="font-family:var(--fc);font-weight:600;color:var(--g800)">70359-H</td><td class="r"><input id="laag_70359_H" type="number" value="8" disabled="" style="width:60px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;text-align:right;background:var(--g50)"></td><td style="font-size:11px;color:var(--g500)"></td></tr></tbody></table></div></div><div class="card" style="margin-bottom:1rem"><div class="card-title">Pallet-specifieke plaatsingsregels</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:4px"><div style="border:1px solid var(--g200);border-top:3px solid var(--g600);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-1</span><span style="font-size:10px;background:var(--g700);color:#fff;padding:2px 7px;font-family:var(--fc)">Kruispallet 7350mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>Voorkeur: 72073-H, daarna aanvullen met 72065-H</li><li>NM-6 heeft voorrang op 72065-H</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--red);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-2</span><span style="font-size:10px;background:var(--red);color:#fff;padding:2px 7px;font-family:var(--fc)">Pallet 7350mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>Geen speciale plaatsingsregel — vrije verdeling</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--red);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-3</span><span style="font-size:10px;background:var(--red);color:#fff;padding:2px 7px;font-family:var(--fc)">Pallet 7350mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>Geen speciale plaatsingsregel — vrije verdeling</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--g600);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-4</span><span style="font-size:10px;background:var(--g700);color:#fff;padding:2px 7px;font-family:var(--fc)">Kruispallet 7350mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>Voorkeur: 72073-H, daarna aanvullen met 72065-H</li><li>NM-6 heeft voorrang op 72065-H</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--red);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-5</span><span style="font-size:10px;background:var(--red);color:#fff;padding:2px 7px;font-family:var(--fc)">Pallet 7350mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>Geen speciale plaatsingsregel — vrije verdeling</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid #6A1B9A;padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-6</span><span style="font-size:10px;background:#6A1B9A;color:#fff;padding:2px 7px;font-family:var(--fc)">Pallet 7350mm (Kliklijsten)</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>Exact 160× artikel 66222 (kliklijst 6700mm) — harde eis</li><li>Aanvullen met max. 12× artikel 72065-H</li><li>NM-6 heeft voorrang op 72065-H boven NM-1 en NM-4</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--g600);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-7</span><span style="font-size:10px;background:var(--g700);color:#fff;padding:2px 7px;font-family:var(--fc)">Kruispallet 5900mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>6.000mm profielen hebben voorrang (harde eis)</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--gold);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-8</span><span style="font-size:10px;background:var(--gold);color:#fff;padding:2px 7px;font-family:var(--fc)">Pallet 5900mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>6.000mm profielen hebben voorrang</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--gold);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-9</span><span style="font-size:10px;background:var(--gold);color:#fff;padding:2px 7px;font-family:var(--fc)">Pallet 5900mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>6.000mm profielen hebben voorrang</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--g600);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-10</span><span style="font-size:10px;background:var(--g700);color:#fff;padding:2px 7px;font-family:var(--fc)">Kruispallet 5900mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>6.000mm profielen hebben voorrang</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--gold);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-11</span><span style="font-size:10px;background:var(--gold);color:#fff;padding:2px 7px;font-family:var(--fc)">Pallet 5900mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>6.000mm profielen hebben voorrang</li></ul></div><div style="border:1px solid var(--g200);border-top:3px solid var(--gold);padding:12px 14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:var(--fc);font-weight:700;font-size:16px">NM-12</span><span style="font-size:10px;background:var(--gold);color:#fff;padding:2px 7px;font-family:var(--fc)">Pallet 5900mm</span></div><ul style="margin:0;padding-left:16px;font-size:12px;color:var(--g600);line-height:1.8"><li>6.000mm profielen hebben voorrang</li></ul></div></div></div><div class="card" style="border-top-color:var(--g300)"><div class="card-title" style="color:var(--g400)">Toekomstige klanten</div><p style="font-size:12px;color:var(--g400)">SCS en SEN — regels nog niet geconfigureerd.</p></div></div>
   </div>
 
   <!-- ═══ ARTIKEL DATABASE TAB ═══ -->
@@ -1212,7 +1212,7 @@ function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
   // MARGE   = toegestane afwijking boven streef als stapel ≤ MAX_S (±25 kg)
   // MAX_S   = maximaal stapelgewicht (3000 kg totaal incl. OHD)
   // OHD     = opheffingsfactor (1.06)
-  const MARGE = (window._margeOverride || 75); // kg afwijking toegestaan boven 1000 kg mits stapel OK
+  const MARGE = (window._margeOverride || 25); // kg afwijking toegestaan boven 1000 kg mits stapel OK
 
   const long  = profiles.filter(p=>p.l>6000);
   const short = profiles.filter(p=>p.l<=6000);
@@ -1455,6 +1455,21 @@ function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
     }
   }
 
+  // ── Vaste pallettoewijzing: artikelen met palletVoorkeur eerst plaatsen ──
+  const metVoorkeur = [...long, ...short].filter(p => p.palletVoorkeur);
+  metVoorkeur.forEach(p => {
+    const li = long.indexOf(p);  if(li >= 0) long.splice(li, 1);
+    const si = short.indexOf(p); if(si >= 0) short.splice(si, 1);
+    const pal = pallets.find(x => x.nm === p.palletVoorkeur);
+    if(!pal){ long.push(p); return; } // onbekend pallet → toch normaal verdelen
+    const gew = p.qty * p.gps;
+    const ex = pal.items.find(x => x.art === p.art);
+    if(ex){ ex.qty += p.qty; ex.gew += gew; }
+    else   { pal.items.push({...p, gew}); }
+    pal.profW += gew;
+    pal.used   = true;
+  });
+
   // ── Pre-processing: 6000mm harde eis ──
   // Strategie: vul NM-7 volledig met 6000mm profielen, dan NM-8, enz.
   // Pas daarna de overige korte profielen op de resterende ruimte.
@@ -1644,6 +1659,7 @@ function showResults(){
 
       const itemRows=pal.items.map((item,idx)=>{
         const locHtml=item.loks&&item.loks.length?`<span class="pr-loc">${esc(item.loks.join(', '))}</span>`:'';
+        const palVkHtml=item.palletVoorkeur?`<span class="pr-loc" style="background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7" title="Handmatig toegewezen pallet">📌 ${esc(item.palletVoorkeur)}</span>`:'';
         const itemId='chk_'+pal.nm+'_'+idx;
         return `<div class="pr-item" id="row_${itemId}" data-pallet="${esc(pal.nm)}" data-total="${pal.items.length}">
           <div class="pr-left">
@@ -1653,7 +1669,7 @@ function showResults(){
               <div class="pr-code">${esc(item.artOrig||item.art)}</div>
               <div class="pr-desc-row">
                 <div class="pr-desc">${esc(item.desc)}</div>
-                ${locHtml}
+                ${locHtml}${palVkHtml}
               </div>
             </div>
           </div>
@@ -1935,7 +1951,7 @@ async function saveCurrentProject(){
     datum: new Date().toISOString(),
     pallets: plan.length,
     total_kg: Math.round(plan.reduce((s,p)=>s+p.totalKg,0)),
-    known: known.map(p=>({art:p.artOrig||p.art,artOrig:p.artOrig||p.art,desc:p.desc,l:p.l,gps:p.gps,qty:p.qty,gew:p.gew,loks:p.loks,lokQty:p.lokQty||undefined})).map(p=>{const {lokQty,...rest}=p;return rest;}),
+    known: known.map(p=>({art:p.artOrig||p.art,artOrig:p.artOrig||p.art,desc:p.desc,l:p.l,gps:p.gps,qty:p.qty,gew:p.gew,loks:p.loks,palletVoorkeur:p.palletVoorkeur||undefined})),
     plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items})),
     checked_items: checkedItems,
     status: 'not_started'
@@ -1963,7 +1979,7 @@ function loadProject(entry){
     if(match){
       // Altijd l, gps, desc bijwerken vanuit DB — ook als art key gelijk is
       // Zo worden artikelen met l=0 (opgeslagen vóór DB fix) correct hersteld
-      return {...item, art: match.key, artOrig: origArt, desc: match.rec.d, l: match.rec.l, gps: match.rec.g, gew: (item.qty||0)*match.rec.g};
+      return {...item, art: match.key, artOrig: origArt, desc: match.rec.d, l: match.rec.l, gps: match.rec.g, gew: (item.qty||0)*match.rec.g, palletVoorkeur: item.palletVoorkeur||undefined};
     }
     return item;
   });
@@ -2588,7 +2604,7 @@ function renderRegels(){
   // Bewerkbare waarden uit KLANT_PROFIELEN (live)
   const generiek = [
     {label:'Streefgewicht per pallet', key:'MAX_P_display', waarde:'1.000 kg (incl. 6% opheffing)', editable:false, toelichting:'Doel bij het vullen van elk pallet'},
-    {label:'Marge boven streefgewicht', key:'MARGE', waarde: (window._margeOverride||75) + ' kg', editable:true, type:'number', live:'MARGE', toelichting:'Toegestaan mits stapel ≤ 3.000 kg; alleen als nodig'},
+    {label:'Marge boven streefgewicht', key:'MARGE', waarde: (window._margeOverride||25) + ' kg', editable:true, type:'number', live:'MARGE', toelichting:'Toegestaan mits stapel ≤ 3.000 kg; alleen als nodig'},
     {label:'Max. stapelgewicht', key:'MAX_S_display', waarde:'3.000 kg', editable:false, toelichting:'Hard maximum voor de totale stapel (3 pallets)'},
     {label:'Opheffingsfactor', key:'OHD_display', waarde:'1,06 (6%)', editable:false, toelichting:'Alle gewichten worden vermenigvuldigd met 1,06'},
     {label:'Lange pallets (7.350mm)', waarde:'Profielen langer dan 6.000mm', editable:false, toelichting:'NM-1 t/m NM-6'},
@@ -2644,7 +2660,7 @@ function renderRegels(){
     +  '<table class="sum-table" style="font-size:13px"><tbody>';
   generiek.forEach(r => {
     const valHtml = r.editable
-      ? '<input id="regel_'+r.live+'" type="number" value="'+(window._margeOverride||75)+'" disabled style="width:70px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;background:var(--g50)">'
+      ? '<input id="regel_'+r.live+'" type="number" value="'+(window._margeOverride||25)+'" disabled style="width:70px;padding:3px 6px;border:1px solid var(--g300);font-family:var(--fn);font-size:13px;background:var(--g50)">'
       : '<span style="font-weight:700;color:var(--g900)">'+r.waarde+'</span>';
     h += '<tr>'
       +  '<td style="color:var(--g500);width:220px;padding:6px 0">'+r.label+'</td>'
@@ -2873,6 +2889,7 @@ function renderBewerkTabel(){
         <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600)">Omschrijving</th>
         <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600);width:90px">Lengte</th>
         <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600);width:90px">Aantal</th>
+        <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600);width:120px">Pallet</th>
         <th style="${tdSt};font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g600);width:260px">Vervangen door</th>
         <th style="${tdSt};width:36px"></th>
       </tr>
@@ -2905,6 +2922,14 @@ function bewerkRijHTML(idx, item, dbOpties, tdSt){
       <input type="number" id="bewerk-qty-${idx}" value="${item.qty}" min="1" max="9999"
         style="width:75px;padding:5px 8px;border:1px solid var(--g300);font-size:13px;font-family:var(--fn);border-radius:2px"
         title="Aantal stuks">
+    </td>
+    <td style="${tdSt}">
+      <select id="bewerk-pallet-${idx}"
+        style="width:100%;padding:5px 6px;border:1px solid var(--g300);font-size:12px;font-family:var(--fn);border-radius:2px"
+        title="Wijs toe aan specifiek pallet (optioneel)">
+        <option value="" ${!item.palletVoorkeur?'selected':''}>— Automatisch —</option>
+        ${['NM-1','NM-2','NM-3','NM-4','NM-5','NM-6','NM-7','NM-8','NM-9','NM-10','NM-11','NM-12'].map(nm=>`<option value="${nm}" ${item.palletVoorkeur===nm?'selected':''}>  ${nm}</option>`).join('')}
+      </select>
     </td>
     <td style="${tdSt}">
       <select id="bewerk-art-${idx}"
@@ -3002,6 +3027,9 @@ async function bewerkOpslaan(){
     const gewTot = dbRec.g * qty;
     const origItem = known[idx] || {};
 
+    const palletEl = document.getElementById('bewerk-pallet-'+idx);
+    const palletVoorkeur = palletEl ? (palletEl.value || null) : (origItem.palletVoorkeur || null);
+
     nieuweKnown.push({
       art: artNieuw,
       artOrig: artNieuw !== artOud ? artNieuw : (origItem.artOrig || artNieuw),
@@ -3010,7 +3038,9 @@ async function bewerkOpslaan(){
       gps: dbRec.g,
       qty,
       gew: gewTot,
-      loks: origItem.loks || []
+      loks: origItem.loks || [],
+      lokQty: origItem.lokQty || undefined,
+      palletVoorkeur: palletVoorkeur || undefined
     });
   }
 
