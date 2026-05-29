@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_86.html -->
+<!-- saved from url=(0050)file:///C:/Users/v.vossems/Downloads/index_87.html -->
 <html lang="nl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -162,20 +162,20 @@ tbody td.r{text-align:right}
 /* PALLET CARDS in stack */
 .pallet-row{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem}
 
-.pc{border:1px solid var(--g300);overflow:hidden;position:relative;display:grid;grid-template-columns:220px 1fr;align-items:stretch}
-.pc.long{border-top:3px solid var(--red)}
-.pc.short{border-top:3px solid var(--gold)}
-.pc.xpallet .ph{background:var(--g900)}
-.ph{background:var(--g900);color:#fff;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;gap:8px}
-.pnum{font-family:var(--fc);font-size:20px;font-weight:700;letter-spacing:2px}
-.ptags{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
-.ptyp{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--g300);background:rgba(255,255,255,.1);padding:2px 7px}
-.pstk-badge{font-size:10px;padding:2px 7px;font-family:var(--fc);letter-spacing:1px}
+.pc{border:1px solid var(--g300);overflow:hidden;position:relative;display:grid;grid-template-columns:240px 1fr;align-items:stretch}
+.pc.long{border-top:4px solid var(--red)}
+.pc.short{border-top:4px solid var(--gold)}
+.pc.xpallet .ph{background:#1C1A18}
+.ph{background:var(--g800);color:#fff;padding:16px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.pnum{font-family:var(--fc);font-size:28px;font-weight:700;letter-spacing:3px;line-height:1}
+.ptags{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.ptyp{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g300);background:rgba(255,255,255,.1);padding:3px 8px}
+.pstk-badge{font-size:11px;padding:3px 8px;font-family:var(--fc);letter-spacing:1px;font-weight:700}
 .pstk-badge.long{background:var(--red);color:#fff}
 .pstk-badge.short{background:var(--gold);color:#fff}
-.pstk-badge.xp{background:var(--g700);color:#fff}
+.pstk-badge.xp{background:#FF6B00;color:#fff}
 .pstk-badge.nm6special{background:#6A1B9A;color:#fff}
-.pb{padding:12px 16px;border-left:1px solid var(--g200)}
+.pb{padding:14px 18px;border-left:1px solid var(--g200)}
 .pr-item{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--g100);font-size:12px}
 .bewerk-actief .pr-item{cursor:grab;transition:background .15s}
 .bewerk-actief .pr-item:hover{background:var(--g50)}
@@ -199,8 +199,8 @@ tbody td.r{text-align:right}
 .pr-qty{font-weight:600;font-size:15px}
 .pr-gew{color:var(--g500);font-size:11px}
 
-.wbar{height:5px;background:var(--g100);margin-top:10px}
-.wfill{height:100%;transition:width .5s ease}
+.wbar{height:8px;background:rgba(255,255,255,.15);margin-top:12px;border-radius:2px}
+.wfill{height:100%;transition:width .5s ease;border-radius:2px}
 .wfill.ok{background:var(--green)}.wfill.warn{background:var(--gold)}.wfill.bad{background:var(--red)}
 .winfo{display:flex;justify-content:space-between;align-items:center;font-size:10px;margin-top:3px;color:var(--g500)}
 .wtot{font-weight:700;font-size:13px;margin-top:6px;text-align:left}
@@ -306,7 +306,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
   h1{font-size:16px}
   .page-title{margin-bottom:0.5rem}
   .pr-item{padding:3px 0}
-  .pnum{font-size:14px!important}
+  .pnum{font-size:16px!important}
   #print-header{display:block!important}
 
   /* Paginavoettekst */
@@ -495,7 +495,7 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
           <button id="filt-completed" onclick="setFilter(&#39;completed&#39;)">Completed</button>
         </div>
       </div>
-      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">29-05-2026<br><span style="color:var(--g300)">11:23</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">9.687 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
+      <div id="db-body"><div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div><div class="db-row" onclick="loadProject(window._dbProjects[0])"><div class="db-row-proj">2508903</div><div class="db-row-klant">Polar Specialized Industries (PSI)</div><div class="db-row-date">29-05-2026<br><span style="color:var(--g300)">11:46</span></div><div><span class="status-badge status-not_started" onclick="event.stopPropagation();cycleStatus(window._dbProjects[0])">Not started</span></div><div class="db-row-stats" style="text-align:right">12</div><div class="db-row-stats" style="text-align:right">9.687 kg</div><div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects[0].proj_nr,event)" title="Verwijderen">✕</button></div></div></div>
     </div>
   </div>
 
@@ -612,13 +612,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11246</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:62.8%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11246</div>
+            <div class="wbar"><div class="wfill ok" style="width:62.8%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               628.4 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 462.8 + Pallet 130 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 462.8 + Pallet 130 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -676,13 +676,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11249</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:95.0%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11249</div>
+            <div class="wbar"><div class="wfill warn" style="width:95.0%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               950.4 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 816.6 + Pallet 80 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 816.6 + Pallet 80 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -740,13 +740,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11249</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:55.2%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11249</div>
+            <div class="wbar"><div class="wfill ok" style="width:55.2%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               551.7 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 440.5 + Pallet 80 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 440.5 + Pallet 80 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -815,13 +815,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11246</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:97.4%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11246</div>
+            <div class="wbar"><div class="wfill warn" style="width:97.4%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               974.2 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 789.0 + Pallet 130 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 789.0 + Pallet 130 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -879,13 +879,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11249</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:68.2%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11249</div>
+            <div class="wbar"><div class="wfill ok" style="width:68.2%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               682.4 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 563.7 + Pallet 80 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 563.7 + Pallet 80 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -943,13 +943,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11249</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:82.8%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11249</div>
+            <div class="wbar"><div class="wfill ok" style="width:82.8%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               827.6 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 700.7 + Pallet 80 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 700.7 + Pallet 80 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -1018,13 +1018,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">6 types · Art. 11247</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:100.0%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">6 types · Art. 11247</div>
+            <div class="wbar"><div class="wfill warn" style="width:100.0%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               999.7 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 848.1 + Pallet 95 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 848.1 + Pallet 95 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -1166,13 +1166,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">3 types · Art. 11248</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:49.7%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">3 types · Art. 11248</div>
+            <div class="wbar"><div class="wfill ok" style="width:49.7%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               497.1 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 398.9 + Pallet 70 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 398.9 + Pallet 70 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -1251,13 +1251,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11248</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:99.2%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11248</div>
+            <div class="wbar"><div class="wfill warn" style="width:99.2%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               991.8 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 865.7 + Pallet 70 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 865.7 + Pallet 70 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -1326,13 +1326,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11247</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:96.0%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11247</div>
+            <div class="wbar"><div class="wfill warn" style="width:96.0%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               960.1 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 810.8 + Pallet 95 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 810.8 + Pallet 95 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -1390,13 +1390,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11248</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill warn" style="width:96.8%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11248</div>
+            <div class="wbar"><div class="wfill warn" style="width:96.8%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               967.9 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 843.1 + Pallet 70 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 843.1 + Pallet 70 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -1454,13 +1454,13 @@ footer{background:var(--g800);color:var(--g500);text-align:center;padding:1rem;f
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">2 types · Art. 11248</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ok" style="width:65.6%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:#69F0AE">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">2 types · Art. 11248</div>
+            <div class="wbar"><div class="wfill ok" style="width:65.6%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:#69F0AE">
               655.5 kg incl. 6%
               
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen 548.4 + Pallet 70 kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen 548.4 + Pallet 70 kg</div>
           </div>
         </div>
         <div class="pb">
@@ -2626,13 +2626,13 @@ function showResults(){
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${pal.items.length} type${pal.items.length>1?'s':''} &middot; Art. ${esc(pal.art)}</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ${bc}" style="width:${pct.toFixed(1)}%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:${pal.stackViolation?'#FF5252':pal.overloaded?'#FFD54F':'#69F0AE'}">
+            <div style="font-size:11px;color:var(--g400);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${pal.items.length} type${pal.items.length>1?'s':''} &middot; Art. ${esc(pal.art)}</div>
+            <div class="wbar"><div class="wfill ${bc}" style="width:${pct.toFixed(1)}%"></div></div>
+            <div style="font-size:15px;font-weight:700;margin-top:8px;letter-spacing:.5px;color:${pal.stackViolation?'#FF5252':pal.overloaded?'#FFD54F':'#69F0AE'}">
               ${pal.totalKg.toFixed(1)} kg incl. 6%
-              ${pal.stackViolation?' &#9888;':pal.overloaded?' <span style="font-size:10px">(toegestaan)</span>':''}
+              ${pal.stackViolation?' &#9888;':pal.overloaded?' <span style="font-size:11px;font-weight:400">(toegestaan)</span>':''}
             </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen ${pal.profW.toFixed(1)} + Pallet ${pal.kg} kg</div>
+            <div style="font-size:11px;color:var(--g400);margin-top:3px">Profielen ${pal.profW.toFixed(1)} + Pallet ${pal.kg} kg</div>
           </div>
         </div>
         <div class="pb">
