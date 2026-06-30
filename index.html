@@ -2840,13 +2840,31 @@ const SB_URL = 'https://gahqjogmbofdonsxenph.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhaHFqb2dtYm9mZG9uc3hlbnBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNjUwOTYsImV4cCI6MjA5MTY0MTA5Nn0.-lVlcXqtUiIGNDLmMBP4u0HeLk3-PiQ3L3VmAuFeems';
 const SB_HDR = {'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'};
 
+// ─── localStorage fallback helpers ───────────────────────────────────────────
+const LS_PROJECTS = 'salco_projects_v2';
+const LS_CONTAINERS = 'salco_containers_v2';
+
+function lsGetProjects(){
+  try{ return JSON.parse(localStorage.getItem(LS_PROJECTS)||'[]'); }catch(e){ return []; }
+}
+function lsSaveProjects(arr){
+  try{ localStorage.setItem(LS_PROJECTS, JSON.stringify(arr)); }catch(e){ console.warn('LS save failed',e); }
+}
+function lsGetContainers(){
+  try{ return JSON.parse(localStorage.getItem(LS_CONTAINERS)||'[]'); }catch(e){ return []; }
+}
+function lsSaveContainers(arr){
+  try{ localStorage.setItem(LS_CONTAINERS, JSON.stringify(arr)); }catch(e){ console.warn('LS save containers failed',e); }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function sbGet(){
   try{
     const r = await fetch(SB_URL+'/rest/v1/projects?order=datum.desc', {headers: SB_HDR});
     if(!r.ok) throw new Error(await r.text());
     const projects = await r.json();
-
-    // Sortering: in_progress → not_started → completed, daarna projectnummer numeriek oplopend
+    // Cache to localStorage as backup
+    lsSaveProjects(projects);
     const statusOrder = {'in_progress':0,'not_started':1,'completed':2};
     projects.sort((a,b)=>{
       const sa = statusOrder[a.status||'not_started'] ?? 1;
@@ -2857,461 +2875,100 @@ async function sbGet(){
       const nb = parseInt((b.proj_nr||'').replace(/\D/g,''))||0;
       return na-nb;
     });
-
     return projects;
-  } catch(e){ console.error('Supabase GET:', e); return []; }
+  } catch(e){
+    console.warn('Supabase niet bereikbaar, gebruik localStorage:', e);
+    const projects = lsGetProjects();
+    const statusOrder = {'in_progress':0,'not_started':1,'completed':2};
+    projects.sort((a,b)=>{
+      const sa = statusOrder[a.status||'not_started'] ?? 1;
+      const sb = statusOrder[b.status||'not_started'] ?? 1;
+      if(sa!==sb) return sa-sb;
+      const na = parseInt((a.proj_nr||'').replace(/\D/g,''))||0;
+      const nb = parseInt((b.proj_nr||'').replace(/\D/g,''))||0;
+      return na-nb;
+    });
+    return projects;
+  }
 }
 
 async function sbUpsert(entry){
+  // Altijd lokaal opslaan als fallback/cache
+  const localProjects = lsGetProjects();
+  const idx = localProjects.findIndex(p => p.proj_nr === entry.proj_nr);
+  if(idx > -1) localProjects[idx] = entry;
+  else localProjects.unshift(entry);
+  lsSaveProjects(localProjects);
+
+  // Probeer ook naar Supabase
   try{
     const check = await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(entry.proj_nr), {headers: SB_HDR});
     const existing = await check.json();
     if(existing && existing.length > 0){
-      const r = await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(entry.proj_nr), {
+      await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(entry.proj_nr), {
         method:'PATCH', headers: SB_HDR, body: JSON.stringify(entry)
       });
-      if(!r.ok) throw new Error(await r.text());
     } else {
-      const r = await fetch(SB_URL+'/rest/v1/projects', {
+      await fetch(SB_URL+'/rest/v1/projects', {
         method:'POST', headers: SB_HDR, body: JSON.stringify(entry)
       });
-      if(!r.ok) throw new Error(await r.text());
     }
-  } catch(e){
-    console.error('Supabase UPSERT:', e);
-    // Niet-blokkerende foutmelding — toon in de UI zonder alert()
-    const errBanner = document.getElementById('db-save-error');
-    if(errBanner){
-      errBanner.textContent = 'Project opslaan mislukt: '+e.message+' (controleer internetverbinding)';
-      errBanner.style.display = 'block';
-      setTimeout(()=>{ errBanner.style.display='none'; }, 8000);
-    } else {
-      console.warn('Opslaan mislukt:', e.message);
-    }
-  }
+  } catch(e){ console.warn('Supabase upsert overgeslagen (offline modus):', e); }
 }
 
 async function sbDelete(projNr){
+  // Verwijder uit localStorage
+  const localProjects = lsGetProjects();
+  const filtered = localProjects.filter(p => p.proj_nr !== projNr);
+  lsSaveProjects(filtered);
+
+  // Probeer ook Supabase
   try{
     const r = await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(projNr), {
       method:'DELETE', headers: SB_HDR
     });
     if(!r.ok) throw new Error(await r.text());
-  } catch(e){ console.error('Supabase DELETE:', e); alert('Verwijderen mislukt: '+e.message); }
+  } catch(e){ console.warn('Supabase delete overgeslagen (offline modus):', e); }
 }
 
-async function saveCurrentProject(){
-  if(!plan.length || !projNr) return;
-  const entry = {
-    proj_nr: projNr,
-    klant: klant,
-    datum: new Date().toISOString(),
-    pallets: plan.length,
-    total_kg: Math.round(plan.reduce((s,p)=>s+p.totalKg,0)),
-    known: known.map(p=>({art:p.artOrig||p.art,artOrig:p.artOrig||p.art,desc:p.desc,l:p.l,gps:p.gps,qty:p.qty,gew:p.gew,loks:p.loks,palletVoorkeur:p.palletVoorkeur||undefined})),
-    plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items})),
-    checked_items: checkedItems,
-    status: 'not_started'
-  };
-  await sbUpsert(entry);
-  await koppelProjectAanContainer();
-  try{ await renderDB(); } catch(e){ console.warn("DB:", e); }
-}
-
-async function deleteProject(projNrToDel, e){
-  if(e) e.stopPropagation();
-  if(!confirm('Project "'+projNrToDel+'" verwijderen?')) return;
-  await sbDelete(projNrToDel);
-  await renderDB();
-}
-
-function loadProject(entry){
-  projNr = entry.proj_nr;
-  klant  = entry.klant || '';
-  // Normaliseer known: gebruik artOrig als art wanneer -H suffix aanwezig
-  // (fix voor projecten opgeslagen vóór de -H database fix)
-  known = (entry.known || []).map(item => {
-    const origArt = item.artOrig || item.art;
-    const match = dbLookup(origArt);
-    if(match){
-      // Altijd l, gps, desc bijwerken vanuit DB — ook als art key gelijk is
-      // Zo worden artikelen met l=0 (opgeslagen vóór DB fix) correct hersteld
-      return {...item, art: match.key, artOrig: origArt, desc: match.rec.d, l: match.rec.l, gps: match.rec.g, gew: (item.qty||0)*match.rec.g, palletVoorkeur: item.palletVoorkeur||undefined};
-    }
-    return item;
-  });
-  plan   = entry.plan  || [];
-  checkedItems = entry.checked_items || {};
-  psi66222Mode = null; // reset PSI-keuze bij nieuw project laden
-
-  document.getElementById('inp-proj').value = projNr;
-  document.getElementById('inp-klant').value = klant;
-
-  const d=document.getElementById('proj-display');
-  d.textContent=projNr+(klant?' | '+klant:'');
-  d.style.display='block';
-
-  // Bewerkpaneel sluiten bij laden project
-  const bp=document.getElementById('bewerk-panel');
-  if(bp) bp.style.display='none';
-  const btnb=document.getElementById('btn-bewerk');
-  if(btnb) btnb.style.display='';
-
-  setStep(3);
-  ['sec-upload','sec-review'].forEach(id=>document.getElementById(id).classList.add('hidden'));
-  document.getElementById('sec-results').classList.remove('hidden');
-  document.getElementById('download-bar').classList.remove('hidden');
-  document.getElementById('dl-proj-label').textContent=projNr;
-
-  // FIX: gebruik de opgeslagen indeling als die er is — NIET altijd herberekenen.
-  // Herberekenen overschreef hier voorheen elke keer de opgeslagen pallet-indeling
-  // (inclusief handmatige drag-and-drop wijzigingen) met een verse, soms afwijkende
-  // berekening, omdat psi66222Mode en de marge-instelling niet bewaard worden en dus
-  // bij elke herberekening op hun defaults terugvallen. Alleen projecten zonder
-  // opgeslagen plan (legacy, van vóór deze fix) worden nog automatisch herberekend.
-  if(plan.length){
-    showResults();
-    return;
-  }
-
-  const _kpLoad = getKlantProfiel(klant, projNr);
-  const _art6Load = _kpLoad?.regels?.artikel_nm6;
-  const hasNm6Load = _art6Load && known.some(p=>{
-    const a=(p.art||'').toUpperCase(), b=_art6Load.toUpperCase();
-    return a===b || a===b+'-H' || (p.artOrig||'').toUpperCase()===b;
-  });
-
-  if(_kpLoad && hasNm6Load){
-    // PSI order: zet psi66222Mode automatisch op true (standaard 160 stuks)
-    // tenzij opgeslagen project een afwijkend aantal had
-    if(psi66222Mode === null) psi66222Mode = true;
-    plan = computePlan([...known], true, _kpLoad);
-  } else {
-    plan = computePlan([...known], false, _kpLoad);
-  }
-  showResults();
-}
-
-// Expliciete herberekening — alleen aanroepen op verzoek van de gebruiker (knop
-// "Herberekenen"), nooit automatisch bij het laden van een project. Past de huidige
-// artikeldatabase en NM-6 regels toe op het opgeslagen artikellijst (known[]).
-// Waarschuwing: dit overschrijft de huidige indeling, inclusief handmatige
-// drag-and-drop aanpassingen die nog niet (opnieuw) zijn opgeslagen.
-function herberekenPlan(){
-  if(!known.length){ return; }
-  if(!confirm('Indeling opnieuw berekenen met de huidige artikeldatabase en NM-6 regels?\n\nHandmatige aanpassingen aan de huidige indeling gaan hierbij verloren.')) return;
-
-  const _kpHb = getKlantProfiel(klant, projNr);
-  const _art6Hb = _kpHb?.regels?.artikel_nm6;
-  const hasNm6Hb = _art6Hb && known.some(p=>{
-    const a=(p.art||'').toUpperCase(), b=_art6Hb.toUpperCase();
-    return a===b || a===b+'-H' || (p.artOrig||'').toUpperCase()===b;
-  });
-
-  if(_kpHb && hasNm6Hb){
-    if(psi66222Mode === null) psi66222Mode = true;
-    plan = computePlan([...known], true, _kpHb);
-  } else {
-    plan = computePlan([...known], false, _kpHb);
-  }
-  showResults();
-}
-
-let _dbAllProjects = [];
-let _dbFilter = 'all';
-
-const STATUS_LABELS = {
-  'not_started': 'Not started',
-  'in_progress': 'In progress',
-  'completed': 'Completed'
-};
-
-async function renderDB(){
-  const body = document.getElementById('db-body');
-  body.innerHTML='<div class="db-empty" style="color:var(--g500)">&#8635; Projecten laden...</div>';
-
-  const projects = await sbGet();
-  _dbAllProjects = projects;
-  window._dbProjects = projects;
-
-  const cnt = document.getElementById('db-count');
-  if(cnt) cnt.textContent = projects.length+' project'+(projects.length!==1?'en':'');
-  const ccnt = document.getElementById('container-count');
-  if(ccnt) ccnt.textContent = _containers.length+' container'+(_containers.length!==1?'s':'');
-
-  renderDBRows();
-}
-
-function filterDB(){ renderDBRows(); }
-
-function setFilter(f){
-  _dbFilter = f;
-  ['all','not_started','in_progress','completed'].forEach(k=>{
-    const btn = document.getElementById('filt-'+k);
-    if(btn) btn.classList.toggle('active', k===f);
-  });
-  renderDBRows();
-}
-
-function renderDBRows(){
-  const body = document.getElementById('db-body');
-  if(!body) return;
-
-  const q = (document.getElementById('db-search-inp')?.value||'').toLowerCase().trim();
-  let projects = _dbAllProjects.filter(p=>{
-    const matchFilter = _dbFilter==='all' || (p.status||'not_started')===_dbFilter;
-    const matchSearch = !q || (p.proj_nr||'').toLowerCase().includes(q) || (p.klant||'').toLowerCase().includes(q);
-    return matchFilter && matchSearch;
-  });
-
-  if(!projects.length){
-    body.innerHTML = _dbAllProjects.length
-      ? '<div class="db-empty">Geen projecten gevonden voor deze zoekopdracht.</div>'
-      : '<div class="db-empty">Nog geen projecten opgeslagen. Laad uw eerste BROWSOM-bestand om te beginnen.</div>';
-    return;
-  }
-
-  let html = '<div class="db-col-hdr"><span>Projectnummer</span><span>Klant</span><span>Datum</span><span>Status</span><span style="text-align:right">Pallets</span><span style="text-align:right">Totaal kg</span><span></span></div>';
-
-  // Map filtered projects back to global index
-  projects.forEach((p)=>{
-    const globalIdx = window._dbProjects.indexOf(p);
-    const d = new Date(p.datum);
-    const dateStr = d.toLocaleDateString('nl-NL',{day:'2-digit',month:'2-digit',year:'numeric'});
-    const timeStr = d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
-    const status = p.status || 'not_started';
-    const statusLabel = STATUS_LABELS[status] || status;
-    html+='<div class="db-row" onclick="loadProject(window._dbProjects['+globalIdx+'])">'
-      +'<div class="db-row-proj">'+esc(p.proj_nr)+'</div>'
-      +'<div class="db-row-klant">'+esc(p.klant||'—')+'</div>'
-      +'<div class="db-row-date">'+dateStr+'<br><span style="color:var(--g300)">'+timeStr+'</span></div>'
-      +'<div><span class="status-badge status-'+status+'" onclick="event.stopPropagation();cycleStatus(window._dbProjects['+globalIdx+'])">'+statusLabel+'</span></div>'
-      +'<div class="db-row-stats" style="text-align:right">'+p.pallets+'</div>'
-      +'<div class="db-row-stats" style="text-align:right">'+(p.total_kg||0).toLocaleString('nl-NL')+' kg</div>'
-      +'<div style="text-align:right"><button class="btn btn-sm" style="background:var(--red);color:#fff;padding:4px 10px;font-size:10px" onclick="event.stopPropagation();deleteProject(window._dbProjects['+globalIdx+'].proj_nr,event)" title="Verwijderen">&#10005;</button></div>'
-      +'</div>';
-  });
-
-  body.innerHTML=html;
-}
-
-async function cycleStatus(p){
-  const order = ['not_started','in_progress','completed'];
-  const cur = p.status || 'not_started';
-  const next = order[(order.indexOf(cur)+1) % order.length];
-  p.status = next;
-  // Sla op in Supabase
-  try{
-    const r = await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(p.proj_nr), {
-      method:'PATCH', headers: SB_HDR, body: JSON.stringify({status: next})
-    });
-    if(!r.ok) throw new Error(await r.text());
-  } catch(e){ console.warn('Status opslaan mislukt:', e); alert('Status opslaan mislukt: '+e.message); return; }
-  // Herlaad volledige lijst van Supabase zodat sortering klopt
-  await renderDB();
-}
-
-async function showDB(){
-  ['sec-review','sec-results'].forEach(id=>document.getElementById(id).classList.add('hidden'));
-  document.getElementById('download-bar').classList.add('hidden');
-  document.getElementById('sec-upload').classList.remove('hidden');
-  document.getElementById('proj-display').style.display='none';
-  known=[];unknwn=[];plan=[];projNr='';klant='';checkedItems={};
-  document.getElementById('inp-proj').value='';
-  document.getElementById('inp-klant').value='';
-  document.getElementById('fileInput').value='';
-  setStep(1);
-  try{ await renderDB(); } catch(e){ console.warn("DB:", e); }
-}
-
-function showUpload(){}
-
-// ═══ CHECKBOX AFVINKEN ═══
-// checkedItems gedeclareerd in STATE sectie bovenaan
-
-function toggleDone(itemId, palNm, totalItems){
-  const cb = document.getElementById(itemId);
-  const row = document.getElementById('row_'+itemId);
-  if(!cb || !row) return;
-  if(cb.checked){
-    row.classList.add('done');
-    checkedItems[itemId] = true;
-  } else {
-    row.classList.remove('done');
-    delete checkedItems[itemId];
-  }
-  // Check of alle profielen van deze pallet afgevinkt zijn
-  checkPalletComplete(palNm, totalItems);
-  // Sla vinkjes op in Supabase (debounced)
-  clearTimeout(window._checkSaveTimer);
-  window._checkSaveTimer = setTimeout(saveCheckedItems, 800);
-}
-
-function checkPalletComplete(palNm, totalItems){
-  const pc = document.getElementById('pc_'+palNm);
-  if(!pc) return;
-  let doneCount = 0;
-  for(let i=0; i<totalItems; i++){
-    const cb = document.getElementById('chk_'+palNm+'_'+i);
-    if(cb && cb.checked) doneCount++;
-  }
-  if(doneCount === totalItems){
-    pc.classList.add('pallet-done');
-    // Verwijder eerdere done-elementen om duplicaten te voorkomen
-    pc.querySelectorAll('.pallet-done-label,.pallet-expand-btn').forEach(el=>el.remove());
-    // Haal gewichtstekst op uit de ph
-    const weightEl = pc.querySelector('[style*="#69F0AE"],[style*="#FFD54F"],[style*="#FF5252"]');
-    const weightTxt = weightEl ? weightEl.textContent.trim() : '';
-    // Bouw compacte pb inhoud
-    const pb = pc.querySelector('.pb');
-    const palNmSafe = palNm.replace(/'/g,"\\'");
-    pb.innerHTML =
-      '<div class="pallet-done-label">&#10003; KLAAR &mdash; alle '+totalItems+' type'+(totalItems>1?'s':'')+' afgevinkt'
-      +(weightTxt?' &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">'+weightTxt+'</span>':'')
-      +'</div>'
-      +'<button class="pallet-expand-btn" onclick="expandPallet(\''+palNmSafe+'\')">TOON</button>';
-    pc._pbBackup = null; // reset backup
-  } else {
-    if(pc.classList.contains('pallet-done')){
-      pc.classList.remove('pallet-done');
-      // Herstel de originele pb inhoud
-      if(pc._pbOriginal){
-        const pb = pc.querySelector('.pb');
-        pb.innerHTML = pc._pbOriginal;
-        // Re-attach checkboxes state
-        for(let i=0; i<totalItems; i++){
-          const itemId = 'chk_'+palNm+'_'+i;
-          const cb = document.getElementById(itemId);
-          const row = document.getElementById('row_'+itemId);
-          if(cb && checkedItems[itemId]){ cb.checked=true; if(row) row.classList.add('done'); }
-        }
-      }
-    }
-  }
-}
-
-function expandPallet(palNm){
-  const pc = document.getElementById('pc_'+palNm);
-  if(!pc || !pc.classList.contains('pallet-done')) return;
-
-  const palDef = plan.find(p=>p.nm===palNm);
-  const totalItems = palDef ? palDef.items.length : 0;
-
-  // Herstel originele pb inhoud
-  pc.classList.remove('pallet-done');
-  if(pc._pbOriginal){
-    const pb = pc.querySelector('.pb');
-    if(pb) pb.innerHTML = pc._pbOriginal;
-  }
-
-  // Zet alle vinkjes van deze pallet terug op ongedaan
-  for(let i=0; i<totalItems; i++){
-    const itemId = 'chk_'+palNm+'_'+i;
-    delete checkedItems[itemId];
-    const cb = document.getElementById(itemId);
-    const row = document.getElementById('row_'+itemId);
-    if(cb){ cb.checked = false; }
-    if(row){ row.classList.remove('done'); }
-  }
-
-  // Sla gewijzigde vinkjesstatus op
-  clearTimeout(window._checkSaveTimer);
-  window._checkSaveTimer = setTimeout(saveCheckedItems, 800);
-}
-
-async function saveCheckedItems(){
-  if(!projNr) return;
-  try{
-    const r = await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(projNr), {
-      method:'PATCH',
-      headers: SB_HDR,
-      body: JSON.stringify({checked_items: checkedItems})
-    });
-    if(!r.ok) console.warn('Vinkjes opslaan mislukt:', await r.text());
-  } catch(e){ console.warn('Vinkjes opslaan fout:', e); }
-
-  // Auto-status: in_progress bij eerste vinkje, completed als alles afgevinkt
-  try{
-    const checkedCount = Object.keys(checkedItems).length;
-    const totalItems = plan.reduce((s,p)=>s+p.items.length, 0);
-    const proj = window._dbProjects && window._dbProjects.find(p=>p.proj_nr===projNr);
-    const curStatus = proj ? (proj.status||'not_started') : 'not_started';
-    let newStatus = null;
-    if(checkedCount > 0 && checkedCount < totalItems && curStatus === 'not_started'){
-      newStatus = 'in_progress';
-    } else if(checkedCount > 0 && checkedCount >= totalItems && curStatus !== 'completed'){
-      newStatus = 'completed';
-    } else if(checkedCount > 0 && curStatus === 'not_started'){
-      newStatus = 'in_progress';
-    }
-    if(newStatus){
-      const rs = await fetch(SB_URL+'/rest/v1/projects?proj_nr=eq.'+encodeURIComponent(projNr), {
-        method:'PATCH',
-        headers: SB_HDR,
-        body: JSON.stringify({status: newStatus})
-      });
-      if(rs.ok && proj) proj.status = newStatus;
-    }
-  } catch(e){ console.warn('Auto-status fout:', e); }
-}
-
-function restoreCheckedItems(){
-  // Herstel vinkjes na het laden van resultaten
-  Object.keys(checkedItems).forEach(itemId=>{
-    const cb = document.getElementById(itemId);
-    const row = document.getElementById('row_'+itemId);
-    if(cb && row){
-      cb.checked = true;
-      row.classList.add('done');
-    }
-  });
-  // Sla originele pb HTML op en check dan of pallet klaar is
-  if(plan && plan.length){
-    plan.forEach(pal=>{
-      const pc = document.getElementById('pc_'+pal.nm);
-      if(pc && !pc._pbOriginal){
-        const pb = pc.querySelector('.pb');
-        if(pb) pc._pbOriginal = pb.innerHTML;
-      }
-      checkPalletComplete(pal.nm, pal.items.length);
-    });
-  }
-}
-
-// ═══ KLANTAFKORTINGEN ═══
-const KLANT_AFKORTINGEN = {
-  'polar specialized': 'PSI',
-  'psi': 'PSI',
-  'storage control': 'SCS',
-  'senneca': 'SEN',
-};
-function getKlantAfkorting(naam){
-  const l = (naam||'').toLowerCase();
-  for(const [k,v] of Object.entries(KLANT_AFKORTINGEN)) if(l.includes(k)) return v;
-  return (naam||'').replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase()||'ONB';
-}
-
-// ═══ SUPABASE CONTAINERS ═══
 async function sbGetContainers(){
   try{
-    const r = await fetch(SB_URL+'/rest/v1/containers?order=verzenddatum.asc', {headers:SB_HDR});
+    const r = await fetch(SB_URL+'/rest/v1/containers?order=verzenddatum.asc', {headers: SB_HDR});
     if(!r.ok) throw new Error(await r.text());
-    return await r.json();
-  }catch(e){console.error('Containers GET:',e);return[];}
+    const data = await r.json();
+    lsSaveContainers(data);
+    return data;
+  }catch(e){
+    console.warn('Containers GET via localStorage:', e);
+    return lsGetContainers();
+  }
 }
+
 async function sbSaveContainer(container){
+  // Lokaal opslaan
+  const containers = lsGetContainers();
+  const idx = containers.findIndex(c => c.naam === container.naam);
+  if(idx > -1){ containers[idx] = {...containers[idx], ...container}; }
+  else { containers.push(container); }
+  lsSaveContainers(containers);
+  const existing = containers.filter(c => c.naam === container.naam);
+
+  // Probeer Supabase
   try{
     const check = await fetch(SB_URL+'/rest/v1/containers?naam=eq.'+encodeURIComponent(container.naam),{headers:SB_HDR});
-    const existing = await check.json();
-    if(existing&&existing.length>0){
+    const remote = await check.json();
+    if(remote&&remote.length>0){
       await fetch(SB_URL+'/rest/v1/containers?naam=eq.'+encodeURIComponent(container.naam),{method:'PATCH',headers:SB_HDR,body:JSON.stringify(container)});
-      return existing[0].id;
+      return remote[0].id;
     } else {
       const r = await fetch(SB_URL+'/rest/v1/containers',{method:'POST',headers:SB_HDR,body:JSON.stringify(container)});
       const d = await r.json();
       return Array.isArray(d)?d[0]?.id:d?.id;
     }
-  }catch(e){console.error('Container SAVE:',e);return null;}
+  }catch(e){
+    console.warn('Container SAVE via localStorage:', e);
+    return existing.length > 0 ? existing[0].id || null : null;
+  }
 }
 async function koppelProjectAanContainer(){
   if(!projNr||!klant) return;
