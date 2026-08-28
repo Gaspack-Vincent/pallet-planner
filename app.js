@@ -1291,7 +1291,7 @@ async function dbOvGetAll(){
     const rows = await r.json();
     const map = {};
     rows.forEach(function(row){
-      map[row.art] = {d: row.d, l: row.l, g: row.g, cat: row.cat||undefined, klasse: row.klasse||undefined, art_nieuw: row.art_nieuw||undefined, vervallen: !!row.vervallen};
+      map[row.art] = {d: row.d, l: row.l, g: row.g, cat: row.cat||undefined, klasse: row.klasse||undefined, art_nieuw: row.art_nieuw||undefined, vervallen: !!row.vervallen, pallet_len: row.pallet_len||undefined};
     });
     return map;
   } catch(e){ console.warn('DB-aanpassingen laden mislukt:', e); return {}; }
@@ -1302,14 +1302,25 @@ async function dbOvLoad(){
   cdbRender();
 }
 
-async function dbOvUpsert(art, fields){
-  const body = Object.assign({art: art}, fields);
+async function dbOvUpsertBulk(records){
   const r = await fetch(SB_URL+'/rest/v1/db_overrides?on_conflict=art', {
     method:'POST',
     headers: Object.assign({}, SB_HDR, {'Prefer':'resolution=merge-duplicates,return=representation'}),
-    body: JSON.stringify([body])
+    body: JSON.stringify(records)
   });
   if(!r.ok) throw new Error(await r.text());
+}
+
+async function dbOvUpsert(art, fields){
+  await dbOvUpsertBulk([Object.assign({art: art}, fields)]);
+}
+
+// Alle artikelnummers die in het tabblad VAST/VERVALLEN thuishoren: vaste DB + gedeelde overrides (incl. nieuw toegevoegde)
+function allVastArtKeys(){
+  const keys = new Set(Object.keys(DB));
+  const ov = window._dbOverrides || {};
+  Object.keys(ov).forEach(function(k){ keys.add(k); });
+  return Array.from(keys);
 }
 
 async function dbOvDelete(art){
@@ -1346,14 +1357,16 @@ async function dbOverrideOpslaan(origArt){
 
   if(nieuwArt !== origArt){
     const renameMap = dbRenameFromMap();
-    const bezetDoorAnder = (DB[nieuwArt] && nieuwArt !== origArt) || (renameMap[nieuwArt] && renameMap[nieuwArt] !== origArt);
+    const bezetDoorAnder = !!DB[nieuwArt]
+      || (renameMap[nieuwArt] && renameMap[nieuwArt] !== origArt)
+      || (window._dbOverrides && window._dbOverrides[nieuwArt]);
     if(bezetDoorAnder){ alert('Artikelnummer '+nieuwArt+' is al in gebruik door een ander artikel.'); return; }
   }
 
   const art = origArt;
   const origineel = DB[art] || {};
   const huidigOv = window._dbOverrides && window._dbOverrides[art];
-  const fields = {d: desc, l: len, g: gew, cat: origineel.cat||null, klasse: origineel.klasse||null, art_nieuw: (nieuwArt!==art ? nieuwArt : null), vervallen: huidigOv?.vervallen||false};
+  const fields = {d: desc, l: len, g: gew, cat: huidigOv?.cat ?? origineel.cat ?? null, klasse: huidigOv?.klasse ?? origineel.klasse ?? null, art_nieuw: (nieuwArt!==art ? nieuwArt : null), vervallen: huidigOv?.vervallen||false, pallet_len: huidigOv?.pallet_len ?? null};
   const btn = document.querySelector('.db-save-btn[data-art="'+art.replace(/"/g,'')+'"]');
   if(btn){ btn.disabled = true; btn.textContent = 'Bezig…'; }
   try{
@@ -2919,7 +2932,7 @@ function filterArtikelPicker(palIdx, nm, query){
   }
   // Zoek in DB + eigen DB
   const hits = [];
-  Object.keys(DB).forEach(function(art){
+  allVastArtKeys().forEach(function(art){
     if(isVervallen(art)) return; // vervallen artikelen niet aanbieden voor nieuwe toevoegingen
     const entry = dbRecFor(art);
     const displayArt = (window._dbOverrides && window._dbOverrides[art] && window._dbOverrides[art].art_nieuw) || art;
@@ -3246,9 +3259,9 @@ function cdbRender(){
   const cntEl = document.getElementById('cdb-count');
   if(cntEl) cntEl.textContent = customKeys.length;
   const vastCntEl = document.getElementById('db-vast-count');
-  if(vastCntEl) vastCntEl.textContent = Object.keys(DB).filter(art=>!isVervallen(art)).length;
+  if(vastCntEl) vastCntEl.textContent = allVastArtKeys().filter(art=>!isVervallen(art)).length;
   const vervallenCntEl = document.getElementById('db-vervallen-count');
-  if(vervallenCntEl) vervallenCntEl.textContent = Object.keys(DB).filter(isVervallen).length;
+  if(vervallenCntEl) vervallenCntEl.textContent = allVastArtKeys().filter(isVervallen).length;
 
   const tbl = document.getElementById('cdb-tabel');
   if(!tbl) return;
@@ -3258,7 +3271,7 @@ function cdbRender(){
   const tab = window._dbTab || 'vast';
 
   if(tab === 'vast'){
-    let entries = Object.keys(DB).filter(art=>!isVervallen(art)).map(function(art){
+    let entries = allVastArtKeys().filter(art=>!isVervallen(art)).map(function(art){
       const rec = dbRecFor(art);
       const ov = window._dbOverrides && window._dbOverrides[art];
       const displayArt = (ov && ov.art_nieuw) || art;
@@ -3323,7 +3336,7 @@ function cdbRender(){
       btn.addEventListener('click', function(){ dbOverrideAnnuleren(); });
     });
   } else if(tab === 'vervallen'){
-    let entries = Object.keys(DB).filter(isVervallen).map(function(art){
+    let entries = allVastArtKeys().filter(isVervallen).map(function(art){
       const rec = dbRecFor(art);
       const ov = window._dbOverrides[art];
       const displayArt = ov.art_nieuw || art;
@@ -3385,75 +3398,113 @@ function cdbRender(){
   }
 }
 
-function cdbImportExcel(input){
+// Excel-import rechtstreeks naar de gedeelde database (Supabase db_overrides) — zichtbaar voor alle gebruikers
+function dbOvImportExcel(input){
   const file = input.files[0];
   if(!file) return;
-  const status = document.getElementById('cdb-import-status');
+  const status = document.getElementById('dbov-import-status');
   if(status) status.textContent = 'Bestand inlezen…';
 
   const reader = new FileReader();
-  reader.onload = function(e){
+  reader.onload = async function(e){
     try{
       const wb = XLSX.read(e.target.result, {type:'array'});
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
       if(rows.length<2){ if(status) status.textContent='Geen data gevonden in het bestand.'; return; }
 
-      // Detecteer kolommen op naam
       const hdrs = rows[0].map(c=>String(c||'').toLowerCase().trim());
-      const colArt  = hdrs.findIndex(c=>c.includes('artikel')||c==='art'||c==='artikelnummer'||c.includes('materi'));
+      const colArt  = hdrs.findIndex(c=>c.includes('artikel')||c==='art'||c.includes('materi'));
       const colDesc = hdrs.findIndex(c=>c.includes('omschr')||c.includes('desc')||c==='naam');
-      const colLen  = hdrs.findIndex(c=>c.includes('lengte')||c==='l'||c==='l_mm'||c==='lengte_mm');
-      const colGew  = hdrs.findIndex(c=>c.includes('gewicht')||c.includes('gew')||c==='g'||c==='gewicht_kg'||c==='kg');
+      // 'Afmeting' (mm) moet winnen van 'Standaardafmeting' (m) — daarom eerst exacte match, dan pas losse 'lengte'-varianten
+      const colLen  = (function(){
+        let i = hdrs.findIndex(c=>c==='afmeting'||c==='lengte_mm'||c==='lengte'||c==='l_mm'||c==='l');
+        if(i<0) i = hdrs.findIndex(c=>c.includes('lengte'));
+        return i;
+      })();
+      // 'Gewicht per /st.' (per stuk) moet winnen van 'Gewicht per /m' (per meter)
+      const colGew  = (function(){
+        let i = hdrs.findIndex(c=>c==='gewicht_kg'||c==='kg');
+        if(i<0) i = hdrs.findIndex(c=>(c.includes('gewicht')||c.includes('gew')) && (c.includes('/st')||c.includes(' st')||c.includes('stuk')));
+        if(i<0) i = hdrs.findIndex(c=>c.includes('gewicht')||c.includes('gew')||c==='g');
+        return i;
+      })();
+      const colCat    = hdrs.findIndex(c=>c.includes('categorie')||c==='cat');
+      const colKlas   = hdrs.findIndex(c=>c.includes('klasse')||c.includes('class'));
+      const colPallet = hdrs.findIndex(c=>c==='pallet');
 
       if(colArt<0||colLen<0||colGew<0){
-        if(status) status.textContent='Kolommen niet gevonden. Verwacht: Artikelnummer, Lengte_mm, Gewicht_kg (en optioneel Omschrijving).';
+        if(status) status.textContent='Kolommen niet gevonden. Verwacht: Artikelnummer/Materiaalnummer, Lengte_mm/Afmeting, Gewicht_kg/"Gewicht per /st." (en optioneel Omschrijving).';
         return;
       }
 
-      // Sla instructierijen over (beginnen met → of zijn leeg)
       const dataRows = rows.slice(1).filter(row=>{
         const first = String(row[colArt]||'').trim();
         return first && !first.startsWith('→') && !first.startsWith('->');
       });
 
-      let added=0, updated=0, skipped=0, skippedRows=[];
+      // Bouw op via een Map (niet direct een array) zodat dubbele artikelnummers in hetzelfde
+      // bestand elkaar overschrijven (laatste rij wint) i.p.v. de gedeelde database te laten crashen
+      // op een "ON CONFLICT" met hetzelfde artikelnummer twee keer in één opslag-actie.
+      const bodyMap = new Map();
+      let skipped=0, skippedRows=[];
       dataRows.forEach(row=>{
         const artRaw = String(row[colArt]||'').trim();
         if(!artRaw) return;
         const desc = colDesc>=0 ? String(row[colDesc]||'').trim() : artRaw;
-        // Robuuste parsing: vervang komma door punt voor Europese getallen
         const lenRaw = String(row[colLen]||'').replace(',','.');
         const gewRaw = String(row[colGew]||'').replace(',','.');
-        const len  = parseFloat(lenRaw)||0;
-        const gew  = parseFloat(gewRaw)||0;
+        const len = parseFloat(lenRaw)||0;
+        const gew = parseFloat(gewRaw)||0;
         if(len<=0||gew<=0){
           skipped++;
           skippedRows.push(artRaw+' (l='+row[colLen]+', g='+row[colGew]+')');
           return;
         }
-        const art = artRaw.toUpperCase().replace(/^0+(?=\d)/,'');
-        // Lees optionele categorie kolommen
-        const colCat   = hdrs.findIndex(c=>c.includes('categorie')||c==='cat');
-        const colKlas  = hdrs.findIndex(c=>c.includes('klasse')||c.includes('class'));
-        const colPref  = hdrs.findIndex(c=>c.includes('voorkeur')||c.includes('pref'));
-        const cat   = colCat>=0  ? String(row[colCat]||'').trim().toLowerCase()  : '';
-        const klas  = colKlas>=0 ? String(row[colKlas]||'').trim().toLowerCase() : '';
-        const pref  = colPref>=0 ? String(row[colPref]||'').trim()               : '';
-        const isUpdate = !!(window._customDB&&window._customDB[art]);
-        if(!window._customDB) window._customDB={};
-        window._customDB[art] = {d: desc||art, l: len, g: gew,
-          cat:  (cat  && cat!=='nan')  ? cat  : undefined,
-          klasse:(klas && klas!=='nan') ? klas : undefined,
-          voorkeur:(pref && pref!=='nan') ? pref : undefined,
-        };
-        if(isUpdate) updated++; else added++;
+        const art = normArt(artRaw);
+        const huidigOv = window._dbOverrides && window._dbOverrides[art];
+        const bestaand = huidigOv || DB[art];
+        const catRaw    = colCat>=0    ? String(row[colCat]||'').trim().toLowerCase()  : '';
+        const klasRaw   = colKlas>=0   ? String(row[colKlas]||'').trim().toLowerCase() : '';
+        const palletRaw = colPallet>=0 ? String(row[colPallet]||'').replace(',','.').trim() : '';
+        const cat    = (catRaw  && catRaw!=='nan')  ? catRaw  : (bestaand?.cat||null);
+        const klasse = (klasRaw && klasRaw!=='nan') ? klasRaw : (bestaand?.klasse||null);
+        const pallet_len = palletRaw ? (parseInt(palletRaw)||null) : (huidigOv?.pallet_len ?? null);
+        bodyMap.set(art, {
+          art: art, d: desc||art, l: len, g: gew, cat: cat, klasse: klasse, pallet_len: pallet_len,
+          art_nieuw: huidigOv?.art_nieuw || null,
+          vervallen: huidigOv?.vervallen || false,
+        });
       });
-      cdbSave();
+
+      const bodies = Array.from(bodyMap.values());
+      let added=0, updated=0;
+      bodies.forEach(function(b){
+        const bestondAlAf = (window._dbOverrides && window._dbOverrides[b.art]) || DB[b.art];
+        if(bestondAlAf) updated++; else added++;
+      });
+
+      if(!bodies.length){
+        if(status) status.textContent = 'Geen geldige rijen gevonden om te importeren.';
+        return;
+      }
+
+      if(status) status.textContent = 'Bezig met opslaan naar de gedeelde database…';
+      try{
+        await dbOvUpsertBulk(bodies);
+      } catch(err){
+        if(status) status.textContent = 'Opslaan mislukt: '+err.message;
+        return;
+      }
+
+      if(!window._dbOverrides) window._dbOverrides = {};
+      bodies.forEach(function(b){
+        window._dbOverrides[b.art] = {d: b.d, l: b.l, g: b.g, cat: b.cat||undefined, klasse: b.klasse||undefined, art_nieuw: b.art_nieuw||undefined, vervallen: b.vervallen, pallet_len: b.pallet_len||undefined};
+      });
       cdbRender();
       input.value='';
       if(status){
-        let msg = added+' toegevoegd, '+updated+' bijgewerkt';
+        let msg = added+' toegevoegd, '+updated+' bijgewerkt (gedeeld voor alle gebruikers)';
         if(skipped) msg += ' — '+skipped+' overgeslagen (ongeldig): '+skippedRows.join(', ');
         msg += '.';
         status.textContent = msg;
@@ -3464,6 +3515,30 @@ function cdbImportExcel(input){
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// Export van de gedeelde database in exact hetzelfde formaat als "Profielen bestand.xlsx",
+// zodat het bestand direct weer aangevuld en teruggeïmporteerd kan worden.
+function dbOvExportExcel(){
+  const arts = allVastArtKeys().filter(art=>!isVervallen(art));
+  arts.sort(function(a,b){ return a.localeCompare(b, undefined, {numeric:true}); });
+
+  const rows = [['Materiaalnummer','Omschrijving','Standaardafmeting','Afmeting','Eenheid','Gewicht per /m','Gewicht per /st.','Pallet']];
+  arts.forEach(function(art){
+    const rec = dbRecFor(art);
+    if(!rec) return;
+    const ov = window._dbOverrides && window._dbOverrides[art];
+    const displayArt = (ov && ov.art_nieuw) || art;
+    const artOut = /^\d+$/.test(displayArt) ? Number(displayArt) : displayArt;
+    const standaardafmeting = rec.l ? +(rec.l/1000).toFixed(3) : '';
+    const gewPerM = (rec.l && rec.g) ? +(rec.g/(rec.l/1000)).toFixed(3) : '';
+    rows.push([artOut, rec.d||'', standaardafmeting, rec.l||'', 'm', gewPerM, rec.g||'', (ov && ov.pallet_len) || '']);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Profielenbestand');
+  XLSX.writeFile(wb, 'Profielen_database_export.xlsx');
 }
 
 // Vanuit de "onbekende artikelen" kaart direct naar DB toevoegen

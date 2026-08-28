@@ -1371,18 +1371,19 @@
 
     <div class="card" style="margin-bottom:1rem">
       <div class="card-title" style="display:flex;align-items:center;gap:12px">
-        <span>Importeren via Excel</span>
-        <span style="font-size:11px;color:var(--g500);font-weight:400;font-family:var(--fn)">Vereiste kolommen: Artikelnummer | Omschrijving | Lengte_mm | Gewicht_kg</span>
+        <span>Importeren / exporteren via Excel — gedeeld (voor iedereen)</span>
+        <span style="font-size:11px;color:var(--g500);font-weight:400;font-family:var(--fn)">Herkent zowel Artikelnummer/Lengte_mm/Gewicht_kg als Materiaalnummer/Afmeting/"Gewicht per /st." (zoals Profielen bestand.xlsx)</span>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <label style="padding:7px 16px;background:var(--g100);border:1px solid var(--g300);cursor:pointer;font-family:var(--fc);font-size:12px;font-weight:600;letter-spacing:.5px">
+        <label style="padding:7px 16px;background:var(--red);color:#fff;border:1px solid var(--red);cursor:pointer;font-family:var(--fc);font-size:12px;font-weight:600;letter-spacing:.5px">
           EXCEL KIEZEN
-          <input type="file" id="cdb-excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="cdbImportExcel(this)">
+          <input type="file" id="dbov-excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="dbOvImportExcel(this)">
         </label>
-        <span id="cdb-import-status" style="font-size:12px;color:var(--g500)"></span>
+        <button onclick="dbOvExportExcel()" style="padding:7px 16px;background:#fff;border:1px solid var(--g300);cursor:pointer;font-family:var(--fc);font-size:12px;font-weight:600;letter-spacing:.5px">EXPORTEREN</button>
+        <span id="dbov-import-status" style="font-size:12px;color:var(--g500)"></span>
       </div>
       <p style="font-size:11px;color:var(--g400);margin-top:8px;margin-bottom:0">
-        Tip: zorg dat de eerste rij de kolomnamen bevat. Bestaande artikelen met hetzelfde nummer worden bijgewerkt.
+        Tip: zorg dat de eerste rij de kolomnamen bevat. Nieuwe artikelnummers worden toegevoegd, bestaande worden bijgewerkt — voor <strong>alle</strong> gebruikers, direct in de vaste database (tabblad VAST). Exporteren geeft een bestand in exact dezelfde opmaak, handig om in één keer veel profielen toe te voegen.
       </p>
     </div>
 
