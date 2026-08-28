@@ -1291,7 +1291,7 @@ async function dbOvGetAll(){
     const rows = await r.json();
     const map = {};
     rows.forEach(function(row){
-      map[row.art] = {d: row.d, l: row.l, g: row.g, cat: row.cat||undefined, klasse: row.klasse||undefined, art_nieuw: row.art_nieuw||undefined, vervallen: !!row.vervallen, pallet_len: row.pallet_len||undefined};
+      map[row.art] = {d: row.d, l: row.l, g: row.g, cat: row.cat||undefined, klasse: row.klasse||undefined, art_nieuw: row.art_nieuw||undefined, vervallen: !!row.vervallen, pallet_len: row.pallet_len||undefined, bron: row.bron||'bewerk'};
     });
     return map;
   } catch(e){ console.warn('DB-aanpassingen laden mislukt:', e); return {}; }
@@ -1366,7 +1366,7 @@ async function dbOverrideOpslaan(origArt){
   const art = origArt;
   const origineel = DB[art] || {};
   const huidigOv = window._dbOverrides && window._dbOverrides[art];
-  const fields = {d: desc, l: len, g: gew, cat: huidigOv?.cat ?? origineel.cat ?? null, klasse: huidigOv?.klasse ?? origineel.klasse ?? null, art_nieuw: (nieuwArt!==art ? nieuwArt : null), vervallen: huidigOv?.vervallen||false, pallet_len: huidigOv?.pallet_len ?? null};
+  const fields = {d: desc, l: len, g: gew, cat: huidigOv?.cat ?? origineel.cat ?? null, klasse: huidigOv?.klasse ?? origineel.klasse ?? null, art_nieuw: (nieuwArt!==art ? nieuwArt : null), vervallen: huidigOv?.vervallen||false, pallet_len: huidigOv?.pallet_len ?? null, bron: 'bewerk'};
   const btn = document.querySelector('.db-save-btn[data-art="'+art.replace(/"/g,'')+'"]');
   if(btn){ btn.disabled = true; btn.textContent = 'Bezig…'; }
   try{
@@ -1401,7 +1401,7 @@ async function dbVervallenZetten(art){
   const origineel = DB[art] || {};
   const fields = huidig
     ? Object.assign({}, huidig, {vervallen: true})
-    : {d: origineel.d, l: origineel.l, g: origineel.g, cat: origineel.cat||null, klasse: origineel.klasse||null, art_nieuw: null, vervallen: true};
+    : {d: origineel.d, l: origineel.l, g: origineel.g, cat: origineel.cat||null, klasse: origineel.klasse||null, art_nieuw: null, vervallen: true, bron: 'bewerk'};
   try{
     await dbOvUpsert(art, fields);
     if(!window._dbOverrides) window._dbOverrides = {};
@@ -3301,9 +3301,12 @@ function cdbRender(){
           +'</tr>';
         return;
       }
-      const isOv = !!(window._dbOverrides && window._dbOverrides[art]);
-      const isRenamed = !!(window._dbOverrides && window._dbOverrides[art] && window._dbOverrides[art].art_nieuw);
-      const ovBadge = isOv?' <span class="badge" style="background:var(--blue-lt);color:var(--blue)">AANGEPAST</span>':'';
+      const ovRec = window._dbOverrides && window._dbOverrides[art];
+      // Handmatige bewerkingen tonen de AANGEPAST-badge + Herstel-knop; een Excel-import is een
+      // stille vervanging van de brondata en toont hier bewust niets speciaals.
+      const isBewerkt = !!(ovRec && ovRec.bron !== 'import');
+      const isRenamed = !!(ovRec && ovRec.art_nieuw);
+      const ovBadge = isBewerkt?' <span class="badge" style="background:var(--blue-lt);color:var(--blue)">AANGEPAST</span>':'';
       const renameHint = isRenamed?' <span style="font-size:10px;color:var(--g500);font-weight:400">(was '+esc(art)+')</span>':'';
       html+='<tr data-art="'+esc(art)+'">'
         +'<td style="font-family:var(--fc);font-weight:600;color:var(--g800)">'+esc(displayArt)+renameHint+ovBadge+'</td>'
@@ -3314,7 +3317,7 @@ function cdbRender(){
         +'<td style="text-align:right;white-space:nowrap">'
           +'<button class="db-edit-btn" data-art="'+esc(art)+'" style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--g700);padding:3px 7px;font-size:12px;border-radius:2px">Bewerken</button> '
           +'<button class="db-vervallen-btn" data-art="'+esc(art)+'" style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--red);padding:3px 7px;font-size:12px;border-radius:2px" title="Artikel vervallen verklaren">Vervallen</button>'
-          +(isOv?' <button class="db-reset-btn" data-art="'+esc(art)+'" style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--red);padding:3px 7px;font-size:12px;border-radius:2px" title="Terugzetten naar oorspronkelijke waarden">Herstel</button>':'')
+          +(isBewerkt?' <button class="db-reset-btn" data-art="'+esc(art)+'" style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--red);padding:3px 7px;font-size:12px;border-radius:2px" title="Terugzetten naar oorspronkelijke waarden">Herstel</button>':'')
         +'</td>'
         +'</tr>';
     });
@@ -3470,10 +3473,14 @@ function dbOvImportExcel(input){
         const cat    = (catRaw  && catRaw!=='nan')  ? catRaw  : (bestaand?.cat||null);
         const klasse = (klasRaw && klasRaw!=='nan') ? klasRaw : (bestaand?.klasse||null);
         const pallet_len = palletRaw ? (parseInt(palletRaw)||null) : (huidigOv?.pallet_len ?? null);
+        // Een eerdere handmatige bewerking blijft zichtbaar als "aangepast", ook na een latere import;
+        // anders is dit gewoon een stille vervanging vanuit Excel, zonder AANGEPAST-badge.
+        const bron = (huidigOv?.bron === 'bewerk') ? 'bewerk' : 'import';
         bodyMap.set(art, {
           art: art, d: desc||art, l: len, g: gew, cat: cat, klasse: klasse, pallet_len: pallet_len,
           art_nieuw: huidigOv?.art_nieuw || null,
           vervallen: huidigOv?.vervallen || false,
+          bron: bron,
         });
       });
 
@@ -3499,7 +3506,7 @@ function dbOvImportExcel(input){
 
       if(!window._dbOverrides) window._dbOverrides = {};
       bodies.forEach(function(b){
-        window._dbOverrides[b.art] = {d: b.d, l: b.l, g: b.g, cat: b.cat||undefined, klasse: b.klasse||undefined, art_nieuw: b.art_nieuw||undefined, vervallen: b.vervallen, pallet_len: b.pallet_len||undefined};
+        window._dbOverrides[b.art] = {d: b.d, l: b.l, g: b.g, cat: b.cat||undefined, klasse: b.klasse||undefined, art_nieuw: b.art_nieuw||undefined, vervallen: b.vervallen, pallet_len: b.pallet_len||undefined, bron: b.bron};
       });
       cdbRender();
       input.value='';
