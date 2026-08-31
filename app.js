@@ -1041,7 +1041,7 @@ function showResults(){
             <div class="ptags" style="margin-top:6px">
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
                 <span class="ptyp">${esc(pal.lbl)}</span>
-                <span class="ptyp pal-art-badge">ART. ${esc(pal.art)}</span>
+                <span class="ptyp pal-art-badge">${esc(pal.art)}</span>
               </div>
               <span class="pstk-badge ${pal.x?'xp':pal.nm6Special?'nm6special':typeCls}" style="margin-top:3px">${pal.x?'X-PALLET':pal.nm6Special?pal.nm6Label:'Normaal'}</span>
             </div>
