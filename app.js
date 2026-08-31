@@ -1275,8 +1275,10 @@ function toonProfielFotoGroot(art){
   const ext = (typeof cached === 'string') ? cached : PR_FOTO_EXTS[0];
   const modal = document.getElementById('pr-foto-modal');
   const img = document.getElementById('pr-foto-modal-img');
+  const label = document.getElementById('pr-foto-modal-label');
   if(!modal||!img) return;
   img.src = PR_FOTO_BASE + encodeURIComponent(art) + '.' + ext;
+  if(label) label.textContent = art;
   modal.classList.add('open');
 }
 

@@ -1417,7 +1417,12 @@
 
 <footer>© Salco Industrial Doors — Pallet Planning Tool — Intern gebruik</footer>
 
-<div class="pr-foto-modal" id="pr-foto-modal" onclick="sluitProfielFotoGroot()"><img id="pr-foto-modal-img" src="" alt="" onclick="event.stopPropagation()"></div>
+<div class="pr-foto-modal" id="pr-foto-modal" onclick="sluitProfielFotoGroot()">
+  <div class="pr-foto-modal-inner" onclick="event.stopPropagation()">
+    <img id="pr-foto-modal-img" src="" alt="">
+    <div class="pr-foto-modal-label" id="pr-foto-modal-label"></div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 

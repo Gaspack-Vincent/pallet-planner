@@ -176,7 +176,9 @@ tbody td.r{text-align:right}
 .pr-foto-thumb{display:none;width:38px;height:38px;object-fit:contain;background:#fff;border-radius:3px;border:1px solid var(--g200);cursor:zoom-in;flex-shrink:0}
 .pr-foto-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;align-items:center;justify-content:center;cursor:zoom-out;padding:2rem}
 .pr-foto-modal.open{display:flex}
-.pr-foto-modal img{max-width:90vw;max-height:90vh;object-fit:contain;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.pr-foto-modal-inner{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:default;max-width:100%}
+.pr-foto-modal img{max-width:90vw;max-height:85vh;object-fit:contain;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#fff;border-radius:2px}
+.pr-foto-modal-label{font-family:var(--fc);font-size:15px;font-weight:600;letter-spacing:1px;color:#fff;background:rgba(0,0,0,.5);padding:4px 14px;border-radius:3px}
 
 .wbar{height:5px;background:var(--g100);margin-top:10px}
 
