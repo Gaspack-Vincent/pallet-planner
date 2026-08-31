@@ -173,7 +173,7 @@ tbody td.r{text-align:right}
 .bewerk-actief .pr-item-del{display:flex}
 .pr-qty{font-weight:600;font-size:15px}
 .pr-gew{color:var(--g500);font-size:11px}
-.pr-foto-thumb{display:none;width:38px;height:38px;object-fit:cover;border-radius:3px;border:1px solid var(--g200);cursor:zoom-in;flex-shrink:0}
+.pr-foto-thumb{display:none;width:38px;height:38px;object-fit:contain;background:#fff;border-radius:3px;border:1px solid var(--g200);cursor:zoom-in;flex-shrink:0}
 .pr-foto-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;align-items:center;justify-content:center;cursor:zoom-out;padding:2rem}
 .pr-foto-modal.open{display:flex}
 .pr-foto-modal img{max-width:90vw;max-height:90vh;object-fit:contain;box-shadow:0 10px 40px rgba(0,0,0,.5)}
