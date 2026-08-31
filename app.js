@@ -1001,10 +1001,6 @@ function showResults(){
             data-palindx="${palIdx}"
             data-itemidx="${idx}"
             data-total="${pal.items.length}"
-            data-art="${esc(item.artOrig||item.art)}"
-            onmouseenter="toonProfielFoto(event,this.dataset.art)"
-            onmousemove="verplaatsProfielFoto(event)"
-            onmouseleave="verbergProfielFoto()"
             draggable="false">
           <div class="pr-drag-handle" title="Sleep naar ander pallet">⠇</div>
           <div class="pr-left">
@@ -1018,17 +1014,20 @@ function showResults(){
               </div>
             </div>
           </div>
-          <div class="pr-right">
-            <div class="pr-qty">
-              <input class="pr-qty-input" type="number" min="1" max="9999"
-                value="${item.qty}" style="display:none"
-                data-palindx="${palIdx}" data-itemidx="${idx}"
-                oninput="bewerkQtyChange(this)">
-              <span class="pr-qty-display">${item.qty}×</span>
+          <div class="pr-right-wrap">
+            ${profielFotoThumbHtml(item.artOrig||item.art)}
+            <div class="pr-right">
+              <div class="pr-qty">
+                <input class="pr-qty-input" type="number" min="1" max="9999"
+                  value="${item.qty}" style="display:none"
+                  data-palindx="${palIdx}" data-itemidx="${idx}"
+                  oninput="bewerkQtyChange(this)">
+                <span class="pr-qty-display">${item.qty}×</span>
+              </div>
+              <div class="pr-gew">${item.l?item.l.toLocaleString('nl-NL')+' mm':''}</div>
+              <div class="pr-gew">${item.gew.toFixed(1)} kg</div>
+              <button class="pr-item-del" onclick="verwijderArtikel(${palIdx},${idx})" title="Artikel verwijderen">&#10005;</button>
             </div>
-            <div class="pr-gew">${item.l?item.l.toLocaleString('nl-NL')+' mm':''}</div>
-            <div class="pr-gew">${item.gew.toFixed(1)} kg</div>
-            <button class="pr-item-del" onclick="verwijderArtikel(${palIdx},${idx})" title="Artikel verwijderen">&#10005;</button>
           </div>
         </div>`;
       }).join('');
@@ -1238,50 +1237,57 @@ const SB_HDR = {'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY, 'Content-Ty
 
 // ═══ PROFIELFOTO'S (Supabase Storage bucket "profielfotos" — gedeeld voor alle gebruikers) ═══
 // Bestandsnaam in de bucket moet exact het artikelnummer zijn, bv. 74373.jpg of 73773-H.png.
+// Elke pallet-regel toont standaard een kleine thumbnail (indien aanwezig); klik erop voor een grote weergave.
 const PR_FOTO_BASE = SB_URL + '/storage/v1/object/public/profielfotos/';
 const PR_FOTO_EXTS = ['jpg','png','jpeg'];
-const _prFotoMisCache = new Set(); // artikelnrs zonder foto — voorkomt herhaalde mislukte requests
-let _prFotoHoverTok = 0;
+window._prFotoCache = window._prFotoCache || {}; // art -> gevonden extensie (string), of false als geen foto bestaat
 
-function toonProfielFoto(ev, art){
-  if(!art || _prFotoMisCache.has(art)) return;
-  const tip = document.getElementById('pr-foto-tooltip');
-  const img = document.getElementById('pr-foto-tooltip-img');
-  const label = document.getElementById('pr-foto-tooltip-label');
-  if(!tip||!img||!label) return;
-  const tok = ++_prFotoHoverTok;
-  (function probeer(i){
-    if(i>=PR_FOTO_EXTS.length){ _prFotoMisCache.add(art); return; }
-    const test = new Image();
-    test.onload = function(){
-      if(tok !== _prFotoHoverTok) return; // muis is inmiddels ergens anders
-      img.src = test.src;
-      label.textContent = art;
-      tip.style.display = 'block';
-      verplaatsProfielFoto(ev);
-    };
-    test.onerror = function(){ probeer(i+1); };
-    test.src = PR_FOTO_BASE + encodeURIComponent(art) + '.' + PR_FOTO_EXTS[i];
-  })(0);
+function profielFotoThumbHtml(art){
+  if(!art) return '';
+  const cached = window._prFotoCache[art];
+  if(cached === false) return '';
+  const attrs = 'class="pr-foto-thumb" data-art="'+esc(art)+'" title="Klik voor grote weergave" onclick="toonProfielFotoGroot(this.dataset.art)"';
+  if(typeof cached === 'string'){
+    return '<img '+attrs+' style="display:block" src="'+PR_FOTO_BASE+encodeURIComponent(art)+'.'+cached+'" onerror="profielFotoThumbError(this)">';
+  }
+  return '<img '+attrs+' data-tryidx="0" src="'+PR_FOTO_BASE+encodeURIComponent(art)+'.'+PR_FOTO_EXTS[0]+'" onload="profielFotoThumbLoaded(this)" onerror="profielFotoThumbError(this)">';
 }
 
-function verplaatsProfielFoto(ev){
-  const tip = document.getElementById('pr-foto-tooltip');
-  if(!tip || tip.style.display !== 'block') return;
-  const pad = 16;
-  const rect = tip.getBoundingClientRect();
-  let x = ev.clientX + pad, y = ev.clientY + pad;
-  if(x + rect.width > window.innerWidth) x = ev.clientX - rect.width - pad;
-  if(y + rect.height > window.innerHeight) y = ev.clientY - rect.height - pad;
-  tip.style.left = Math.max(0,x) + 'px';
-  tip.style.top = Math.max(0,y) + 'px';
+function profielFotoThumbLoaded(img){
+  img.style.display = 'block';
+  window._prFotoCache[img.dataset.art] = img.src.split('.').pop().split(/[?#]/)[0];
 }
 
-function verbergProfielFoto(){
-  _prFotoHoverTok++;
-  const tip = document.getElementById('pr-foto-tooltip');
-  if(tip) tip.style.display = 'none';
+function profielFotoThumbError(img){
+  const idx = parseInt(img.dataset.tryidx||'0', 10) + 1;
+  if(idx < PR_FOTO_EXTS.length){
+    img.dataset.tryidx = idx;
+    img.src = PR_FOTO_BASE + encodeURIComponent(img.dataset.art) + '.' + PR_FOTO_EXTS[idx];
+  } else {
+    window._prFotoCache[img.dataset.art] = false;
+    img.remove();
+  }
 }
+
+function toonProfielFotoGroot(art){
+  if(!art) return;
+  const cached = window._prFotoCache[art];
+  const ext = (typeof cached === 'string') ? cached : PR_FOTO_EXTS[0];
+  const modal = document.getElementById('pr-foto-modal');
+  const img = document.getElementById('pr-foto-modal-img');
+  if(!modal||!img) return;
+  img.src = PR_FOTO_BASE + encodeURIComponent(art) + '.' + ext;
+  modal.classList.add('open');
+}
+
+function sluitProfielFotoGroot(){
+  const modal = document.getElementById('pr-foto-modal');
+  if(modal) modal.classList.remove('open');
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') sluitProfielFotoGroot();
+});
 
 // ═══ DB-OVERRIDES (Supabase — bewerkingen op de vaste database, gedeeld voor alle gebruikers) ═══
 async function dbOvGetAll(){
