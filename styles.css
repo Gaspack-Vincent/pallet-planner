@@ -183,6 +183,21 @@ tbody td.r{text-align:right}
 .pr-foto-modal img{max-width:90vw;max-height:85vh;object-fit:contain;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#fff;border-radius:2px}
 .pr-foto-modal-label{font-family:var(--fc);font-size:15px;font-weight:600;letter-spacing:1px;color:#fff;background:rgba(0,0,0,.5);padding:4px 14px;border-radius:3px}
 
+.pw-actual{display:flex;flex-direction:column;gap:4px;margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.15)}
+.pw-actual-row{display:flex;align-items:center;gap:6px}
+.pw-actual-row label{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--g300);white-space:nowrap;width:72px;flex-shrink:0}
+.pw-actual-inp{flex:1;min-width:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:11px;padding:3px 6px;border-radius:2px;font-family:var(--fn)}
+.pw-actual-inp::placeholder{color:rgba(255,255,255,.35)}
+.pw-actual-inp:focus{outline:none;border-color:var(--red);background:rgba(255,255,255,.14)}
+.pw-actual-inp-sm{flex:1;min-width:0;text-align:center;padding:3px 2px}
+.pw-actual-inp[type=number]{-moz-appearance:textfield}
+.pw-actual-inp[type=number]::-webkit-outer-spin-button,
+.pw-actual-inp[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+.sum-table-maten{font-size:11px}
+.sum-table-maten td{padding:3px 2px}
+.sum-table-maten td:nth-child(2),.sum-table-maten td:nth-child(3),.sum-table-maten td:nth-child(4){text-align:center;color:var(--g500)}
+
 .wbar{height:5px;background:var(--g100);margin-top:10px}
 
 /* ARTIKEL TOEVOEGEN — bewerkmode knop in lege pb */

@@ -948,6 +948,79 @@ function phWeightHtml(pal){
             <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen ${pal.profW.toFixed(1)} + Pallet ${pal.kg} kg</div>`;
 }
 
+// Werkelijk gemeten afmeting (L/B/H, los van elkaar) en gewicht, in te vullen ná het
+// inpakken/omkratten van een pallet. Puur documentatie — beïnvloedt de planning/berekeningen
+// niet, alleen de weergave in de samenvatting en de gewichtenlijst-export.
+function phWerkelijkVeld(pal, palIdx, field, placeholder){
+  const val = pal[field]!=null ? pal[field] : '';
+  return `<input type="number" min="0" step="1" class="pw-actual-inp pw-actual-inp-sm" placeholder="${placeholder}" value="${val}" data-palindx="${palIdx}" data-field="${field}" onchange="updatePalWerkelijk(this)">`;
+}
+
+function phWerkelijkHtml(pal, palIdx){
+  return `<div class="pw-actual">
+    <div class="pw-actual-row">
+      <label>Werk. maat</label>
+      ${phWerkelijkVeld(pal,palIdx,'werkelijkL','L')}
+      ${phWerkelijkVeld(pal,palIdx,'werkelijkB','B')}
+      ${phWerkelijkVeld(pal,palIdx,'werkelijkH','H')}
+    </div>
+    <div class="pw-actual-row">
+      <label>Werk. gewicht</label>
+      <input type="number" min="0" step="0.1" class="pw-actual-inp" placeholder="kg" value="${pal.werkelijkKg!=null?pal.werkelijkKg:''}" data-palindx="${palIdx}" data-field="werkelijkKg" onchange="updatePalWerkelijk(this)">
+    </div>
+  </div>`;
+}
+
+function updatePalWerkelijk(inputEl){
+  const palIdx = parseInt(inputEl.dataset.palindx, 10);
+  const field = inputEl.dataset.field;
+  const pal = plan[palIdx];
+  if(!pal) return;
+  pal[field] = inputEl.value===''? undefined : parseFloat(inputEl.value);
+  renderSummarySidebar();
+  saveCurrentProject();
+}
+
+// Vult #summaryArea. Losstaand van showResults() zodat een wijziging aan de werkelijke
+// maat/gewicht alleen de samenvatting hoeft te verversen — niet alle pallet-kaarten
+// (die anders hun invoerfocus zouden verliezen tijdens het typen).
+function renderSummarySidebar(){
+  const el = document.getElementById('summaryArea');
+  if(!el) return;
+  const totK = plan.reduce((s,p)=>s+(p.werkelijkKg!=null?p.werkelijkKg:p.totalKg),0);
+  const ovl = plan.filter(p=>p.overloaded).length;
+  let sumH=`
+    ${projNr?`<div class="sum-block"><div class="sum-label">Projectnummer</div><div class="sum-val" style="font-size:16px">${esc(projNr)}</div></div>`:''}
+    ${klant?`<div class="sum-block"><div class="sum-label">Klant</div><div style="font-size:13px;color:var(--g700)">${esc(klant)}</div></div>`:''}
+    <div class="sum-divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div class="sum-block"><div class="sum-label">Pallets</div><div class="sum-val">${plan.length}</div></div>
+      <div class="sum-block"><div class="sum-label">Stapels</div><div class="sum-val">${Object.keys(plan.reduce((a,p)=>{a[p.sid]=1;return a},{})).length}</div></div>
+      <div class="sum-block"><div class="sum-label">Totaal kg</div><div class="sum-val">${Math.round(totK)}</div></div>
+      <div class="sum-block"><div class="sum-label">&gt;1.000 kg</div><div class="sum-val" style="${ovl?'color:var(--red)':'color:var(--green)'}">${ovl}</div></div>
+    </div>
+    <div class="sum-divider"></div>
+    <table class="sum-table">
+      <tr><td style="color:var(--g500)">7350mm pallets</td><td>${plan.filter(p=>p.t==='long').length}</td></tr>
+      <tr><td style="color:var(--g500)">5900mm pallets</td><td>${plan.filter(p=>p.t==='short').length}</td></tr>
+      <tr><td style="color:var(--g500)">X-pallets</td><td>${plan.filter(p=>p.x).length}</td></tr>
+      <tr><td style="color:var(--g500)">Norm. pallets</td><td>${plan.filter(p=>!p.x).length}</td></tr>
+    </table>
+    <div class="sum-divider"></div>
+    <table class="sum-table sum-table-maten">
+      <tr style="color:var(--g400);font-size:10px;text-transform:uppercase;letter-spacing:.5px"><td></td><td>L</td><td>B</td><td>H</td><td>Gewicht</td></tr>`;
+  plan.forEach(p=>{
+    const kgHtml = p.werkelijkKg!=null
+      ? `<strong>${p.werkelijkKg.toFixed(1)} kg</strong>`
+      : `${p.totalKg.toFixed(1)} kg${p.overloaded?' &#9888;':''}`;
+    const maat = f => f!=null ? f : '&ndash;';
+    sumH+=`<tr><td style="color:var(--g500)">${esc(p.nm)}</td><td>${maat(p.werkelijkL)}</td><td>${maat(p.werkelijkB)}</td><td>${maat(p.werkelijkH)}</td><td>${kgHtml}</td></tr>`;
+  });
+  sumH+='</table>'
+     +'<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:10px" onclick="exportGewichtenlijst()">Export gewichtenlijst</button>';
+  el.innerHTML=sumH;
+}
+
 // ═══ RENDER RESULTS ═══
 function showResults(){
   setStep(3);
@@ -1047,7 +1120,7 @@ function showResults(){
             </div>
           </div>
           <div style="margin-top:auto">
-            <div id="phw_${palIdx}">${phWeightHtml(pal)}</div>
+            <div id="phw_${palIdx}">${phWeightHtml(pal)}${phWerkelijkHtml(pal, palIdx)}</div>
           </div>
         </div>
         <div class="pb">
@@ -1091,32 +1164,8 @@ function showResults(){
   restoreCheckedItems();
 
   // Sidebar summary
-  const totK=plan.reduce((s,p)=>s+p.totalKg,0);
+  renderSummarySidebar();
   const ovl=plan.filter(p=>p.overloaded).length;
-  let sumH=`
-    ${projNr?`<div class="sum-block"><div class="sum-label">Projectnummer</div><div class="sum-val" style="font-size:16px">${esc(projNr)}</div></div>`:''}
-    ${klant?`<div class="sum-block"><div class="sum-label">Klant</div><div style="font-size:13px;color:var(--g700)">${esc(klant)}</div></div>`:''}
-    <div class="sum-divider"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div class="sum-block"><div class="sum-label">Pallets</div><div class="sum-val">${plan.length}</div></div>
-      <div class="sum-block"><div class="sum-label">Stapels</div><div class="sum-val">${Object.keys(plan.reduce((a,p)=>{a[p.sid]=1;return a},{})).length}</div></div>
-      <div class="sum-block"><div class="sum-label">Totaal kg</div><div class="sum-val">${Math.round(totK)}</div></div>
-      <div class="sum-block"><div class="sum-label">&gt;1.000 kg</div><div class="sum-val" style="${ovl?'color:var(--red)':'color:var(--green)'}">${ovl}</div></div>
-    </div>
-    <div class="sum-divider"></div>
-    <table class="sum-table">
-      <tr><td style="color:var(--g500)">7350mm pallets</td><td>${plan.filter(p=>p.t==='long').length}</td></tr>
-      <tr><td style="color:var(--g500)">5900mm pallets</td><td>${plan.filter(p=>p.t==='short').length}</td></tr>
-      <tr><td style="color:var(--g500)">X-pallets</td><td>${plan.filter(p=>p.x).length}</td></tr>
-      <tr><td style="color:var(--g500)">Norm. pallets</td><td>${plan.filter(p=>!p.x).length}</td></tr>
-    </table>
-    <div class="sum-divider"></div>
-    <table class="sum-table">`;
-  plan.forEach(p=>{
-    sumH+=`<tr><td style="color:var(--g500)">${esc(p.nm)}</td><td>${p.totalKg.toFixed(1)} kg${p.overloaded?' &#9888;':''}</td></tr>`;
-  });
-  sumH+='</table>';
-  document.getElementById('summaryArea').innerHTML=sumH;
 
   // Alerts
   const violations = plan.filter(p=>p.stackViolation);
@@ -1157,6 +1206,27 @@ function showResults(){
       unplacedCard.style.display = 'none';
     }
   }
+}
+
+// ═══ GEWICHTENLIJST EXPORT ═══
+// Zelfde lay-out als "Voorbeeld export (.xlsx) gewichtenlijst.xlsx": kolom A leeg,
+// projectnummer in B2/C2, headers in rij 4 (C=Lengte, D=Breedte, E=Hoogte, G=Gewicht,
+// kolom F leeg als scheiding), daarna één rij per pallet.
+function exportGewichtenlijst(){
+  const rows=[];
+  rows.push([]);
+  rows.push([null,'Projectnummer: ',projNr||'']);
+  rows.push([]);
+  rows.push([null,null,'Lengte','Breedte','Hoogte',null,'Gewicht']);
+  plan.forEach(p=>{
+    const kg = p.werkelijkKg!=null ? p.werkelijkKg : p.totalKg;
+    rows.push([null,p.nm,p.werkelijkL!=null?p.werkelijkL:null,p.werkelijkB!=null?p.werkelijkB:null,p.werkelijkH!=null?p.werkelijkH:null,null,Math.round(kg)+' kg']);
+  });
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:2},{wch:17}];
+  XLSX.utils.book_append_sheet(wb,ws,'Gewichtenlijst');
+  XLSX.writeFile(wb,`Gewichtenlijst_${projNr||'export'}.xlsx`);
 }
 
 // ═══ EXCEL EXPORT ═══
@@ -1504,9 +1574,9 @@ async function saveCurrentProject(){
     klant: klant,
     datum: new Date().toISOString(),
     pallets: plan.length,
-    total_kg: Math.round(plan.reduce((s,p)=>s+p.totalKg,0)),
+    total_kg: Math.round(plan.reduce((s,p)=>s+(p.werkelijkKg!=null?p.werkelijkKg:p.totalKg),0)),
     known: known.map(p=>({art:p.artOrig||p.art,artOrig:p.artOrig||p.art,desc:p.desc,l:p.l,gps:p.gps,qty:p.qty,gew:p.gew,loks:p.loks,palletVoorkeur:p.palletVoorkeur||undefined})),
-    plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items})),
+    plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items,werkelijkKg:p.werkelijkKg,werkelijkL:p.werkelijkL,werkelijkB:p.werkelijkB,werkelijkH:p.werkelijkH})),
     checked_items: checkedItems,
     status: 'not_started'
   };
