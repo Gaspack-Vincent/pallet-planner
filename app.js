@@ -1039,12 +1039,14 @@ function showResults(){
           <div>
             <span class="pnum">${esc(pal.nm)}</span>
             <div class="ptags" style="margin-top:6px">
-              <span class="ptyp">${esc(pal.lbl)}</span>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <span class="ptyp">${esc(pal.lbl)}</span>
+                <span class="ptyp pal-art-badge">ART. ${esc(pal.art)}</span>
+              </div>
               <span class="pstk-badge ${pal.x?'xp':pal.nm6Special?'nm6special':typeCls}" style="margin-top:3px">${pal.x?'X-PALLET':pal.nm6Special?pal.nm6Label:'Normaal'}</span>
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${pal.items.length} type${pal.items.length>1?'s':''} &middot; Art. ${esc(pal.art)}</div>
             <div id="phw_${palIdx}">${phWeightHtml(pal)}</div>
           </div>
         </div>
