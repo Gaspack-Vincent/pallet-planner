@@ -257,7 +257,6 @@ tbody td.r{text-align:right}
 .wtot{font-weight:700;font-size:13px;margin-top:6px;text-align:left}
 
 /* SIDEBAR SUMMARY */
-.summary-sidebar{position:sticky;top:80px}
 .sum-block{margin-bottom:1rem}
 .sum-label{font-family:var(--fc);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--g500);margin-bottom:2px}
 .sum-val{font-family:var(--fc);font-size:20px;font-weight:700;color:var(--g900)}
