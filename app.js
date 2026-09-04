@@ -1181,7 +1181,16 @@ function showResults(){
   const unplacedList = document.getElementById('unplacedList');
   if(unplacedCard && unplacedList){
     const unplaced = window._unplacedItems || [];
-    if(unplaced.length){
+    // Zodra de gebruiker deze kaart wegklikt, blijft hij verborgen zolang de set
+    // niet-geplaatste artikelen ongewijzigd blijft (dus niet bij elke drag opnieuw
+    // dezelfde melding). Verandert de set (nieuw/ander artikel niet geplaatst), dan
+    // verschijnt de kaart weer vanzelf.
+    const fingerprint = unplaced.map(u=>u.art+':'+u.qty).sort().join('|');
+    if(fingerprint !== window._unplacedFingerprint){
+      window._unplacedFingerprint = fingerprint;
+      window._unplacedDismissed = false;
+    }
+    if(unplaced.length && !window._unplacedDismissed){
       unplacedCard.style.display = '';
       let uH = '<table class="sum-table">';
       uH += '<tr style="font-size:10px;color:var(--g400)"><td>Art. / Omschrijving</td><td style="text-align:right">Qty</td><td style="text-align:right">kg</td></tr>';
@@ -1206,6 +1215,12 @@ function showResults(){
       unplacedCard.style.display = 'none';
     }
   }
+}
+
+function dismissUnplacedCard(){
+  window._unplacedDismissed = true;
+  const unplacedCard = document.getElementById('unplacedCard');
+  if(unplacedCard) unplacedCard.style.display = 'none';
 }
 
 // ═══ GEWICHTENLIJST EXPORT ═══
@@ -2768,13 +2783,9 @@ function verplaatsItem(fromPalIdx, fromItemIdx, toNm, toItemIdx){
   const item = fromPal.items.splice(fromItemIdx, 1)[0];
   if(!item) return;
 
-  // Gewicht bijwerken op bronpallet
-  fromPal.profW -= item.gew;
-  if(!fromPal.items.length) fromPal.used = false;
-
   // Voeg toe aan doelpallet
   if(fromPal === toPal){
-    // Volgorde binnen zelfde pallet
+    // Volgorde binnen zelfde pallet — totaalgewicht van de pallet verandert niet
     const insertAt = toItemIdx !== null ? toItemIdx : toPal.items.length;
     toPal.items.splice(insertAt, 0, item);
   } else {
@@ -2787,9 +2798,15 @@ function verplaatsItem(fromPalIdx, fromItemIdx, toNm, toItemIdx){
       const insertAt = toItemIdx !== null ? toItemIdx : toPal.items.length;
       toPal.items.splice(insertAt, 0, item);
     }
-    toPal.profW += item.gew;
     toPal.used = true;
   }
+  if(!fromPal.items.length) fromPal.used = false;
+
+  // Gewicht altijd herberekenen vanuit de actuele items — voorkomt dat losse
+  // optel/aftrek-stappen uit elkaar gaan lopen met de werkelijke inhoud van de pallet
+  // (dit was de oorzaak van een fout getoond gewicht na het verslepen van artikelen).
+  fromPal.profW = fromPal.items.reduce((s,i)=>s+i.gew,0);
+  toPal.profW   = toPal.items.reduce((s,i)=>s+i.gew,0);
 
   // Herbereken totalKg voor alle pallets na gewichtswijziging
   plan.forEach(p => {
@@ -2816,10 +2833,9 @@ function bewerkQtyChange(inp){
   if(qty <= 0 || !plan[palIdx]) return;
   const item = plan[palIdx].items[itemIdx];
   if(!item) return;
-  const oudeGew = item.gew;
   item.qty = qty;
   item.gew = qty * item.gps;
-  plan[palIdx].profW += (item.gew - oudeGew);
+  plan[palIdx].profW = plan[palIdx].items.reduce((s,i)=>s+i.gew,0);
   // Update display zonder volledige re-render
   const display = inp.nextElementSibling;
   if(display) display.textContent = qty + '×';
@@ -2835,9 +2851,13 @@ function bewerkQtyChange(inp){
     if(p.sid !== pal.sid) return;
     const stackKg = plan.filter(x => x.sid===p.sid && x.used).reduce((s,x)=>(s+(x.profW+x.kg)*OHD),0);
     p.stackViolation = stackKg > MAX_S;
-    const phw = document.getElementById('phw_'+plan.indexOf(p));
-    if(phw) phw.innerHTML = phWeightHtml(p);
+    const pIdx = plan.indexOf(p);
+    const phw = document.getElementById('phw_'+pIdx);
+    if(phw) phw.innerHTML = phWeightHtml(p) + phWerkelijkHtml(p, pIdx);
   });
+
+  // Samenvatting rechts moet dit direct meenemen, anders loopt die achter tot op "Opslaan"
+  renderSummarySidebar();
 }
 
 function bewerkOpslaanInline(){
@@ -2848,12 +2868,12 @@ function bewerkOpslaanInline(){
     const qty = parseInt(inp.value) || 0;
     if(qty > 0 && plan[palIdx] && plan[palIdx].items[itemIdx]){
       const item = plan[palIdx].items[itemIdx];
-      const oudeGew = item.gew;
       item.qty = qty;
       item.gew = qty * item.gps;
-      plan[palIdx].profW += (item.gew - oudeGew);
     }
   });
+  // Alle profW's opnieuw optellen vanuit de actuele items (i.p.v. losse deltas)
+  plan.forEach(p => { p.profW = p.items.reduce((s,i)=>s+i.gew,0); });
 
   // Lees locatie-wijzigingen uit de loc inputs
   document.querySelectorAll('#palletResults .pr-loc-input').forEach(inp => {
@@ -2900,8 +2920,8 @@ function bewerkOpslaanInline(){
 function verwijderArtikel(palIdx, itemIdx){
   const pal = plan[palIdx];
   if(!pal || !pal.items[itemIdx]) return;
-  const item = pal.items.splice(itemIdx, 1)[0];
-  pal.profW  -= item.gew;
+  pal.items.splice(itemIdx, 1);
+  pal.profW  = pal.items.reduce((s,i)=>s+i.gew,0);
   pal.totalKg = (pal.profW + pal.kg) * OHD;
   pal.overloaded = pal.totalKg > MAX_P;
   if(pal.items.length === 0) pal.used = true; // leeg maar bewaard
@@ -3098,7 +3118,7 @@ function bevestigArtikelToevoegen(palIdx, nm, artNr){
   } else {
     pal.items.push({art: artNr, artOrig: artNr, desc: entry.d||'', qty: qty, gps: entry.g, gew: gew, l: entry.l||null, loks: []});
   }
-  pal.profW  += gew;
+  pal.profW  = pal.items.reduce((s,i)=>s+i.gew,0);
   pal.totalKg = (pal.profW + pal.kg) * OHD;
   pal.overloaded = pal.totalKg > MAX_P;
   pal.used = true;
@@ -3135,7 +3155,7 @@ function voegArtikelToe(palIdx, nm, unplacedIdx){
       l: u.l || null, loks: []
     });
   }
-  pal.profW  += u.gew;
+  pal.profW  = pal.items.reduce((s,i)=>s+i.gew,0);
   pal.totalKg = (pal.profW + pal.kg) * OHD;
   pal.overloaded = pal.totalKg > MAX_P;
   pal.used   = true;
