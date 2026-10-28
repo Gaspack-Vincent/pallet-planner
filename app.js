@@ -1026,7 +1026,7 @@ function renderSummarySidebar(){
   });
   kratten.forEach((k,i)=>{
     const maat = f => f!=null ? f : '&ndash;';
-    sumH+=`<tr><td style="color:var(--g500)">${kratNaam(i)}</td><td>${maat(k.l)}</td><td>${maat(k.b)}</td><td>${maat(k.h)}</td><td>${k.kg!=null?k.kg.toFixed(1)+' kg':'&ndash;'}</td></tr>`;
+    sumH+=`<tr><td style="color:var(--g500)">${esc(kratNaam(k,i))}</td><td>${maat(k.l)}</td><td>${maat(k.b)}</td><td>${maat(k.h)}</td><td>${k.kg!=null?k.kg.toFixed(1)+' kg':'&ndash;'}</td></tr>`;
   });
   sumH+='</table>'
      +'<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:10px" onclick="exportGewichtenlijst()">Export gewichtenlijst</button>';
@@ -1042,7 +1042,19 @@ const KRAT_MATEN = {
   small:  {lbl:'Small',  l:1140, b:750, h:1260},
   medium: {lbl:'Medium', l:2290, b:750, h:1260},
 };
-function kratNaam(i){ return 'Krat '+(i+1); }
+// Naam: opgeslagen k.nm (standaard doorgenummerd na de pallets, bv. NM-13, maar vrij aan
+// te passen in bewerkmode). Kratten van vóór de nummering hebben geen nm → 'Krat n'.
+function kratNaam(k, i){ return k.nm || ('Krat '+(i+1)); }
+
+// Eerstvolgende vrije NM-nummer over pallets én kratten, zodat ze samen doortellen.
+// Hernoemde kratten (geen NM-n naam) tellen niet mee.
+function volgendNmNummer(){
+  const namen = plan.map(p=>p.nm).concat(kratten.map(k=>k.nm||''));
+  return namen.reduce((m,nm)=>{
+    const r = /^NM-(\d+)$/i.exec(nm||'');
+    return r && parseInt(r[1],10)>m ? parseInt(r[1],10) : m;
+  }, 0) + 1;
+}
 function kratMaatLbl(k){ return KRAT_MATEN[k.maat] ? KRAT_MATEN[k.maat].lbl : ''; }
 function krattenKg(){ return kratten.reduce((s,k)=>s+(k.kg||0),0); }
 
@@ -1069,7 +1081,8 @@ function kratSectieHtml(){
       <div class="kh">
         <button class="pc-verwijder-btn" onclick="verwijderKrat(${i})" title="Krat verwijderen">&#10005;</button>
         <div>
-          <span class="pnum">${kratNaam(i)}</span>
+          <span class="pnum krat-nm-display">${esc(kratNaam(k,i))}</span>
+          <input type="text" class="krat-nm-inp" value="${esc(kratNaam(k,i)).replace(/"/g,'&quot;')}" data-kratidx="${i}" onchange="updateKratNaam(this)" title="Naam van de krat aanpassen">
           <div class="ptags" style="margin-top:6px">
             ${maatLbl?`<span class="ptyp">Krat ${maatLbl}</span>`:''}
             <span class="pstk-badge krat" style="margin-top:3px">KRAT</span>
@@ -1114,13 +1127,36 @@ function voegKratToe(maat){
   if(collapsed) collapsed.style.display = '';
 
   const m = KRAT_MATEN[maat];
-  kratten.push({maat, l:m.l, b:m.b, h:m.h}); // standaardmaat vooringevuld, gewicht nog leeg
+  // Naam telt door na de pallets; standaardmaat vooringevuld, gewicht nog leeg
+  kratten.push({nm:'NM-'+volgendNmNummer(), maat, l:m.l, b:m.b, h:m.h});
   kratHerrenderInBewerkmode(); // showResults() slaat het project ook op
 }
 
 function verwijderKrat(i){
   kratten.splice(i,1);
   kratHerrenderInBewerkmode();
+}
+
+// Naam aanpassen (bewerkmode). Leeg of al in gebruik door een pallet/andere krat → terug
+// naar de oude naam, zodat de gewichtenlijst geen dubbele of lege namen krijgt.
+function updateKratNaam(inputEl){
+  const i = parseInt(inputEl.dataset.kratidx, 10);
+  const k = kratten[i];
+  if(!k) return;
+  const oud = kratNaam(k,i);
+  const nieuw = inputEl.value.trim();
+  const bezet = plan.some(p=>p.nm.toUpperCase()===nieuw.toUpperCase())
+    || kratten.some((x,j)=>j!==i && kratNaam(x,j).toUpperCase()===nieuw.toUpperCase());
+  if(!nieuw || bezet){
+    if(bezet) alert('De naam "'+nieuw+'" is al in gebruik.');
+    inputEl.value = oud;
+    return;
+  }
+  k.nm = nieuw;
+  const disp = inputEl.parentElement.querySelector('.krat-nm-display');
+  if(disp) disp.textContent = nieuw;
+  renderSummarySidebar();
+  saveCurrentProject();
 }
 
 // Veldwijziging ververst alleen de samenvatting (niet de kaarten), zodat de invoerfocus
@@ -1353,7 +1389,7 @@ function exportGewichtenlijst(){
     rows.push([null,p.nm,p.werkelijkL!=null?p.werkelijkL:null,p.werkelijkB!=null?p.werkelijkB:null,p.werkelijkH!=null?p.werkelijkH:null,null,Math.round(kg)+' kg',p.x?'X-pallet':'Normaal']);
   });
   kratten.forEach((k,i)=>{
-    rows.push([null,kratNaam(i),k.l!=null?k.l:null,k.b!=null?k.b:null,k.h!=null?k.h:null,null,k.kg!=null?Math.round(k.kg)+' kg':null,('Krat '+kratMaatLbl(k)).trim()]);
+    rows.push([null,kratNaam(k,i),k.l!=null?k.l:null,k.b!=null?k.b:null,k.h!=null?k.h:null,null,k.kg!=null?Math.round(k.kg)+' kg':null,('Krat '+kratMaatLbl(k)).trim()]);
   });
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.aoa_to_sheet(rows);
@@ -3325,8 +3361,8 @@ function voegPalletToe(type){
   if(collapsed) collapsed.style.display = '';
 
   // Volgend NM-nummer
-  const maxNm = plan.reduce((m,p)=>{ const n=parseInt(p.nm.split('-')[1]); return n>m?n:m; }, 0);
-  const nextNm = 'NM-' + (maxNm + 1);
+  // Telt door over pallets én kratten (zie volgendNmNummer)
+  const nextNm = 'NM-' + volgendNmNummer();
 
   // Zoek een bestaande stapel van dit type met < 3 pallets
   const stapelsVanType = {};
