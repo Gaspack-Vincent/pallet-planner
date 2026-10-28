@@ -974,6 +974,7 @@ function phWerkelijkHtml(pal, palIdx){
     <div class="pw-actual-row">
       <label>Werk. gewicht</label>
       <input type="number" min="0" step="0.1" class="pw-actual-inp" placeholder="kg" value="${pal.werkelijkKg!=null?pal.werkelijkKg:''}" data-palindx="${palIdx}" data-field="werkelijkKg" onchange="updatePalWerkelijk(this)">
+      <button class="klaar-ok-btn" onclick="palletKlaar(${palIdx})" title="Pallet klaar — minimaliseren (alle regels afgevinkt, maat en gewicht ingevuld)">OK</button>
     </div>
   </div>`;
 }
@@ -1112,7 +1113,7 @@ function kratSectieHtml(){
           <div class="pw-actual-row">
             <label>Werk. gewicht</label>
             ${kratVeld(k,i,'kg','kg',0.1,false)}
-            <button class="krat-ok-btn" onclick="kratKlaar(${i})" title="Krat klaar — minimaliseren">OK</button>
+            <button class="klaar-ok-btn" onclick="kratKlaar(${i})" title="Krat klaar — minimaliseren (maat en gewicht ingevuld)">OK</button>
           </div>
         </div>
       </div>
@@ -1129,16 +1130,17 @@ function renderKratSectie(){
   if(el) el.outerHTML = kratSectieHtml();
 }
 
-// OK-knop naast het gewicht: alleen minimaliseren als er een gewicht is ingevuld.
+// OK-knop naast het gewicht: alleen minimaliseren als L, B, H en gewicht ingevuld zijn
+// (zelfde voorwaarde als bij pallets, zie palletKlaar — kratten hebben geen regels om af te vinken).
 function kratKlaar(i){
   const k = kratten[i];
   if(!k) return;
-  // Waarde direct uit het veld lezen, voor het geval de change-event nog niet gevuurd is
-  const inp = document.querySelector(`#krat-sectie .pw-actual-inp[data-kratidx="${i}"][data-field="kg"]`);
-  if(inp && inp.value!=='') k.kg = parseFloat(inp.value);
-  if(k.kg==null || isNaN(k.kg)){
-    alert('Vul eerst het gewicht van de krat in.');
-    if(inp) inp.focus();
+  // Waarden direct uit de velden lezen, voor het geval de change-event nog niet gevuurd is
+  document.querySelectorAll(`#krat-sectie .pw-actual-inp[data-kratidx="${i}"]`).forEach(inp=>{
+    if(inp.value==='') delete k[inp.dataset.field]; else k[inp.dataset.field] = parseFloat(inp.value);
+  });
+  if(!maatEnGewichtCompleet(k.l, k.b, k.h, k.kg)){
+    alert('Vul eerst de lengte, breedte, hoogte en het gewicht van '+kratNaam(k,i)+' in.');
     return;
   }
   k.klaar = true;
@@ -1795,7 +1797,7 @@ async function saveCurrentProject(){
     pallets: plan.length,
     total_kg: Math.round(plan.reduce((s,p)=>s+(p.werkelijkKg!=null?p.werkelijkKg:p.totalKg),0) + krattenKg()),
     known: known.map(p=>({art:p.artOrig||p.art,artOrig:p.artOrig||p.art,desc:p.desc,l:p.l,gps:p.gps,qty:p.qty,gew:p.gew,loks:p.loks,palletVoorkeur:p.palletVoorkeur||undefined})),
-    plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items,werkelijkKg:p.werkelijkKg,werkelijkL:p.werkelijkL,werkelijkB:p.werkelijkB,werkelijkH:p.werkelijkH})),
+    plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items,werkelijkKg:p.werkelijkKg,werkelijkL:p.werkelijkL,werkelijkB:p.werkelijkB,werkelijkH:p.werkelijkH,klaar:p.klaar})),
     checked_items: checkedItems,
     status: 'not_started'
   };
@@ -2036,27 +2038,43 @@ function toggleDone(itemId, palNm, totalItems){
   window._checkSaveTimer = setTimeout(saveCheckedItems, 800);
 }
 
+// Minimaliseren gebeurt alleen nog via de OK-knop (palletKlaar → pal.klaar), niet meer
+// automatisch bij het laatste vinkje. Deze functie past de weergave aan pal.klaar aan en
+// heft 'klaar' op zodra niet meer alle regels afgevinkt zijn (bv. artikel toegevoegd in
+// bewerkmode). Vinkjes komen uit checkedItems, niet uit de DOM: in de compacte weergave
+// bestaan de checkboxes niet.
+function palletAllesAfgevinkt(palNm, totalItems){
+  for(let i=0; i<totalItems; i++){
+    if(!checkedItems['chk_'+palNm+'_'+i]) return false;
+  }
+  return true;
+}
+
+// Zelfde voorwaarde voor pallets en kratten: L, B, H en gewicht ingevuld.
+function maatEnGewichtCompleet(l, b, h, kg){
+  return [l,b,h,kg].every(v=>v!=null && !isNaN(v));
+}
+
 function checkPalletComplete(palNm, totalItems){
   const pc = document.getElementById('pc_'+palNm);
   if(!pc) return;
-  let doneCount = 0;
-  for(let i=0; i<totalItems; i++){
-    const cb = document.getElementById('chk_'+palNm+'_'+i);
-    if(cb && cb.checked) doneCount++;
+  const pal = plan.find(p=>p.nm===palNm);
+  if(pal && pal.klaar && !palletAllesAfgevinkt(palNm, totalItems)){
+    pal.klaar = false;
+    saveCurrentProject();
   }
-  if(doneCount === totalItems){
+  if(pal && pal.klaar){
     pc.classList.add('pallet-done');
     // Verwijder eerdere done-elementen om duplicaten te voorkomen
     pc.querySelectorAll('.pallet-done-label,.pallet-expand-btn').forEach(el=>el.remove());
-    // Haal gewichtstekst op uit de ph
-    const weightEl = pc.querySelector('[style*="#69F0AE"],[style*="#FFD54F"],[style*="#FF5252"]');
-    const weightTxt = weightEl ? weightEl.textContent.trim() : '';
+    const maat = pal.werkelijkL+'&times;'+pal.werkelijkB+'&times;'+pal.werkelijkH+' mm';
     // Bouw compacte pb inhoud
     const pb = pc.querySelector('.pb');
-    const palNmSafe = palNm.replace(/'/g,"\\'");
+    const palNmSafe = palNm.replace(/'/g,"\'");
     pb.innerHTML =
       '<div class="pallet-done-label">&#10003; KLAAR &mdash; alle '+totalItems+' type'+(totalItems>1?'s':'')+' afgevinkt'
-      +(weightTxt?' &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">'+weightTxt+'</span>':'')
+      +' &nbsp;|&nbsp; '+maat
+      +' &nbsp;|&nbsp; <span style="color:var(--green);font-weight:700">'+pal.werkelijkKg.toFixed(1)+' kg</span>'
       +'</div>'
       +'<button class="pallet-expand-btn" onclick="expandPallet(\''+palNmSafe+'\')">TOON</button>';
     pc._pbBackup = null; // reset backup
@@ -2079,33 +2097,36 @@ function checkPalletComplete(palNm, totalItems){
   }
 }
 
+// OK-knop naast het werkelijke gewicht van een pallet.
+function palletKlaar(palIdx){
+  const pal = plan[palIdx];
+  if(!pal) return;
+  // Waarden direct uit de velden lezen, voor het geval de change-event nog niet gevuurd is
+  document.querySelectorAll(`#phw_${palIdx} .pw-actual-inp[data-palindx="${palIdx}"]`).forEach(inp=>{
+    pal[inp.dataset.field] = inp.value==='' ? undefined : parseFloat(inp.value);
+  });
+  if(!palletAllesAfgevinkt(pal.nm, pal.items.length)){
+    alert('Vink eerst alle regels van '+pal.nm+' af.');
+    return;
+  }
+  if(!maatEnGewichtCompleet(pal.werkelijkL, pal.werkelijkB, pal.werkelijkH, pal.werkelijkKg)){
+    alert('Vul eerst de werkelijke lengte, breedte, hoogte en het gewicht van '+pal.nm+' in.');
+    return;
+  }
+  pal.klaar = true;
+  checkPalletComplete(pal.nm, pal.items.length);
+  renderSummarySidebar();
+  saveCurrentProject();
+}
+
+// TOON: alleen weer uitklappen. De vinkjes blijven staan (vroeger werden ze hier gewist,
+// omdat minimaliseren toen automatisch volgde uit 'alles afgevinkt').
 function expandPallet(palNm){
-  const pc = document.getElementById('pc_'+palNm);
-  if(!pc || !pc.classList.contains('pallet-done')) return;
-
-  const palDef = plan.find(p=>p.nm===palNm);
-  const totalItems = palDef ? palDef.items.length : 0;
-
-  // Herstel originele pb inhoud
-  pc.classList.remove('pallet-done');
-  if(pc._pbOriginal){
-    const pb = pc.querySelector('.pb');
-    if(pb) pb.innerHTML = pc._pbOriginal;
-  }
-
-  // Zet alle vinkjes van deze pallet terug op ongedaan
-  for(let i=0; i<totalItems; i++){
-    const itemId = 'chk_'+palNm+'_'+i;
-    delete checkedItems[itemId];
-    const cb = document.getElementById(itemId);
-    const row = document.getElementById('row_'+itemId);
-    if(cb){ cb.checked = false; }
-    if(row){ row.classList.remove('done'); }
-  }
-
-  // Sla gewijzigde vinkjesstatus op
-  clearTimeout(window._checkSaveTimer);
-  window._checkSaveTimer = setTimeout(saveCheckedItems, 800);
+  const pal = plan.find(p=>p.nm===palNm);
+  if(!pal) return;
+  pal.klaar = false;
+  checkPalletComplete(palNm, pal.items.length);
+  saveCurrentProject();
 }
 
 async function saveCheckedItems(){
