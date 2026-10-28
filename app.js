@@ -1030,7 +1030,8 @@ function renderSummarySidebar(){
     sumH+=`<tr><td style="color:var(--g500)">${esc(kratNaam(k,i))}</td><td>${maat(k.l)}</td><td>${maat(k.b)}</td><td>${maat(k.h)}</td><td>${k.kg!=null?k.kg.toFixed(1)+' kg':'&ndash;'}</td></tr>`;
   });
   sumH+='</table>'
-     +'<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:10px" onclick="exportGewichtenlijst()">Export gewichtenlijst</button>';
+     +'<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:10px" onclick="exportGewichtenlijst()">Export gewichtenlijst</button>'
+     +'<button class="btn btn-dark btn-sm" style="width:100%;justify-content:center;margin-top:6px" onclick="naarGoodloading()" title="Stapelplan voor Goodloading maken en opdracht voor Claude in Chrome klaarzetten">Naar Goodloading (Claude)</button>';
   el.innerHTML=sumH;
 }
 
@@ -1448,6 +1449,227 @@ function exportGewichtenlijst(){
   ws['!cols']=[{wch:2},{wch:17},null,null,null,null,null,{wch:12}];
   XLSX.utils.book_append_sheet(wb,ws,'Gewichtenlijst');
   XLSX.writeFile(wb,`Gewichtenlijst_${projNr||'export'}.xlsx`);
+}
+
+// ═══ GOODLOADING (via Claude in Chrome) ═══
+// De knop "Naar Goodloading (Claude)" rekent hier het stapelplan voor Goodloading uit en maakt
+// een opdracht klaar die de gebruiker in het Claude-paneel in Chrome plakt (een webpagina kan
+// Claude in Chrome niet zelf starten). Claude voert die uit met de skill goodloading-import,
+// maar neemt dit plan letterlijk over i.p.v. zelf een indeling te bedenken.
+// Regels (Vincent):
+//  - Stapel 1–4 uit de tool = stapels in Goodloading; per stapel één kruispallet, altijd onderop.
+//  - Extra pallets (stapel 5+) verdelen over stapel 1–4: 7350 → stapel 1/2, 5900 → stapel 3/4,
+//    telkens op de laagste stapel (totale hoogte).
+//  - Pallets met 6000mm-profielen (5900-pallet, profiel > 5900 mm) samen in één stapel.
+//  - Kratten in het verlengde van stapel 1 en 2: max. 4 op de grond (2 per baan), extra kratten
+//    alleen bovenop een Medium-krat, max. 2 hoog.
+const GL_CONT_L = 12032, GL_CONT_H = 2690; // mm, Marine container 40' HC
+const GL_KRAT_GROND = 4;
+
+function glIs6000(p){ return p.t==='short' && (p.items||[]).some(i=>(i.l||0)>5900); }
+function glHoogte(st){ return st.reduce((s,p)=>s+(p.werkelijkH||0),0); }
+function glLengte(st){ return st.reduce((m,p)=>Math.max(m,p.werkelijkL||0),0); }
+
+function goodloadingPlan(){
+  const warnings = [];
+
+  // ── Pallets: stapel 1–4 overnemen, kruispallet onderop ──
+  const stapels = {1:[],2:[],3:[],4:[]};
+  const extra = [];
+  plan.slice().sort((a,b)=>(a.sid-b.sid)||(a.spos-b.spos))
+    .forEach(p=>{ (stapels[p.sid] ? stapels[p.sid] : extra).push(p); });
+  Object.keys(stapels).forEach(sid=>{
+    const st = stapels[sid];
+    st.sort((a,b)=>(b.x-a.x)||(a.spos-b.spos));
+    const nx = st.filter(p=>p.x).length;
+    if(st.length && nx===0) warnings.push(`Stapel ${sid} heeft geen kruispallet onderop.`);
+    if(nx>1) warnings.push(`Stapel ${sid} heeft ${nx} kruispallets; er hoort er één per stapel te zijn.`);
+  });
+  const stapelType = sid => (stapels[sid][0]||{}).t || (sid<=2 ? 'long' : 'short');
+
+  // Extra pallets op de laagste stapel van de juiste lengte (6000mm-pallets bij elkaar)
+  extra.forEach(p=>{
+    if(p.x) warnings.push(`Extra kruispallet ${p.nm} (stapel ${p.sid}): een kruispallet hoort onderop, nu bovenop gezet — controleer dit.`);
+    let kand = [1,2,3,4].filter(sid=>stapelType(sid)===p.t);
+    if(glIs6000(p)){
+      const met6000 = kand.filter(sid=>stapels[sid].some(glIs6000));
+      if(met6000.length) kand = met6000;
+    }
+    const sid = kand.sort((a,b)=>(glHoogte(stapels[a])-glHoogte(stapels[b]))||(a-b))[0];
+    stapels[sid].push(p);
+  });
+
+  [1,2,3,4].forEach(sid=>{
+    const h = glHoogte(stapels[sid]);
+    if(h>GL_CONT_H) warnings.push(`Stapel ${sid} is ${h} mm hoog, hoger dan de container (${GL_CONT_H} mm).`);
+  });
+  const st6000 = [1,2,3,4].filter(sid=>stapels[sid].some(glIs6000));
+  if(st6000.length>1) warnings.push(`Pallets met 6000mm-profielen staan in meerdere stapels (${st6000.map(s=>'stapel '+s).join(', ')}); ze horen samen in één stapel.`);
+
+  // ── Kratten: Medium eerst op de grond, extra kratten bovenop een Medium ──
+  const kr = kratten.map((k,i)=>({nm:kratNaam(k,i), maat:kratMaatLbl(k)||'?', l:k.l, b:k.b, h:k.h, kg:k.kg, medium:k.maat==='medium'}));
+  const volgorde = kr.filter(k=>k.medium).concat(kr.filter(k=>!k.medium));
+  const grond = volgorde.slice(0, GL_KRAT_GROND).map(k=>({...k, erop:null}));
+  volgorde.slice(GL_KRAT_GROND).forEach(k=>{
+    const doel = grond.find(g=>g.medium && !g.erop);
+    if(doel) doel.erop = k;
+    else warnings.push(`Krat ${k.nm} past niet: alle Medium-kratten op de grond hebben al een krat erop (of er is geen Medium).`);
+  });
+  // Baan 1 krijgt grondkrat 1 en 3, baan 2 krijgt 2 en 4
+  const banen = {1:grond.filter((_,i)=>i%2===0), 2:grond.filter((_,i)=>i%2===1)};
+  [1,2].forEach(b=>{
+    const len = glLengte(stapels[b]) + banen[b].reduce((s,k)=>s+(k.l||0),0);
+    if(len>GL_CONT_L) warnings.push(`Baan ${b}: stapel ${b} + kratten = ${len} mm, langer dan de container (${GL_CONT_L} mm).`);
+  });
+  const baan3 = glLengte(stapels[3]) + glLengte(stapels[4]);
+  if(baan3>GL_CONT_L) warnings.push(`Baan 3: stapel 3 + 4 achter elkaar = ${baan3} mm, langer dan de container (${GL_CONT_L} mm).`);
+
+  return {stapels, banen, grond, warnings};
+}
+
+// Goodloading-CSV (Import from file), zelfde opbouw als in de skill goodloading-import.
+// Volgorde = volgorde van toevoegen: eerst de onderste pallets, dan de grondkratten, dan de
+// bovenste pallets en kratten (die sleept Claude daarna op hun plek).
+function goodloadingCsv(gp){
+  const cm = mm => String(Math.round(mm)/10);
+  const regel = (nm,l,b,h,kg,stack,floor) => [nm,cm(b),cm(l),cm(h),'',String(kg),'1',stack,'','',floor,'','','','N',''].join(',');
+  const rows = [
+    'CONFIG UNITS','cm',
+    'SPACE NAME,LENGTH,WIDTH,HEIGHT,CAPACITY,LOADING SIDE,COOLER WIDTH,COOLER HEIGHT,COOLER LENGTH,COOLER FLOOR HEIGHT,GRAVITY SHOW CENTER,GRAVITY LENGTH TOLERANCE,GRAVITY WIDTH TOLERANCE,GRAVITY CONTAINER WEIGHT,DOOR HEIGHT,DOOR WIDTH',
+    "*** Marine container 40' HC ***,1203.2,237,269,26280,back,,,,,,,,,258,234",
+    'LOAD NAME,WIDTH,LENGTH,HEIGHT,DIAMETER,WEIGHT,QUANTITY,STACKING,STACK QUANTITY,MAX WEIGHT ON TOP,ALONG FLOOR,SUPPORT LEVEL,OVAL FORMATION,ALLOW OUT OF SPACE,ROTATE ON BASE,ROTATE FREELY',
+  ];
+  const sids = [1,2,3,4].filter(s=>gp.stapels[s].length);
+  const pal = (p,floor) => regel(p.nm,p.werkelijkL,p.werkelijkB,p.werkelijkH,p.werkelijkKg,'Y',floor);
+  sids.forEach(s=>rows.push(pal(gp.stapels[s][0],'Y')));
+  gp.grond.forEach(k=>rows.push(regel(k.nm,k.l,k.b,k.h,k.kg,k.erop?'Y':'N','Y')));
+  sids.forEach(s=>gp.stapels[s].slice(1).forEach(p=>rows.push(pal(p,''))));
+  gp.grond.filter(k=>k.erop).forEach(k=>rows.push(regel(k.erop.nm,k.erop.l,k.erop.b,k.erop.h,k.erop.kg,'N','')));
+  // Geen STACK QUANTITY invullen: dan mogen alleen identieke ladingen op elkaar.
+  return rows.join('\r\n')+'\r\n';
+}
+
+function goodloadingOpdracht(gp){
+  const ref = ((projNr||'').match(/^\s*(\d{4,})/)||[])[1] || projNr;
+  const palTxt = p => p.nm+(p.x?' (X)':'')+(glIs6000(p)?' [6000mm]':'');
+  const stTxt = sid => {
+    const st = gp.stapels[sid];
+    if(!st.length) return `Stapel ${sid}: (leeg)`;
+    return `Stapel ${sid}: ${st.map(palTxt).join(' / ')} — ${st.length} pallet${st.length>1?'s':''}, hoogte ${glHoogte(st)} mm, lengte ${glLengte(st)} mm`;
+  };
+  const krTxt = k => `${k.nm} (${k.maat}${k.erop?', met '+k.erop.nm+' ('+k.erop.maat+') erop':''})`;
+  const plattegrond = [
+    `Baan 1 (voorin): ${stTxt(1)}`,
+    `   daarachter kratten op de grond: ${gp.banen[1].map(krTxt).join(', ')||'geen'}`,
+    `Baan 2 (voorin): ${stTxt(2)}`,
+    `   daarachter kratten op de grond: ${gp.banen[2].map(krTxt).join(', ')||'geen'}`,
+    `Baan 3 (voorin): ${stTxt(3)}`,
+    `   daarachter: ${stTxt(4)}`,
+  ].join('\n');
+
+  const slepen = [];
+  [1,2,3,4].forEach(sid=>{
+    const st = gp.stapels[sid];
+    for(let i=1;i<st.length;i++) slepen.push({load:st[i].nm, onto:st[i-1].nm, stack:'Stapel '+sid});
+  });
+  gp.grond.filter(k=>k.erop).forEach(k=>slepen.push({load:k.erop.nm, onto:k.nm, stack:'krat'}));
+
+  const ladingen = [];
+  [1,2,3,4].forEach(sid=>gp.stapels[sid].forEach(p=>ladingen.push({name:p.nm,l:p.werkelijkL,w:p.werkelijkB,h:p.werkelijkH,kg:p.werkelijkKg})));
+  gp.grond.forEach(k=>[k].concat(k.erop?[k.erop]:[]).forEach(x=>ladingen.push({name:x.nm,l:x.l,w:x.b,h:x.h,kg:x.kg})));
+  const totKg = ladingen.reduce((s,x)=>s+(x.kg||0),0);
+
+  return [
+    'Gebruik de skill goodloading-import (Claude in Chrome) om deze zending in Goodloading te zetten.',
+    'Dit stapelplan komt uit de Pallet Planner en is LEIDEND: sla stap 1 van de skill (Excel inlezen en indeling plannen) over en reken de indeling niet opnieuw uit. Gebruik de CSV hieronder bij stap 3. Waar de vaste keuzes in de skill afwijken (bv. "kratten allemaal op de grond, niets erop"), gelden de regels hieronder.',
+    '',
+    'Referentie / projectnaam: '+ref,
+    "Laadruimte: *** Marine container 40' HC ***",
+    `Totaal: ${ladingen.length} ladingen, ${Math.round(totKg)} kg`,
+    '',
+    'Stapelregels Pallet Planner:',
+    '- Stapel 1–4 zijn de stapels uit de tool; per stapel één kruispallet (X), altijd onderop.',
+    '- Stapel 1 en 2 = 7350 mm (baan 1 en 2, voorin); stapel 3 en 4 = 5900 mm (baan 3, achter elkaar).',
+    '- Pallets met 6000mm-profielen [6000mm] staan samen in één stapel.',
+    '- Kratten op de grond in het verlengde van stapel 1 en 2 (max. 4 op de grond, 2 per baan); extra kratten alleen bovenop een Medium-krat, max. 2 hoog.',
+    '',
+    'Plattegrond (stapels van onder naar boven):',
+    plattegrond,
+    '',
+    gp.warnings.length ? 'LET OP (eerst met Vincent overleggen voor je doorgaat):\n'+gp.warnings.map(w=>'- '+w).join('\n')+'\n' : '',
+    'SLEPEN (stap 5, in deze volgorde): '+JSON.stringify(slepen),
+    'Bij het uitruimen in stap 5 mogen ook kratten die bovenop een andere krat horen versleept worden; kratten op de grond blijven staan.',
+    '',
+    'ITEMS voor __gl.verify (mm/kg): '+JSON.stringify(ladingen),
+    '',
+    'Opmerking bij opslaan: '+[1,2,3,4].filter(s=>gp.stapels[s].length).map(s=>'Stapel '+s+': '+gp.stapels[s].map(p=>p.nm).join('/')).join('; ')
+      +(gp.grond.length?'; Kratten: '+gp.grond.map(k=>k.nm+(k.erop?'+'+k.erop.nm:'')).join(', '):''),
+    '',
+    'CSV voor Import from file (geef deze als string aan __gl.importCsv):',
+    '```csv',
+    goodloadingCsv(gp).trim(),
+    '```',
+  ].join('\n');
+}
+
+function naarGoodloading(){
+  if(!plan.length){ alert('Er is nog geen palletindeling.'); return; }
+  if(!projNr){ alert('Vul eerst een projectnummer in.'); return; }
+  // Goodloading heeft echte maten en gewichten nodig: alles moet ingevuld zijn
+  const mist = plan.filter(p=>!maatEnGewichtCompleet(p.werkelijkL,p.werkelijkB,p.werkelijkH,p.werkelijkKg)).map(p=>p.nm)
+    .concat(kratten.map((k,i)=>maatEnGewichtCompleet(k.l,k.b,k.h,k.kg)?null:kratNaam(k,i)).filter(Boolean));
+  if(mist.length){
+    alert('Vul eerst de werkelijke lengte, breedte, hoogte en het gewicht in van:\n'+mist.join(', '));
+    return;
+  }
+  const gp = goodloadingPlan();
+  toonGoodloadingModal(gp, goodloadingOpdracht(gp));
+}
+
+function toonGoodloadingModal(gp, opdracht){
+  let m = document.getElementById('gl-modal');
+  if(!m){
+    m = document.createElement('div');
+    m.id = 'gl-modal';
+    m.className = 'gl-modal';
+    m.addEventListener('click', e=>{ if(e.target===m) sluitGoodloadingModal(); });
+    document.body.appendChild(m);
+  }
+  m.innerHTML = `<div class="gl-modal-inner">
+    <div class="card-title">Naar Goodloading met Claude</div>
+    ${gp.warnings.length?`<div class="alert a-warn">&#9888; ${gp.warnings.map(esc).join('<br>')}</div>`:''}
+    <ol class="gl-stappen">
+      <li>Klik op <strong>Kopieer opdracht</strong>.</li>
+      <li>Klik op <strong>Open Goodloading</strong> (log zo nodig in).</li>
+      <li>Open in Chrome het <strong>Claude-paneel</strong>, plak de opdracht en verstuur hem.</li>
+    </ol>
+    <textarea id="gl-opdracht" class="gl-opdracht" readonly>${esc(opdracht)}</textarea>
+    <div class="gl-knoppen">
+      <button class="btn btn-dark btn-sm" onclick="kopieerGoodloadingOpdracht(this)">Kopieer opdracht</button>
+      <a class="btn btn-outline btn-sm" href="https://app.goodloading.com/en" target="_blank" rel="noopener">Open Goodloading</a>
+      <button class="btn btn-outline btn-sm" onclick="sluitGoodloadingModal()">Sluiten</button>
+    </div>
+  </div>`;
+  m.classList.add('open');
+}
+
+function sluitGoodloadingModal(){
+  const m = document.getElementById('gl-modal');
+  if(m) m.classList.remove('open');
+}
+
+async function kopieerGoodloadingOpdracht(btn){
+  const ta = document.getElementById('gl-opdracht');
+  if(!ta) return;
+  try{
+    await navigator.clipboard.writeText(ta.value);
+  } catch(e){
+    // Fallback (bv. geen clipboard-API): selecteren + execCommand
+    ta.select();
+    document.execCommand('copy');
+  }
+  btn.textContent = '✓ Gekopieerd';
+  setTimeout(()=>{ btn.textContent = 'Kopieer opdracht'; }, 2000);
 }
 
 // ═══ EXCEL EXPORT ═══
