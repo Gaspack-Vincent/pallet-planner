@@ -138,6 +138,9 @@ tbody td.r{text-align:right}
 .pnum{font-family:var(--fc);font-size:20px;font-weight:700;letter-spacing:2px}
 .ptags{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
 .ptyp{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--g300);background:rgba(255,255,255,.1);padding:2px 7px}
+.pal-art-badge{font-family:var(--fc);font-weight:700}
+.pal-art-badge.long{background:var(--col-red-bg);color:var(--red-dk)}
+.pal-art-badge.short{background:var(--col-yel-bg);color:#827717}
 .pstk-badge{font-size:10px;padding:2px 7px;font-family:var(--fc);letter-spacing:1px}
 .pstk-badge.long{background:var(--red);color:#fff}
 .pstk-badge.short{background:var(--gold);color:#fff}
@@ -166,12 +169,34 @@ tbody td.r{text-align:right}
 .pr-loc-input{display:none;font-size:17px;font-family:var(--fc);color:var(--blue);background:var(--blue-lt);border:1px solid var(--blue);padding:1px 5px;width:90px;min-width:60px;flex-shrink:0}
 .bewerk-actief .pr-loc{display:none}
 .bewerk-actief .pr-loc-input{display:inline-block}
-.pr-right{text-align:right;flex-shrink:0;margin-left:8px;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.pr-right-wrap{flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:10px}
+.pr-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .pr-item-del{display:none;width:18px;height:18px;background:var(--red);border:none;color:#fff;font-size:10px;cursor:pointer;border-radius:3px;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px;transition:background .15s;line-height:1}
 .pr-item-del:hover{background:var(--red-dk)}
 .bewerk-actief .pr-item-del{display:flex}
 .pr-qty{font-weight:600;font-size:15px}
 .pr-gew{color:var(--g500);font-size:11px}
+.pr-foto-thumb{display:none;width:38px;height:38px;object-fit:contain;background:#fff;border-radius:3px;border:1px solid var(--g200);cursor:zoom-in;flex-shrink:0}
+.pr-foto-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;align-items:center;justify-content:center;cursor:zoom-out;padding:2rem}
+.pr-foto-modal.open{display:flex}
+.pr-foto-modal-inner{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:default;max-width:100%}
+.pr-foto-modal img{max-width:90vw;max-height:85vh;object-fit:contain;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#fff;border-radius:2px}
+.pr-foto-modal-label{font-family:var(--fc);font-size:15px;font-weight:600;letter-spacing:1px;color:#fff;background:rgba(0,0,0,.5);padding:4px 14px;border-radius:3px}
+
+.pw-actual{display:flex;flex-direction:column;gap:4px;margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.15)}
+.pw-actual-row{display:flex;align-items:center;gap:6px}
+.pw-actual-row label{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--g300);white-space:nowrap;width:72px;flex-shrink:0}
+.pw-actual-inp{flex:1;min-width:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:11px;padding:3px 6px;border-radius:2px;font-family:var(--fn)}
+.pw-actual-inp::placeholder{color:rgba(255,255,255,.35)}
+.pw-actual-inp:focus{outline:none;border-color:var(--red);background:rgba(255,255,255,.14)}
+.pw-actual-inp-sm{flex:1;min-width:0;text-align:center;padding:3px 2px}
+.pw-actual-inp[type=number]{-moz-appearance:textfield}
+.pw-actual-inp[type=number]::-webkit-outer-spin-button,
+.pw-actual-inp[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+.sum-table-maten{font-size:11px}
+.sum-table-maten td{padding:3px 2px}
+.sum-table-maten td:nth-child(2),.sum-table-maten td:nth-child(3),.sum-table-maten td:nth-child(4){text-align:center;color:var(--g500)}
 
 .wbar{height:5px;background:var(--g100);margin-top:10px}
 
@@ -232,7 +257,6 @@ tbody td.r{text-align:right}
 .wtot{font-weight:700;font-size:13px;margin-top:6px;text-align:left}
 
 /* SIDEBAR SUMMARY */
-.summary-sidebar{position:sticky;top:80px}
 .sum-block{margin-bottom:1rem}
 .sum-label{font-family:var(--fc);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--g500);margin-bottom:2px}
 .sum-val{font-family:var(--fc);font-size:20px;font-weight:700;color:var(--g900)}

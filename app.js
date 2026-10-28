@@ -190,25 +190,60 @@ window.addEventListener('DOMContentLoaded', async function(){
 
 function normArt(r){return String(r).trim().toUpperCase().replace(/^0+(?=\d)/,'');}
 function normArtStrip(r){return normArt(r).replace(/-H$/i,'');}
+
+// Map: nieuw (hernoemd) artikelnummer → oorspronkelijke vaste-DB-sleutel waarop de override staat
+function dbRenameFromMap(){
+  const m = {};
+  const ov = window._dbOverrides || {};
+  Object.keys(ov).forEach(function(k){
+    const an = ov[k].art_nieuw;
+    if(an) m[normArt(an)] = k;
+  });
+  return m;
+}
+
+function isVervallen(art){
+  return !!(window._dbOverrides && window._dbOverrides[art] && window._dbOverrides[art].vervallen);
+}
+
+// Geeft het effectieve record voor een artikelnummer: gedeelde override (Supabase, evt. via hernoeming) > vaste DB > eigen DB
+function dbRecFor(art){
+  if(!art) return null;
+  const ov = window._dbOverrides && window._dbOverrides[art];
+  if(ov) return ov;
+  const renameMap = dbRenameFromMap();
+  if(renameMap[art]) return window._dbOverrides[renameMap[art]];
+  if(DB[art]) return DB[art];
+  const cdb = window._customDB && window._customDB[art];
+  return cdb || null;
+}
+
 // Zoek DB record: eerst exact, dan zonder suffix
 function dbLookup(artRaw){
   const exact = normArt(artRaw);
+  const ov = window._dbOverrides || {};
   const cdb = window._customDB || {};
+  const renameMap = dbRenameFromMap();
 
-  // 1. Exacte match in vaste DB
+  // 1. Exacte match: override (evt. hernoemd) > vaste DB > eigen DB
+  if(ov[exact]) return {key: exact, rec: ov[exact], suffixStripped: false, overridden: true};
+  if(renameMap[exact]) return {key: exact, rec: ov[renameMap[exact]], suffixStripped: false, overridden: true, renamed: true};
   if(DB[exact]) return {key: exact, rec: DB[exact], suffixStripped: false};
-  // 2. Exacte match in eigen DB
   if(cdb[exact]) return {key: exact, rec: cdb[exact], suffixStripped: false, custom: true};
 
-  // 3. Gestripte match (73773-H → 73773)
+  // 2. Gestripte match (73773-H → 73773)
   const stripped = normArtStrip(artRaw);
   if(stripped !== exact){
+    if(ov[stripped]) return {key: stripped, rec: ov[stripped], suffixStripped: true, overridden: true};
+    if(renameMap[stripped]) return {key: stripped, rec: ov[renameMap[stripped]], suffixStripped: true, overridden: true, renamed: true};
     if(DB[stripped]) return {key: stripped, rec: DB[stripped], suffixStripped: true};
     if(cdb[stripped]) return {key: stripped, rec: cdb[stripped], suffixStripped: true, custom: true};
   }
 
-  // 4. -H variant zoeken (73773 → 73773-H) voor projecten opgeslagen vóór -H fix
+  // 3. -H variant zoeken (73773 → 73773-H) voor projecten opgeslagen vóór -H fix
   const withH = exact + '-H';
+  if(ov[withH]) return {key: withH, rec: ov[withH], suffixStripped: false, overridden: true, addedH: true};
+  if(renameMap[withH]) return {key: withH, rec: ov[renameMap[withH]], suffixStripped: false, overridden: true, renamed: true, addedH: true};
   if(DB[withH]) return {key: withH, rec: DB[withH], suffixStripped: false, addedH: true};
   if(cdb[withH]) return {key: withH, rec: cdb[withH], suffixStripped: false, custom: true, addedH: true};
 
@@ -401,7 +436,7 @@ function showReview(){
     const pt=p.l>6000?'long':'short';
     const badgeCls=pt==='long'?'b-p7':'b-p5';
     const ptLbl=pt==='long'?'7.350mm pallet':'5.900mm pallet';
-    const _dbRec = DB[p.art]||(window._customDB||{})[p.art]||{};
+    const _dbRec = dbRecFor(p.art)||{};
     const _cat   = _dbRec.cat||'';
     const _klas  = _dbRec.klasse||'';
     const _catBg = _cat==='kliklijst'?'var(--blue-lt)':_cat==='rail'?'#E3F2FD':_cat==='omranding'?'#E8F5E9':_cat==='afwerking'?'#FFF9C4':'var(--g100)';
@@ -884,7 +919,7 @@ function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
     // Klasse komt uit DB cat-veld; fallback op gewicht als klasse onbekend
     const klasseRank = k => k==='zwaar'?0 : k==='middel'?1 : k==='licht'?2 : 1;
     const itemKlasse = item => {
-      const dbRec = DB[item.art] || (window._customDB||{})[item.art] || {};
+      const dbRec = dbRecFor(item.art)||{};
       return dbRec.klasse || (item.gps>=15?'zwaar' : item.gps>=5?'middel':'licht');
     };
     p.items.sort((a,b)=>{
@@ -899,6 +934,91 @@ function computePlan(profiles, nm6Fixed=false, klantProfiel=null){
   });
 
   return pallets.filter(p=>p.used);
+}
+
+function phWeightHtml(pal){
+  const pct=Math.min(100,(pal.totalKg/MAX_P)*100);
+  // bad = stack violation; warn = above 1000kg but within exception rule; ok = normal
+  const bc=pal.stackViolation?'bad':pal.overloaded?'warn':pct>88?'warn':'ok';
+  return `<div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ${bc}" style="width:${pct.toFixed(1)}%"></div></div>
+            <div style="font-size:12px;font-weight:700;margin-top:6px;color:${pal.stackViolation?'#FF5252':pal.overloaded?'#FFD54F':'#69F0AE'}">
+              ${pal.totalKg.toFixed(1)} kg incl. 6%
+              ${pal.stackViolation?' &#9888;':pal.overloaded?' <span style="font-size:10px">(toegestaan)</span>':''}
+            </div>
+            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen ${pal.profW.toFixed(1)} + Pallet ${pal.kg} kg</div>`;
+}
+
+// Werkelijk gemeten afmeting (L/B/H, los van elkaar) en gewicht, in te vullen ná het
+// inpakken/omkratten van een pallet. Puur documentatie — beïnvloedt de planning/berekeningen
+// niet, alleen de weergave in de samenvatting en de gewichtenlijst-export.
+function phWerkelijkVeld(pal, palIdx, field, placeholder){
+  const val = pal[field]!=null ? pal[field] : '';
+  return `<input type="number" min="0" step="1" class="pw-actual-inp pw-actual-inp-sm" placeholder="${placeholder}" value="${val}" data-palindx="${palIdx}" data-field="${field}" onchange="updatePalWerkelijk(this)">`;
+}
+
+function phWerkelijkHtml(pal, palIdx){
+  return `<div class="pw-actual">
+    <div class="pw-actual-row">
+      <label>Werk. maat</label>
+      ${phWerkelijkVeld(pal,palIdx,'werkelijkL','L')}
+      ${phWerkelijkVeld(pal,palIdx,'werkelijkB','B')}
+      ${phWerkelijkVeld(pal,palIdx,'werkelijkH','H')}
+    </div>
+    <div class="pw-actual-row">
+      <label>Werk. gewicht</label>
+      <input type="number" min="0" step="0.1" class="pw-actual-inp" placeholder="kg" value="${pal.werkelijkKg!=null?pal.werkelijkKg:''}" data-palindx="${palIdx}" data-field="werkelijkKg" onchange="updatePalWerkelijk(this)">
+    </div>
+  </div>`;
+}
+
+function updatePalWerkelijk(inputEl){
+  const palIdx = parseInt(inputEl.dataset.palindx, 10);
+  const field = inputEl.dataset.field;
+  const pal = plan[palIdx];
+  if(!pal) return;
+  pal[field] = inputEl.value===''? undefined : parseFloat(inputEl.value);
+  renderSummarySidebar();
+  saveCurrentProject();
+}
+
+// Vult #summaryArea. Losstaand van showResults() zodat een wijziging aan de werkelijke
+// maat/gewicht alleen de samenvatting hoeft te verversen — niet alle pallet-kaarten
+// (die anders hun invoerfocus zouden verliezen tijdens het typen).
+function renderSummarySidebar(){
+  const el = document.getElementById('summaryArea');
+  if(!el) return;
+  const totK = plan.reduce((s,p)=>s+(p.werkelijkKg!=null?p.werkelijkKg:p.totalKg),0);
+  const ovl = plan.filter(p=>p.overloaded).length;
+  let sumH=`
+    ${projNr?`<div class="sum-block"><div class="sum-label">Projectnummer</div><div class="sum-val" style="font-size:16px">${esc(projNr)}</div></div>`:''}
+    ${klant?`<div class="sum-block"><div class="sum-label">Klant</div><div style="font-size:13px;color:var(--g700)">${esc(klant)}</div></div>`:''}
+    <div class="sum-divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div class="sum-block"><div class="sum-label">Pallets</div><div class="sum-val">${plan.length}</div></div>
+      <div class="sum-block"><div class="sum-label">Stapels</div><div class="sum-val">${Object.keys(plan.reduce((a,p)=>{a[p.sid]=1;return a},{})).length}</div></div>
+      <div class="sum-block"><div class="sum-label">Totaal kg</div><div class="sum-val">${Math.round(totK)}</div></div>
+      <div class="sum-block"><div class="sum-label">&gt;1.000 kg</div><div class="sum-val" style="${ovl?'color:var(--red)':'color:var(--green)'}">${ovl}</div></div>
+    </div>
+    <div class="sum-divider"></div>
+    <table class="sum-table">
+      <tr><td style="color:var(--g500)">7350mm pallets</td><td>${plan.filter(p=>p.t==='long').length}</td></tr>
+      <tr><td style="color:var(--g500)">5900mm pallets</td><td>${plan.filter(p=>p.t==='short').length}</td></tr>
+      <tr><td style="color:var(--g500)">X-pallets</td><td>${plan.filter(p=>p.x).length}</td></tr>
+      <tr><td style="color:var(--g500)">Norm. pallets</td><td>${plan.filter(p=>!p.x).length}</td></tr>
+    </table>
+    <div class="sum-divider"></div>
+    <table class="sum-table sum-table-maten">
+      <tr style="color:var(--g400);font-size:10px;text-transform:uppercase;letter-spacing:.5px"><td></td><td>L</td><td>B</td><td>H</td><td>Gewicht</td></tr>`;
+  plan.forEach(p=>{
+    const kgHtml = p.werkelijkKg!=null
+      ? `<strong>${p.werkelijkKg.toFixed(1)} kg</strong>`
+      : `${p.totalKg.toFixed(1)} kg${p.overloaded?' &#9888;':''}`;
+    const maat = f => f!=null ? f : '&ndash;';
+    sumH+=`<tr><td style="color:var(--g500)">${esc(p.nm)}</td><td>${maat(p.werkelijkL)}</td><td>${maat(p.werkelijkB)}</td><td>${maat(p.werkelijkH)}</td><td>${kgHtml}</td></tr>`;
+  });
+  sumH+='</table>'
+     +'<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:10px" onclick="exportGewichtenlijst()">Export gewichtenlijst</button>';
+  el.innerHTML=sumH;
 }
 
 // ═══ RENDER RESULTS ═══
@@ -941,9 +1061,6 @@ function showResults(){
       <div class="pallet-row">`;
 
     st.pallets.forEach(pal=>{
-      const pct=Math.min(100,(pal.totalKg/MAX_P)*100);
-      // bad = stack violation; warn = above 1000kg but within exception rule; ok = normal
-      const bc=pal.stackViolation?'bad':pal.overloaded?'warn':pct>88?'warn':'ok';
       const typeCls=isLong?'long':'short';
       const palIdx=plan.indexOf(pal);
 
@@ -970,16 +1087,20 @@ function showResults(){
               </div>
             </div>
           </div>
-          <div class="pr-right">
-            <div class="pr-qty">
-              <input class="pr-qty-input" type="number" min="1" max="9999"
-                value="${item.qty}" style="display:none"
-                data-palindx="${palIdx}" data-itemidx="${idx}">
-              <span class="pr-qty-display">${item.qty}×</span>
+          <div class="pr-right-wrap">
+            ${profielFotoThumbHtml(item.artOrig||item.art)}
+            <div class="pr-right">
+              <div class="pr-qty">
+                <input class="pr-qty-input" type="number" min="1" max="9999"
+                  value="${item.qty}" style="display:none"
+                  data-palindx="${palIdx}" data-itemidx="${idx}"
+                  oninput="bewerkQtyChange(this)">
+                <span class="pr-qty-display">${item.qty}×</span>
+              </div>
+              <div class="pr-gew">${item.l?item.l.toLocaleString('nl-NL')+' mm':''}</div>
+              <div class="pr-gew">${item.gew.toFixed(1)} kg</div>
+              <button class="pr-item-del" onclick="verwijderArtikel(${palIdx},${idx})" title="Artikel verwijderen">&#10005;</button>
             </div>
-            <div class="pr-gew">${item.l?item.l.toLocaleString('nl-NL')+' mm':''}</div>
-            <div class="pr-gew">${item.gew.toFixed(1)} kg</div>
-            <button class="pr-item-del" onclick="verwijderArtikel(${palIdx},${idx})" title="Artikel verwijderen">&#10005;</button>
           </div>
         </div>`;
       }).join('');
@@ -991,18 +1112,15 @@ function showResults(){
           <div>
             <span class="pnum">${esc(pal.nm)}</span>
             <div class="ptags" style="margin-top:6px">
-              <span class="ptyp">${esc(pal.lbl)}</span>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <span class="ptyp">${esc(pal.lbl)}</span>
+                <span class="ptyp pal-art-badge ${typeCls}">${esc(pal.art)}</span>
+              </div>
               <span class="pstk-badge ${pal.x?'xp':pal.nm6Special?'nm6special':typeCls}" style="margin-top:3px">${pal.x?'X-PALLET':pal.nm6Special?pal.nm6Label:'Normaal'}</span>
             </div>
           </div>
           <div style="margin-top:auto">
-            <div style="font-size:10px;color:var(--g300);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${pal.items.length} type${pal.items.length>1?'s':''} &middot; Art. ${esc(pal.art)}</div>
-            <div class="wbar" style="background:rgba(255,255,255,.15)"><div class="wfill ${bc}" style="width:${pct.toFixed(1)}%"></div></div>
-            <div style="font-size:12px;font-weight:700;margin-top:6px;color:${pal.stackViolation?'#FF5252':pal.overloaded?'#FFD54F':'#69F0AE'}">
-              ${pal.totalKg.toFixed(1)} kg incl. 6%
-              ${pal.stackViolation?' &#9888;':pal.overloaded?' <span style="font-size:10px">(toegestaan)</span>':''}
-            </div>
-            <div style="font-size:10px;color:var(--g300);margin-top:2px">Profielen ${pal.profW.toFixed(1)} + Pallet ${pal.kg} kg</div>
+            <div id="phw_${palIdx}">${phWeightHtml(pal)}${phWerkelijkHtml(pal, palIdx)}</div>
           </div>
         </div>
         <div class="pb">
@@ -1046,32 +1164,8 @@ function showResults(){
   restoreCheckedItems();
 
   // Sidebar summary
-  const totK=plan.reduce((s,p)=>s+p.totalKg,0);
+  renderSummarySidebar();
   const ovl=plan.filter(p=>p.overloaded).length;
-  let sumH=`
-    ${projNr?`<div class="sum-block"><div class="sum-label">Projectnummer</div><div class="sum-val" style="font-size:16px">${esc(projNr)}</div></div>`:''}
-    ${klant?`<div class="sum-block"><div class="sum-label">Klant</div><div style="font-size:13px;color:var(--g700)">${esc(klant)}</div></div>`:''}
-    <div class="sum-divider"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div class="sum-block"><div class="sum-label">Pallets</div><div class="sum-val">${plan.length}</div></div>
-      <div class="sum-block"><div class="sum-label">Stapels</div><div class="sum-val">${Object.keys(plan.reduce((a,p)=>{a[p.sid]=1;return a},{})).length}</div></div>
-      <div class="sum-block"><div class="sum-label">Totaal kg</div><div class="sum-val">${Math.round(totK)}</div></div>
-      <div class="sum-block"><div class="sum-label">&gt;1.000 kg</div><div class="sum-val" style="${ovl?'color:var(--red)':'color:var(--green)'}">${ovl}</div></div>
-    </div>
-    <div class="sum-divider"></div>
-    <table class="sum-table">
-      <tr><td style="color:var(--g500)">7350mm pallets</td><td>${plan.filter(p=>p.t==='long').length}</td></tr>
-      <tr><td style="color:var(--g500)">5900mm pallets</td><td>${plan.filter(p=>p.t==='short').length}</td></tr>
-      <tr><td style="color:var(--g500)">X-pallets</td><td>${plan.filter(p=>p.x).length}</td></tr>
-      <tr><td style="color:var(--g500)">Norm. pallets</td><td>${plan.filter(p=>!p.x).length}</td></tr>
-    </table>
-    <div class="sum-divider"></div>
-    <table class="sum-table">`;
-  plan.forEach(p=>{
-    sumH+=`<tr><td style="color:var(--g500)">${esc(p.nm)}</td><td>${p.totalKg.toFixed(1)} kg${p.overloaded?' &#9888;':''}</td></tr>`;
-  });
-  sumH+='</table>';
-  document.getElementById('summaryArea').innerHTML=sumH;
 
   // Alerts
   const violations = plan.filter(p=>p.stackViolation);
@@ -1087,7 +1181,16 @@ function showResults(){
   const unplacedList = document.getElementById('unplacedList');
   if(unplacedCard && unplacedList){
     const unplaced = window._unplacedItems || [];
-    if(unplaced.length){
+    // Zodra de gebruiker deze kaart wegklikt, blijft hij verborgen zolang de set
+    // niet-geplaatste artikelen ongewijzigd blijft (dus niet bij elke drag opnieuw
+    // dezelfde melding). Verandert de set (nieuw/ander artikel niet geplaatst), dan
+    // verschijnt de kaart weer vanzelf.
+    const fingerprint = unplaced.map(u=>u.art+':'+u.qty).sort().join('|');
+    if(fingerprint !== window._unplacedFingerprint){
+      window._unplacedFingerprint = fingerprint;
+      window._unplacedDismissed = false;
+    }
+    if(unplaced.length && !window._unplacedDismissed){
       unplacedCard.style.display = '';
       let uH = '<table class="sum-table">';
       uH += '<tr style="font-size:10px;color:var(--g400)"><td>Art. / Omschrijving</td><td style="text-align:right">Qty</td><td style="text-align:right">kg</td></tr>';
@@ -1112,6 +1215,34 @@ function showResults(){
       unplacedCard.style.display = 'none';
     }
   }
+}
+
+function dismissUnplacedCard(){
+  window._unplacedDismissed = true;
+  const unplacedCard = document.getElementById('unplacedCard');
+  if(unplacedCard) unplacedCard.style.display = 'none';
+}
+
+// ═══ GEWICHTENLIJST EXPORT ═══
+// Zelfde lay-out als "Voorbeeld export (.xlsx) gewichtenlijst.xlsx": kolom A leeg,
+// projectnummer in B2/C2, headers in rij 4 (C=Lengte, D=Breedte, E=Hoogte, G=Gewicht,
+// kolom F leeg als scheiding), daarna één rij per pallet. Kolom H (Type pallet:
+// X-pallet/Normaal, op basis van pal.x) is een toevoeging t.o.v. het voorbeeldbestand.
+function exportGewichtenlijst(){
+  const rows=[];
+  rows.push([]);
+  rows.push([null,'Projectnummer: ',projNr||'']);
+  rows.push([]);
+  rows.push([null,null,'Lengte','Breedte','Hoogte',null,'Gewicht','Type pallet']);
+  plan.forEach(p=>{
+    const kg = p.werkelijkKg!=null ? p.werkelijkKg : p.totalKg;
+    rows.push([null,p.nm,p.werkelijkL!=null?p.werkelijkL:null,p.werkelijkB!=null?p.werkelijkB:null,p.werkelijkH!=null?p.werkelijkH:null,null,Math.round(kg)+' kg',p.x?'X-pallet':'Normaal']);
+  });
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:2},{wch:17},null,null,null,null,null,{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws,'Gewichtenlijst');
+  XLSX.writeFile(wb,`Gewichtenlijst_${projNr||'export'}.xlsx`);
 }
 
 // ═══ EXCEL EXPORT ═══
@@ -1192,6 +1323,206 @@ const SB_URL = 'https://gahqjogmbofdonsxenph.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhaHFqb2dtYm9mZG9uc3hlbnBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNjUwOTYsImV4cCI6MjA5MTY0MTA5Nn0.-lVlcXqtUiIGNDLmMBP4u0HeLk3-PiQ3L3VmAuFeems';
 const SB_HDR = {'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'};
 
+// ═══ PROFIELFOTO'S (Supabase Storage bucket "profielfotos" — gedeeld voor alle gebruikers) ═══
+// Bestandsnaam in de bucket moet exact het artikelnummer zijn, bv. 74373.jpg of 73773-H.png.
+// Elke pallet-regel toont standaard een kleine thumbnail (indien aanwezig); klik erop voor een grote weergave.
+const PR_FOTO_BASE = SB_URL + '/storage/v1/object/public/profielfotos/';
+const PR_FOTO_EXTS = ['jpg','png','jpeg'];
+window._prFotoCache = window._prFotoCache || {}; // art -> gevonden extensie (string), of false als geen foto bestaat
+
+function profielFotoThumbHtml(art){
+  if(!art) return '';
+  const cached = window._prFotoCache[art];
+  if(cached === false) return '';
+  const attrs = 'class="pr-foto-thumb" data-art="'+esc(art)+'" title="Klik voor grote weergave" onclick="toonProfielFotoGroot(this.dataset.art)"';
+  if(typeof cached === 'string'){
+    return '<img '+attrs+' style="display:block" src="'+PR_FOTO_BASE+encodeURIComponent(art)+'.'+cached+'" onerror="profielFotoThumbError(this)">';
+  }
+  return '<img '+attrs+' data-tryidx="0" src="'+PR_FOTO_BASE+encodeURIComponent(art)+'.'+PR_FOTO_EXTS[0]+'" onload="profielFotoThumbLoaded(this)" onerror="profielFotoThumbError(this)">';
+}
+
+function profielFotoThumbLoaded(img){
+  img.style.display = 'block';
+  window._prFotoCache[img.dataset.art] = img.src.split('.').pop().split(/[?#]/)[0];
+}
+
+function profielFotoThumbError(img){
+  const idx = parseInt(img.dataset.tryidx||'0', 10) + 1;
+  if(idx < PR_FOTO_EXTS.length){
+    img.dataset.tryidx = idx;
+    img.src = PR_FOTO_BASE + encodeURIComponent(img.dataset.art) + '.' + PR_FOTO_EXTS[idx];
+  } else {
+    window._prFotoCache[img.dataset.art] = false;
+    img.remove();
+  }
+}
+
+function toonProfielFotoGroot(art){
+  if(!art) return;
+  const cached = window._prFotoCache[art];
+  const ext = (typeof cached === 'string') ? cached : PR_FOTO_EXTS[0];
+  const modal = document.getElementById('pr-foto-modal');
+  const img = document.getElementById('pr-foto-modal-img');
+  const label = document.getElementById('pr-foto-modal-label');
+  if(!modal||!img) return;
+  img.src = PR_FOTO_BASE + encodeURIComponent(art) + '.' + ext;
+  if(label) label.textContent = art;
+  modal.classList.add('open');
+}
+
+function sluitProfielFotoGroot(){
+  const modal = document.getElementById('pr-foto-modal');
+  if(modal) modal.classList.remove('open');
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') sluitProfielFotoGroot();
+});
+
+// ═══ DB-OVERRIDES (Supabase — bewerkingen op de vaste database, gedeeld voor alle gebruikers) ═══
+async function dbOvGetAll(){
+  try{
+    const r = await fetch(SB_URL+'/rest/v1/db_overrides?select=*', {headers: SB_HDR});
+    if(!r.ok) throw new Error(await r.text());
+    const rows = await r.json();
+    const map = {};
+    rows.forEach(function(row){
+      map[row.art] = {d: row.d, l: row.l, g: row.g, cat: row.cat||undefined, klasse: row.klasse||undefined, art_nieuw: row.art_nieuw||undefined, vervallen: !!row.vervallen, pallet_len: row.pallet_len||undefined, bron: row.bron||'bewerk'};
+    });
+    return map;
+  } catch(e){ console.warn('DB-aanpassingen laden mislukt:', e); return {}; }
+}
+
+async function dbOvLoad(){
+  window._dbOverrides = await dbOvGetAll();
+  cdbRender();
+}
+
+async function dbOvUpsertBulk(records){
+  const r = await fetch(SB_URL+'/rest/v1/db_overrides?on_conflict=art', {
+    method:'POST',
+    headers: Object.assign({}, SB_HDR, {'Prefer':'resolution=merge-duplicates,return=representation'}),
+    body: JSON.stringify(records)
+  });
+  if(!r.ok) throw new Error(await r.text());
+}
+
+async function dbOvUpsert(art, fields){
+  await dbOvUpsertBulk([Object.assign({art: art}, fields)]);
+}
+
+// Alle artikelnummers die in het tabblad VAST/VERVALLEN thuishoren: vaste DB + gedeelde overrides (incl. nieuw toegevoegde)
+function allVastArtKeys(){
+  const keys = new Set(Object.keys(DB));
+  const ov = window._dbOverrides || {};
+  Object.keys(ov).forEach(function(k){ keys.add(k); });
+  return Array.from(keys);
+}
+
+async function dbOvDelete(art){
+  const r = await fetch(SB_URL+'/rest/v1/db_overrides?art=eq.'+encodeURIComponent(art), {method:'DELETE', headers: SB_HDR});
+  if(!r.ok) throw new Error(await r.text());
+}
+
+window._dbEditingArt = null;
+
+function dbOverrideBewerken(art){
+  window._dbEditingArt = art;
+  cdbRender();
+  setTimeout(function(){ const inp = document.getElementById('dbov-art'); if(inp){ inp.focus(); inp.select(); } }, 30);
+}
+
+function dbOverrideAnnuleren(){
+  window._dbEditingArt = null;
+  cdbRender();
+}
+
+async function dbOverrideOpslaan(origArt){
+  const artInp = document.getElementById('dbov-art');
+  const descInp = document.getElementById('dbov-desc');
+  const lenInp = document.getElementById('dbov-len');
+  const gewInp = document.getElementById('dbov-gew');
+  const nieuwArt = normArt(artInp?.value||'');
+  const desc = (descInp?.value||'').trim();
+  const len = parseFloat(lenInp?.value)||0;
+  const gew = parseFloat(gewInp?.value)||0;
+  if(!nieuwArt || nieuwArt.length<3){ alert('Vul een geldig artikelnummer in (min. 3 tekens).'); return; }
+  if(!desc){ alert('Vul een omschrijving in.'); return; }
+  if(len<=0){ alert('Vul een geldige lengte in (> 0 mm).'); return; }
+  if(gew<=0){ alert('Vul een geldig gewicht in (> 0 kg).'); return; }
+
+  if(nieuwArt !== origArt){
+    const renameMap = dbRenameFromMap();
+    const bezetDoorAnder = !!DB[nieuwArt]
+      || (renameMap[nieuwArt] && renameMap[nieuwArt] !== origArt)
+      || (window._dbOverrides && window._dbOverrides[nieuwArt]);
+    if(bezetDoorAnder){ alert('Artikelnummer '+nieuwArt+' is al in gebruik door een ander artikel.'); return; }
+  }
+
+  const art = origArt;
+  const origineel = DB[art] || {};
+  const huidigOv = window._dbOverrides && window._dbOverrides[art];
+  const fields = {d: desc, l: len, g: gew, cat: huidigOv?.cat ?? origineel.cat ?? null, klasse: huidigOv?.klasse ?? origineel.klasse ?? null, art_nieuw: (nieuwArt!==art ? nieuwArt : null), vervallen: huidigOv?.vervallen||false, pallet_len: huidigOv?.pallet_len ?? null, bron: 'bewerk'};
+  const btn = document.querySelector('.db-save-btn[data-art="'+art.replace(/"/g,'')+'"]');
+  if(btn){ btn.disabled = true; btn.textContent = 'Bezig…'; }
+  try{
+    await dbOvUpsert(art, fields);
+    if(!window._dbOverrides) window._dbOverrides = {};
+    window._dbOverrides[art] = fields;
+  } catch(e){
+    alert('Opslaan mislukt: '+e.message);
+    if(btn){ btn.disabled = false; btn.textContent = 'Opslaan'; }
+    return;
+  }
+  window._dbEditingArt = null;
+  cdbRender();
+}
+
+async function dbOverrideHerstellen(art){
+  if(!confirm('Artikel '+art+' terugzetten naar de oorspronkelijke waarden uit de vaste database?')) return;
+  try{
+    await dbOvDelete(art);
+    if(window._dbOverrides) delete window._dbOverrides[art];
+  } catch(e){
+    alert('Herstellen mislukt: '+e.message);
+    return;
+  }
+  cdbRender();
+}
+
+async function dbVervallenZetten(art){
+  const displayArt = (window._dbOverrides && window._dbOverrides[art] && window._dbOverrides[art].art_nieuw) || art;
+  if(!confirm('Artikel '+displayArt+' vervallen verklaren? Het verdwijnt dan uit de vaste database en kan later via het tabblad VERVALLEN worden teruggezet.')) return;
+  const huidig = window._dbOverrides && window._dbOverrides[art];
+  const origineel = DB[art] || {};
+  const fields = huidig
+    ? Object.assign({}, huidig, {vervallen: true})
+    : {d: origineel.d, l: origineel.l, g: origineel.g, cat: origineel.cat||null, klasse: origineel.klasse||null, art_nieuw: null, vervallen: true, bron: 'bewerk'};
+  try{
+    await dbOvUpsert(art, fields);
+    if(!window._dbOverrides) window._dbOverrides = {};
+    window._dbOverrides[art] = fields;
+  } catch(e){
+    alert('Vervallen zetten mislukt: '+e.message);
+    return;
+  }
+  cdbRender();
+}
+
+async function dbVervallenHerstellen(art){
+  const huidig = window._dbOverrides && window._dbOverrides[art];
+  if(!huidig) return;
+  const fields = Object.assign({}, huidig, {vervallen: false});
+  try{
+    await dbOvUpsert(art, fields);
+    window._dbOverrides[art] = fields;
+  } catch(e){
+    alert('Terugzetten mislukt: '+e.message);
+    return;
+  }
+  cdbRender();
+}
+
 async function sbGet(){
   try{
     const r = await fetch(SB_URL+'/rest/v1/projects?order=datum.desc', {headers: SB_HDR});
@@ -1259,9 +1590,9 @@ async function saveCurrentProject(){
     klant: klant,
     datum: new Date().toISOString(),
     pallets: plan.length,
-    total_kg: Math.round(plan.reduce((s,p)=>s+p.totalKg,0)),
+    total_kg: Math.round(plan.reduce((s,p)=>s+(p.werkelijkKg!=null?p.werkelijkKg:p.totalKg),0)),
     known: known.map(p=>({art:p.artOrig||p.art,artOrig:p.artOrig||p.art,desc:p.desc,l:p.l,gps:p.gps,qty:p.qty,gew:p.gew,loks:p.loks,palletVoorkeur:p.palletVoorkeur||undefined})),
-    plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items})),
+    plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items,werkelijkKg:p.werkelijkKg,werkelijkL:p.werkelijkL,werkelijkB:p.werkelijkB,werkelijkH:p.werkelijkH})),
     checked_items: checkedItems,
     status: 'not_started'
   };
@@ -2453,13 +2784,9 @@ function verplaatsItem(fromPalIdx, fromItemIdx, toNm, toItemIdx){
   const item = fromPal.items.splice(fromItemIdx, 1)[0];
   if(!item) return;
 
-  // Gewicht bijwerken op bronpallet
-  fromPal.profW -= item.gew;
-  if(!fromPal.items.length) fromPal.used = false;
-
   // Voeg toe aan doelpallet
   if(fromPal === toPal){
-    // Volgorde binnen zelfde pallet
+    // Volgorde binnen zelfde pallet — totaalgewicht van de pallet verandert niet
     const insertAt = toItemIdx !== null ? toItemIdx : toPal.items.length;
     toPal.items.splice(insertAt, 0, item);
   } else {
@@ -2472,9 +2799,15 @@ function verplaatsItem(fromPalIdx, fromItemIdx, toNm, toItemIdx){
       const insertAt = toItemIdx !== null ? toItemIdx : toPal.items.length;
       toPal.items.splice(insertAt, 0, item);
     }
-    toPal.profW += item.gew;
     toPal.used = true;
   }
+  if(!fromPal.items.length) fromPal.used = false;
+
+  // Gewicht altijd herberekenen vanuit de actuele items — voorkomt dat losse
+  // optel/aftrek-stappen uit elkaar gaan lopen met de werkelijke inhoud van de pallet
+  // (dit was de oorzaak van een fout getoond gewicht na het verslepen van artikelen).
+  fromPal.profW = fromPal.items.reduce((s,i)=>s+i.gew,0);
+  toPal.profW   = toPal.items.reduce((s,i)=>s+i.gew,0);
 
   // Herbereken totalKg voor alle pallets na gewichtswijziging
   plan.forEach(p => {
@@ -2501,13 +2834,31 @@ function bewerkQtyChange(inp){
   if(qty <= 0 || !plan[palIdx]) return;
   const item = plan[palIdx].items[itemIdx];
   if(!item) return;
-  const oudeGew = item.gew;
   item.qty = qty;
   item.gew = qty * item.gps;
-  plan[palIdx].profW += (item.gew - oudeGew);
+  plan[palIdx].profW = plan[palIdx].items.reduce((s,i)=>s+i.gew,0);
   // Update display zonder volledige re-render
   const display = inp.nextElementSibling;
   if(display) display.textContent = qty + '×';
+
+  // Herbereken gewicht/overschrijding voor dit pallet en stapelgenoten, live tonen
+  const pal = plan[palIdx];
+  plan.forEach(p => {
+    if(p.sid !== pal.sid) return;
+    p.totalKg = (p.profW + p.kg) * OHD;
+    p.overloaded = p.totalKg > MAX_P;
+  });
+  plan.forEach(p => {
+    if(p.sid !== pal.sid) return;
+    const stackKg = plan.filter(x => x.sid===p.sid && x.used).reduce((s,x)=>(s+(x.profW+x.kg)*OHD),0);
+    p.stackViolation = stackKg > MAX_S;
+    const pIdx = plan.indexOf(p);
+    const phw = document.getElementById('phw_'+pIdx);
+    if(phw) phw.innerHTML = phWeightHtml(p) + phWerkelijkHtml(p, pIdx);
+  });
+
+  // Samenvatting rechts moet dit direct meenemen, anders loopt die achter tot op "Opslaan"
+  renderSummarySidebar();
 }
 
 function bewerkOpslaanInline(){
@@ -2518,12 +2869,12 @@ function bewerkOpslaanInline(){
     const qty = parseInt(inp.value) || 0;
     if(qty > 0 && plan[palIdx] && plan[palIdx].items[itemIdx]){
       const item = plan[palIdx].items[itemIdx];
-      const oudeGew = item.gew;
       item.qty = qty;
       item.gew = qty * item.gps;
-      plan[palIdx].profW += (item.gew - oudeGew);
     }
   });
+  // Alle profW's opnieuw optellen vanuit de actuele items (i.p.v. losse deltas)
+  plan.forEach(p => { p.profW = p.items.reduce((s,i)=>s+i.gew,0); });
 
   // Lees locatie-wijzigingen uit de loc inputs
   document.querySelectorAll('#palletResults .pr-loc-input').forEach(inp => {
@@ -2570,8 +2921,8 @@ function bewerkOpslaanInline(){
 function verwijderArtikel(palIdx, itemIdx){
   const pal = plan[palIdx];
   if(!pal || !pal.items[itemIdx]) return;
-  const item = pal.items.splice(itemIdx, 1)[0];
-  pal.profW  -= item.gew;
+  pal.items.splice(itemIdx, 1);
+  pal.profW  = pal.items.reduce((s,i)=>s+i.gew,0);
   pal.totalKg = (pal.profW + pal.kg) * OHD;
   pal.overloaded = pal.totalKg > MAX_P;
   if(pal.items.length === 0) pal.used = true; // leeg maar bewaard
@@ -2682,10 +3033,12 @@ function filterArtikelPicker(palIdx, nm, query){
   }
   // Zoek in DB + eigen DB
   const hits = [];
-  Object.keys(DB).forEach(function(art){
-    const entry = DB[art];
-    if(art.toLowerCase().includes(q) || (entry.d||'').toLowerCase().includes(q)){
-      hits.push({art: art, desc: entry.d||'', l: entry.l||null, gps: entry.g||0, eigen: false});
+  allVastArtKeys().forEach(function(art){
+    if(isVervallen(art)) return; // vervallen artikelen niet aanbieden voor nieuwe toevoegingen
+    const entry = dbRecFor(art);
+    const displayArt = (window._dbOverrides && window._dbOverrides[art] && window._dbOverrides[art].art_nieuw) || art;
+    if(art.toLowerCase().includes(q) || displayArt.toLowerCase().includes(q) || (entry.d||'').toLowerCase().includes(q)){
+      hits.push({art: displayArt, desc: entry.d||'', l: entry.l||null, gps: entry.g||0, eigen: false});
     }
   });
   const cdb = window._customDB || {};
@@ -2724,7 +3077,7 @@ function filterArtikelPicker(palIdx, nm, query){
 function selectArtikelUitDB(palIdx, nm, artNr){
   const resultsDiv = document.getElementById('apresults_' + nm);
   if(!resultsDiv) return;
-  const entry = DB[artNr] || (window._customDB||{})[artNr];
+  const entry = dbRecFor(artNr);
   if(!entry) return;
   var lTxt = entry.l ? (entry.l >= 1000 ? (entry.l/1000).toFixed(3).replace('.',',')+'m' : entry.l+'mm') : '';
   resultsDiv.innerHTML =
@@ -2754,7 +3107,7 @@ function selectArtikelUitDB(palIdx, nm, artNr){
 function bevestigArtikelToevoegen(palIdx, nm, artNr){
   const qtyInp = document.getElementById('adbqty_' + nm);
   const qty = qtyInp ? (parseInt(qtyInp.value) || 1) : 1;
-  const entry = DB[artNr] || (window._customDB||{})[artNr];
+  const entry = dbRecFor(artNr);
   if(!entry) return;
   const pal = plan[palIdx];
   if(!pal) return;
@@ -2766,7 +3119,7 @@ function bevestigArtikelToevoegen(palIdx, nm, artNr){
   } else {
     pal.items.push({art: artNr, artOrig: artNr, desc: entry.d||'', qty: qty, gps: entry.g, gew: gew, l: entry.l||null, loks: []});
   }
-  pal.profW  += gew;
+  pal.profW  = pal.items.reduce((s,i)=>s+i.gew,0);
   pal.totalKg = (pal.profW + pal.kg) * OHD;
   pal.overloaded = pal.totalKg > MAX_P;
   pal.used = true;
@@ -2803,7 +3156,7 @@ function voegArtikelToe(palIdx, nm, unplacedIdx){
       l: u.l || null, loks: []
     });
   }
-  pal.profW  += u.gew;
+  pal.profW  = pal.items.reduce((s,i)=>s+i.gew,0);
   pal.totalKg = (pal.profW + pal.kg) * OHD;
   pal.overloaded = pal.totalKg > MAX_P;
   pal.used   = true;
@@ -2985,15 +3338,17 @@ function cdbAllesVerwijderen(){
 }
 
 
-// Actieve dbtab: 'vast' of 'eigen'
+// Actieve dbtab: 'vast', 'eigen' of 'vervallen'
 window._dbTab = 'vast';
 function dbTabSwitch(tab){
   window._dbTab = tab;
   const bVast = document.getElementById('dbtab-vast');
   const bEigen = document.getElementById('dbtab-eigen');
+  const bVervallen = document.getElementById('dbtab-vervallen');
   const btnWissen = document.getElementById('btn-alles-wissen');
   if(bVast){ bVast.style.background = tab==='vast'?'var(--red)':'#fff'; bVast.style.color = tab==='vast'?'#fff':'var(--g600)'; }
   if(bEigen){ bEigen.style.background = tab==='eigen'?'var(--red)':'#fff'; bEigen.style.color = tab==='eigen'?'#fff':'var(--g600)'; }
+  if(bVervallen){ bVervallen.style.background = tab==='vervallen'?'var(--red)':'#fff'; bVervallen.style.color = tab==='vervallen'?'#fff':'var(--g600)'; }
   if(btnWissen) btnWissen.style.display = tab==='eigen'?'':'none';
   const zoek = document.getElementById('cdb-zoek'); if(zoek) zoek.value='';
   cdbRender();
@@ -3004,6 +3359,10 @@ function cdbRender(){
   const customKeys = Object.keys(customDB);
   const cntEl = document.getElementById('cdb-count');
   if(cntEl) cntEl.textContent = customKeys.length;
+  const vastCntEl = document.getElementById('db-vast-count');
+  if(vastCntEl) vastCntEl.textContent = allVastArtKeys().filter(art=>!isVervallen(art)).length;
+  const vervallenCntEl = document.getElementById('db-vervallen-count');
+  if(vervallenCntEl) vervallenCntEl.textContent = allVastArtKeys().filter(isVervallen).length;
 
   const tbl = document.getElementById('cdb-tabel');
   if(!tbl) return;
@@ -3013,26 +3372,103 @@ function cdbRender(){
   const tab = window._dbTab || 'vast';
 
   if(tab === 'vast'){
-    let entries = Object.entries(DB);
-    if(zoek) entries = entries.filter(([art,r])=> art.toLowerCase().includes(zoek) || (r.d||'').toLowerCase().includes(zoek));
-    entries.sort((a,b)=> a[0].localeCompare(b[0]));
+    let entries = allVastArtKeys().filter(art=>!isVervallen(art)).map(function(art){
+      const rec = dbRecFor(art);
+      const ov = window._dbOverrides && window._dbOverrides[art];
+      const displayArt = (ov && ov.art_nieuw) || art;
+      return [art, displayArt, rec];
+    });
+    if(zoek) entries = entries.filter(([art,displayArt,r])=> art.toLowerCase().includes(zoek) || displayArt.toLowerCase().includes(zoek) || (r.d||'').toLowerCase().includes(zoek));
+    entries.sort((a,b)=> a[1].localeCompare(b[1]));
     if(!entries.length){
       tbl.innerHTML='<div style="color:var(--g500);font-size:13px;padding:1rem">Geen artikelen gevonden voor "'+esc(zoekRaw)+'".</div>';
       return;
     }
-    let html='<table><thead><tr><th>Artikelnummer</th><th>Omschrijving</th><th class="r">Lengte mm</th><th class="r">Gew./st. kg</th><th>Pallet type</th></tr></thead><tbody>';
-    entries.forEach(function([art,r]){
+    let html='<table><thead><tr><th>Artikelnummer</th><th>Omschrijving</th><th class="r">Lengte mm</th><th class="r">Gew./st. kg</th><th>Pallet type</th><th></th></tr></thead><tbody>';
+    entries.forEach(function([art,displayArt,r]){
+      const editing = window._dbEditingArt === art;
       const pt = r.l>6000?'<span class="badge b-p7">7.350mm pallet</span>':'<span class="badge b-p5">5.900mm pallet</span>';
-      html+='<tr>'
-        +'<td style="font-family:var(--fc);font-weight:600;color:var(--g800)">'+esc(art)+'</td>'
+      if(editing){
+        html+='<tr data-art="'+esc(art)+'" style="background:var(--g50)">'
+          +'<td><input id="dbov-art" type="text" value="'+esc(displayArt)+'" style="width:110px;padding:4px 6px;border:1px solid var(--g300);font-size:12px;font-family:var(--fc);font-weight:600"></td>'
+          +'<td><input id="dbov-desc" type="text" value="'+esc(r.d)+'" style="width:100%;padding:4px 6px;border:1px solid var(--g300);font-size:12px;font-family:var(--fn)"></td>'
+          +'<td class="r"><input id="dbov-len" type="number" min="1" max="20000" value="'+r.l+'" style="width:90px;padding:4px 6px;border:1px solid var(--g300);font-size:12px;font-family:var(--fn);text-align:right"></td>'
+          +'<td class="r"><input id="dbov-gew" type="number" min="0.001" step="0.001" value="'+r.g+'" style="width:90px;padding:4px 6px;border:1px solid var(--g300);font-size:12px;font-family:var(--fn);text-align:right"></td>'
+          +'<td>'+pt+'</td>'
+          +'<td style="text-align:right;white-space:nowrap">'
+            +'<button class="db-save-btn" data-art="'+esc(art)+'" style="background:var(--red);border:none;cursor:pointer;color:#fff;padding:3px 9px;font-size:12px;border-radius:2px">Opslaan</button> '
+            +'<button class="db-cancel-btn" style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--g600);padding:3px 7px;font-size:12px;border-radius:2px">Annuleren</button>'
+          +'</td>'
+          +'</tr>';
+        return;
+      }
+      const ovRec = window._dbOverrides && window._dbOverrides[art];
+      // Handmatige bewerkingen tonen de AANGEPAST-badge + Herstel-knop; een Excel-import is een
+      // stille vervanging van de brondata en toont hier bewust niets speciaals.
+      const isBewerkt = !!(ovRec && ovRec.bron !== 'import');
+      const isRenamed = !!(ovRec && ovRec.art_nieuw);
+      const ovBadge = isBewerkt?' <span class="badge" style="background:var(--blue-lt);color:var(--blue)">AANGEPAST</span>':'';
+      const renameHint = isRenamed?' <span style="font-size:10px;color:var(--g500);font-weight:400">(was '+esc(art)+')</span>':'';
+      html+='<tr data-art="'+esc(art)+'">'
+        +'<td style="font-family:var(--fc);font-weight:600;color:var(--g800)">'+esc(displayArt)+renameHint+ovBadge+'</td>'
         +'<td>'+esc(r.d)+'</td>'
         +'<td class="r">'+r.l.toLocaleString('nl-NL')+'</td>'
         +'<td class="r">'+r.g.toFixed(3)+'</td>'
         +'<td>'+pt+'</td>'
+        +'<td style="text-align:right;white-space:nowrap">'
+          +'<button class="db-edit-btn" data-art="'+esc(art)+'" style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--g700);padding:3px 7px;font-size:12px;border-radius:2px">Bewerken</button> '
+          +'<button class="db-vervallen-btn" data-art="'+esc(art)+'" style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--red);padding:3px 7px;font-size:12px;border-radius:2px" title="Artikel vervallen verklaren">Vervallen</button>'
+          +(isBewerkt?' <button class="db-reset-btn" data-art="'+esc(art)+'" style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--red);padding:3px 7px;font-size:12px;border-radius:2px" title="Terugzetten naar oorspronkelijke waarden">Herstel</button>':'')
+        +'</td>'
         +'</tr>';
     });
     html+='</tbody></table>';
     tbl.innerHTML=html;
+    tbl.querySelectorAll('.db-edit-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){ dbOverrideBewerken(this.dataset.art); });
+    });
+    tbl.querySelectorAll('.db-vervallen-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){ dbVervallenZetten(this.dataset.art); });
+    });
+    tbl.querySelectorAll('.db-reset-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){ dbOverrideHerstellen(this.dataset.art); });
+    });
+    tbl.querySelectorAll('.db-save-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){ dbOverrideOpslaan(this.dataset.art); });
+    });
+    tbl.querySelectorAll('.db-cancel-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){ dbOverrideAnnuleren(); });
+    });
+  } else if(tab === 'vervallen'){
+    let entries = allVastArtKeys().filter(isVervallen).map(function(art){
+      const rec = dbRecFor(art);
+      const ov = window._dbOverrides[art];
+      const displayArt = ov.art_nieuw || art;
+      return [art, displayArt, rec];
+    });
+    if(zoek) entries = entries.filter(([art,displayArt,r])=> art.toLowerCase().includes(zoek) || displayArt.toLowerCase().includes(zoek) || (r.d||'').toLowerCase().includes(zoek));
+    entries.sort((a,b)=> a[1].localeCompare(b[1]));
+    if(!entries.length){
+      tbl.innerHTML='<div style="color:var(--g500);font-size:13px;padding:1rem">'+(zoek?'Geen vervallen artikelen gevonden voor "'+esc(zoekRaw)+'".':'Nog geen vervallen artikelen.')+'</div>';
+      return;
+    }
+    let html='<table><thead><tr><th>Artikelnummer</th><th>Omschrijving</th><th class="r">Lengte mm</th><th class="r">Gew./st. kg</th><th>Pallet type</th><th></th></tr></thead><tbody>';
+    entries.forEach(function([art,displayArt,r]){
+      const pt = r.l>6000?'<span class="badge b-p7">7.350mm pallet</span>':'<span class="badge b-p5">5.900mm pallet</span>';
+      html+='<tr data-art="'+esc(art)+'" style="opacity:.7">'
+        +'<td style="font-family:var(--fc);font-weight:600;color:var(--g800)">'+esc(displayArt)+'</td>'
+        +'<td>'+esc(r.d)+'</td>'
+        +'<td class="r">'+r.l.toLocaleString('nl-NL')+'</td>'
+        +'<td class="r">'+r.g.toFixed(3)+'</td>'
+        +'<td>'+pt+'</td>'
+        +'<td style="text-align:right;white-space:nowrap"><button class="db-terugzetten-btn" data-art="'+esc(art)+'" style="background:none;border:1px solid var(--g300);cursor:pointer;color:var(--g700);padding:3px 7px;font-size:12px;border-radius:2px">Terugzetten</button></td>'
+        +'</tr>';
+    });
+    html+='</tbody></table>';
+    tbl.innerHTML=html;
+    tbl.querySelectorAll('.db-terugzetten-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){ dbVervallenHerstellen(this.dataset.art); });
+    });
   } else {
     let entries = Object.entries(customDB);
     if(zoek) entries = entries.filter(([art,r])=> art.toLowerCase().includes(zoek) || (r.d||'').toLowerCase().includes(zoek));
@@ -3066,75 +3502,117 @@ function cdbRender(){
   }
 }
 
-function cdbImportExcel(input){
+// Excel-import rechtstreeks naar de gedeelde database (Supabase db_overrides) — zichtbaar voor alle gebruikers
+function dbOvImportExcel(input){
   const file = input.files[0];
   if(!file) return;
-  const status = document.getElementById('cdb-import-status');
+  const status = document.getElementById('dbov-import-status');
   if(status) status.textContent = 'Bestand inlezen…';
 
   const reader = new FileReader();
-  reader.onload = function(e){
+  reader.onload = async function(e){
     try{
       const wb = XLSX.read(e.target.result, {type:'array'});
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
       if(rows.length<2){ if(status) status.textContent='Geen data gevonden in het bestand.'; return; }
 
-      // Detecteer kolommen op naam
       const hdrs = rows[0].map(c=>String(c||'').toLowerCase().trim());
-      const colArt  = hdrs.findIndex(c=>c.includes('artikel')||c==='art'||c==='artikelnummer'||c.includes('materi'));
+      const colArt  = hdrs.findIndex(c=>c.includes('artikel')||c==='art'||c.includes('materi'));
       const colDesc = hdrs.findIndex(c=>c.includes('omschr')||c.includes('desc')||c==='naam');
-      const colLen  = hdrs.findIndex(c=>c.includes('lengte')||c==='l'||c==='l_mm'||c==='lengte_mm');
-      const colGew  = hdrs.findIndex(c=>c.includes('gewicht')||c.includes('gew')||c==='g'||c==='gewicht_kg'||c==='kg');
+      // 'Afmeting' (mm) moet winnen van 'Standaardafmeting' (m) — daarom eerst exacte match, dan pas losse 'lengte'-varianten
+      const colLen  = (function(){
+        let i = hdrs.findIndex(c=>c==='afmeting'||c==='lengte_mm'||c==='lengte'||c==='l_mm'||c==='l');
+        if(i<0) i = hdrs.findIndex(c=>c.includes('lengte'));
+        return i;
+      })();
+      // 'Gewicht per /st.' (per stuk) moet winnen van 'Gewicht per /m' (per meter)
+      const colGew  = (function(){
+        let i = hdrs.findIndex(c=>c==='gewicht_kg'||c==='kg');
+        if(i<0) i = hdrs.findIndex(c=>(c.includes('gewicht')||c.includes('gew')) && (c.includes('/st')||c.includes(' st')||c.includes('stuk')));
+        if(i<0) i = hdrs.findIndex(c=>c.includes('gewicht')||c.includes('gew')||c==='g');
+        return i;
+      })();
+      const colCat    = hdrs.findIndex(c=>c.includes('categorie')||c==='cat');
+      const colKlas   = hdrs.findIndex(c=>c.includes('klasse')||c.includes('class'));
+      const colPallet = hdrs.findIndex(c=>c==='pallet');
 
       if(colArt<0||colLen<0||colGew<0){
-        if(status) status.textContent='Kolommen niet gevonden. Verwacht: Artikelnummer, Lengte_mm, Gewicht_kg (en optioneel Omschrijving).';
+        if(status) status.textContent='Kolommen niet gevonden. Verwacht: Artikelnummer/Materiaalnummer, Lengte_mm/Afmeting, Gewicht_kg/"Gewicht per /st." (en optioneel Omschrijving).';
         return;
       }
 
-      // Sla instructierijen over (beginnen met → of zijn leeg)
       const dataRows = rows.slice(1).filter(row=>{
         const first = String(row[colArt]||'').trim();
         return first && !first.startsWith('→') && !first.startsWith('->');
       });
 
-      let added=0, updated=0, skipped=0, skippedRows=[];
+      // Bouw op via een Map (niet direct een array) zodat dubbele artikelnummers in hetzelfde
+      // bestand elkaar overschrijven (laatste rij wint) i.p.v. de gedeelde database te laten crashen
+      // op een "ON CONFLICT" met hetzelfde artikelnummer twee keer in één opslag-actie.
+      const bodyMap = new Map();
+      let skipped=0, skippedRows=[];
       dataRows.forEach(row=>{
         const artRaw = String(row[colArt]||'').trim();
         if(!artRaw) return;
         const desc = colDesc>=0 ? String(row[colDesc]||'').trim() : artRaw;
-        // Robuuste parsing: vervang komma door punt voor Europese getallen
         const lenRaw = String(row[colLen]||'').replace(',','.');
         const gewRaw = String(row[colGew]||'').replace(',','.');
-        const len  = parseFloat(lenRaw)||0;
-        const gew  = parseFloat(gewRaw)||0;
+        const len = parseFloat(lenRaw)||0;
+        const gew = parseFloat(gewRaw)||0;
         if(len<=0||gew<=0){
           skipped++;
           skippedRows.push(artRaw+' (l='+row[colLen]+', g='+row[colGew]+')');
           return;
         }
-        const art = artRaw.toUpperCase().replace(/^0+(?=\d)/,'');
-        // Lees optionele categorie kolommen
-        const colCat   = hdrs.findIndex(c=>c.includes('categorie')||c==='cat');
-        const colKlas  = hdrs.findIndex(c=>c.includes('klasse')||c.includes('class'));
-        const colPref  = hdrs.findIndex(c=>c.includes('voorkeur')||c.includes('pref'));
-        const cat   = colCat>=0  ? String(row[colCat]||'').trim().toLowerCase()  : '';
-        const klas  = colKlas>=0 ? String(row[colKlas]||'').trim().toLowerCase() : '';
-        const pref  = colPref>=0 ? String(row[colPref]||'').trim()               : '';
-        const isUpdate = !!(window._customDB&&window._customDB[art]);
-        if(!window._customDB) window._customDB={};
-        window._customDB[art] = {d: desc||art, l: len, g: gew,
-          cat:  (cat  && cat!=='nan')  ? cat  : undefined,
-          klasse:(klas && klas!=='nan') ? klas : undefined,
-          voorkeur:(pref && pref!=='nan') ? pref : undefined,
-        };
-        if(isUpdate) updated++; else added++;
+        const art = normArt(artRaw);
+        const huidigOv = window._dbOverrides && window._dbOverrides[art];
+        const bestaand = huidigOv || DB[art];
+        const catRaw    = colCat>=0    ? String(row[colCat]||'').trim().toLowerCase()  : '';
+        const klasRaw   = colKlas>=0   ? String(row[colKlas]||'').trim().toLowerCase() : '';
+        const palletRaw = colPallet>=0 ? String(row[colPallet]||'').replace(',','.').trim() : '';
+        const cat    = (catRaw  && catRaw!=='nan')  ? catRaw  : (bestaand?.cat||null);
+        const klasse = (klasRaw && klasRaw!=='nan') ? klasRaw : (bestaand?.klasse||null);
+        const pallet_len = palletRaw ? (parseInt(palletRaw)||null) : (huidigOv?.pallet_len ?? null);
+        // Een eerdere handmatige bewerking blijft zichtbaar als "aangepast", ook na een latere import;
+        // anders is dit gewoon een stille vervanging vanuit Excel, zonder AANGEPAST-badge.
+        const bron = (huidigOv?.bron === 'bewerk') ? 'bewerk' : 'import';
+        bodyMap.set(art, {
+          art: art, d: desc||art, l: len, g: gew, cat: cat, klasse: klasse, pallet_len: pallet_len,
+          art_nieuw: huidigOv?.art_nieuw || null,
+          vervallen: huidigOv?.vervallen || false,
+          bron: bron,
+        });
       });
-      cdbSave();
+
+      const bodies = Array.from(bodyMap.values());
+      let added=0, updated=0;
+      bodies.forEach(function(b){
+        const bestondAlAf = (window._dbOverrides && window._dbOverrides[b.art]) || DB[b.art];
+        if(bestondAlAf) updated++; else added++;
+      });
+
+      if(!bodies.length){
+        if(status) status.textContent = 'Geen geldige rijen gevonden om te importeren.';
+        return;
+      }
+
+      if(status) status.textContent = 'Bezig met opslaan naar de gedeelde database…';
+      try{
+        await dbOvUpsertBulk(bodies);
+      } catch(err){
+        if(status) status.textContent = 'Opslaan mislukt: '+err.message;
+        return;
+      }
+
+      if(!window._dbOverrides) window._dbOverrides = {};
+      bodies.forEach(function(b){
+        window._dbOverrides[b.art] = {d: b.d, l: b.l, g: b.g, cat: b.cat||undefined, klasse: b.klasse||undefined, art_nieuw: b.art_nieuw||undefined, vervallen: b.vervallen, pallet_len: b.pallet_len||undefined, bron: b.bron};
+      });
       cdbRender();
       input.value='';
       if(status){
-        let msg = added+' toegevoegd, '+updated+' bijgewerkt';
+        let msg = added+' toegevoegd, '+updated+' bijgewerkt (gedeeld voor alle gebruikers)';
         if(skipped) msg += ' — '+skipped+' overgeslagen (ongeldig): '+skippedRows.join(', ');
         msg += '.';
         status.textContent = msg;
@@ -3145,6 +3623,30 @@ function cdbImportExcel(input){
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// Export van de gedeelde database in exact hetzelfde formaat als "Profielen bestand.xlsx",
+// zodat het bestand direct weer aangevuld en teruggeïmporteerd kan worden.
+function dbOvExportExcel(){
+  const arts = allVastArtKeys().filter(art=>!isVervallen(art));
+  arts.sort(function(a,b){ return a.localeCompare(b, undefined, {numeric:true}); });
+
+  const rows = [['Materiaalnummer','Omschrijving','Standaardafmeting','Afmeting','Eenheid','Gewicht per /m','Gewicht per /st.','Pallet']];
+  arts.forEach(function(art){
+    const rec = dbRecFor(art);
+    if(!rec) return;
+    const ov = window._dbOverrides && window._dbOverrides[art];
+    const displayArt = (ov && ov.art_nieuw) || art;
+    const artOut = /^\d+$/.test(displayArt) ? Number(displayArt) : displayArt;
+    const standaardafmeting = rec.l ? +(rec.l/1000).toFixed(3) : '';
+    const gewPerM = (rec.l && rec.g) ? +(rec.g/(rec.l/1000)).toFixed(3) : '';
+    rows.push([artOut, rec.d||'', standaardafmeting, rec.l||'', 'm', gewPerM, rec.g||'', (ov && ov.pallet_len) || '']);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Profielenbestand');
+  XLSX.writeFile(wb, 'Profielen_database_export.xlsx');
 }
 
 // Vanuit de "onbekende artikelen" kaart direct naar DB toevoegen
@@ -3164,6 +3666,6 @@ function addUnknownToCustomDB(idx){
   }, 100);
 }
 
-// Laad custom DB bij opstarten
-window.addEventListener('DOMContentLoaded', function(){ cdbLoad(); }, {once:false});
+// Laad custom DB en gedeelde DB-aanpassingen bij opstarten
+window.addEventListener('DOMContentLoaded', function(){ cdbLoad(); dbOvLoad(); }, {once:false});
 

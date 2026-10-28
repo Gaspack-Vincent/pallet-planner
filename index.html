@@ -1298,7 +1298,10 @@
         </div>
         <div class="card" id="alertsResults"><div class="alert a-warn">ⓘ 1 pallet(s) boven 1.000 kg — toegestaan via de uitzondering (stapel ≤ 3.000 kg).</div><div class="alert a-danger">⚠ Maximum van 12 pallets bereikt.</div></div>
         <div class="card" id="unplacedCard" style="display:none;border-top-color:var(--red)">
-          <div class="card-title" style="color:var(--red)"><span style="background:var(--red);width:3px;height:16px;display:block;flex-shrink:0"></span>Niet gestapeld</div>
+          <div class="card-title" style="color:var(--red);justify-content:space-between">
+            <span style="display:flex;align-items:center;gap:8px"><span style="background:var(--red);width:3px;height:16px;display:block;flex-shrink:0"></span>Niet gestapeld</span>
+            <button onclick="dismissUnplacedCard()" title="Verbergen tot dit verandert" style="background:none;border:none;color:var(--g400);cursor:pointer;font-size:16px;line-height:1;padding:0 2px">&#10005;</button>
+          </div>
           <p style="font-size:11px;color:var(--g500);margin-bottom:8px">Profielen die niet meer op de 12 beschikbare pallets passen:</p>
           <div id="unplacedList"></div>
         </div>
@@ -1342,7 +1345,7 @@
     <div class="card" style="margin-bottom:1rem">
       <div class="card-title">Artikeldatabase</div>
       <p style="font-size:13px;color:var(--g500);margin-bottom:1rem">
-        Overzicht van alle bekende profielen. De <strong>vaste database</strong> (Vaste database is leeg — importeer uw eigen artikelen via Excel hieronder) is altijd beschikbaar.
+        Overzicht van alle bekende profielen. De <strong>vaste database</strong> is altijd beschikbaar; wijzigingen die u daarin maakt (via "Bewerken") worden gedeeld opgeslagen en zijn zichtbaar voor alle gebruikers.
         Eigen artikelen die u toevoegt worden lokaal opgeslagen in uw browser en gebruikt naast de vaste database.
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;align-items:flex-start">
@@ -1371,26 +1374,28 @@
 
     <div class="card" style="margin-bottom:1rem">
       <div class="card-title" style="display:flex;align-items:center;gap:12px">
-        <span>Importeren via Excel</span>
-        <span style="font-size:11px;color:var(--g500);font-weight:400;font-family:var(--fn)">Vereiste kolommen: Artikelnummer | Omschrijving | Lengte_mm | Gewicht_kg</span>
+        <span>Importeren / exporteren via Excel — gedeeld (voor iedereen)</span>
+        <span style="font-size:11px;color:var(--g500);font-weight:400;font-family:var(--fn)">Herkent zowel Artikelnummer/Lengte_mm/Gewicht_kg als Materiaalnummer/Afmeting/"Gewicht per /st." (zoals Profielen bestand.xlsx)</span>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <label style="padding:7px 16px;background:var(--g100);border:1px solid var(--g300);cursor:pointer;font-family:var(--fc);font-size:12px;font-weight:600;letter-spacing:.5px">
+        <label style="padding:7px 16px;background:var(--red);color:#fff;border:1px solid var(--red);cursor:pointer;font-family:var(--fc);font-size:12px;font-weight:600;letter-spacing:.5px">
           EXCEL KIEZEN
-          <input type="file" id="cdb-excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="cdbImportExcel(this)">
+          <input type="file" id="dbov-excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="dbOvImportExcel(this)">
         </label>
-        <span id="cdb-import-status" style="font-size:12px;color:var(--g500)"></span>
+        <button onclick="dbOvExportExcel()" style="padding:7px 16px;background:#fff;border:1px solid var(--g300);cursor:pointer;font-family:var(--fc);font-size:12px;font-weight:600;letter-spacing:.5px">EXPORTEREN</button>
+        <span id="dbov-import-status" style="font-size:12px;color:var(--g500)"></span>
       </div>
       <p style="font-size:11px;color:var(--g400);margin-top:8px;margin-bottom:0">
-        Tip: zorg dat de eerste rij de kolomnamen bevat. Bestaande artikelen met hetzelfde nummer worden bijgewerkt.
+        Tip: zorg dat de eerste rij de kolomnamen bevat. Nieuwe artikelnummers worden toegevoegd, bestaande worden bijgewerkt — voor <strong>alle</strong> gebruikers, direct in de vaste database (tabblad VAST). Exporteren geeft een bestand in exact dezelfde opmaak, handig om in één keer veel profielen toe te voegen.
       </p>
     </div>
 
     <div class="card">
       <div class="card-title" style="display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap">
         <div style="display:flex;gap:0;border-bottom:none">
-          <button id="dbtab-vast" onclick="dbTabSwitch(&#39;vast&#39;)" style="padding: 6px 16px; font-family: var(--fc); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-top-color: ; border-top-style: ; border-top-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-right-width: medium; border-right-style: none; border-right-color: currentcolor; background: rgb(255, 255, 255); color: var(--g600);">VAST (0)</button>
-          <button id="dbtab-eigen" onclick="dbTabSwitch(&#39;eigen&#39;)" style="padding: 6px 16px; font-family: var(--fc); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--g300); background: var(--red); color: rgb(255, 255, 255);">EIGEN (<span id="cdb-count">0</span>)</button>
+          <button id="dbtab-vast" onclick="dbTabSwitch(&#39;vast&#39;)" style="padding: 6px 16px; font-family: var(--fc); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--g300); background: var(--red); color: rgb(255, 255, 255);">VAST (<span id="db-vast-count">0</span>)</button>
+          <button id="dbtab-eigen" onclick="dbTabSwitch(&#39;eigen&#39;)" style="padding: 6px 16px; font-family: var(--fc); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--g300); background: #fff; color: var(--g600);">EIGEN (<span id="cdb-count">0</span>)</button>
+          <button id="dbtab-vervallen" onclick="dbTabSwitch(&#39;vervallen&#39;)" style="padding: 6px 16px; font-family: var(--fc); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--g300); background: #fff; color: var(--g600);">VERVALLEN (<span id="db-vervallen-count">0</span>)</button>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <input type="text" id="cdb-zoek" placeholder="Zoek artikelnummer of omschrijving…" oninput="cdbRender()" style="padding:5px 10px;border:1px solid var(--g300);font-size:12px;font-family:var(--fn);width:260px">
@@ -1415,6 +1420,12 @@
 
 <footer>© Salco Industrial Doors — Pallet Planning Tool — Intern gebruik</footer>
 
+<div class="pr-foto-modal" id="pr-foto-modal" onclick="sluitProfielFotoGroot()">
+  <div class="pr-foto-modal-inner" onclick="event.stopPropagation()">
+    <img id="pr-foto-modal-img" src="" alt="">
+    <div class="pr-foto-modal-label" id="pr-foto-modal-label"></div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 
