@@ -1308,20 +1308,41 @@
       </div>
     </div>
 
-    <!-- VOEG PALLET TOE — alleen zichtbaar in bewerkmode -->
+    <!-- VOEG PALLET / KRAT TOE — alleen zichtbaar in bewerkmode -->
     <div id="add-pallet-wrap" style="margin-top:12px">
       <div id="add-pallet-collapsed">
         <button id="btn-add-pallet" onclick="toggleAddPalletPicker()">
-          <span class="sn-add">+</span>Pallet toevoegen
+          <span class="sn-add">+</span>Pallet / krat toevoegen
         </button>
       </div>
       <div id="add-pallet-picker">
-        <button class="add-pallet-type-btn long" onclick="voegPalletToe(&#39;long&#39;)">
-          <span class="sn-add">+</span>Lange pallet — 7350mm
-        </button>
-        <button class="add-pallet-type-btn short" onclick="voegPalletToe(&#39;short&#39;)">
-          <span class="sn-add">+</span>Korte pallet — 5900mm
-        </button>
+        <!-- Stap 1: keuze pallet of krat -->
+        <div class="add-stap" id="add-stap-keuze">
+          <button class="add-pallet-type-btn long" onclick="toonAddStap(&#39;pallet&#39;)">
+            <span class="sn-add">+</span>Pallet
+          </button>
+          <button class="add-pallet-type-btn krat" onclick="toonAddStap(&#39;krat&#39;)">
+            <span class="sn-add">+</span>Krat
+          </button>
+        </div>
+        <!-- Stap 2a: soort pallet -->
+        <div class="add-stap" id="add-stap-pallet">
+          <button class="add-pallet-type-btn long" onclick="voegPalletToe(&#39;long&#39;)">
+            <span class="sn-add">+</span>Lange pallet — 7350mm
+          </button>
+          <button class="add-pallet-type-btn short" onclick="voegPalletToe(&#39;short&#39;)">
+            <span class="sn-add">+</span>Korte pallet — 5900mm
+          </button>
+        </div>
+        <!-- Stap 2b: maat krat -->
+        <div class="add-stap" id="add-stap-krat">
+          <button class="add-pallet-type-btn krat" onclick="voegKratToe(&#39;small&#39;)">
+            <span class="sn-add">+</span>Krat Small — 1140×750×1260
+          </button>
+          <button class="add-pallet-type-btn krat" onclick="voegKratToe(&#39;medium&#39;)">
+            <span class="sn-add">+</span>Krat Medium — 2290×750×1260
+          </button>
+        </div>
         <button class="add-pallet-cancel-btn" onclick="toggleAddPalletPicker()">✕</button>
       </div>
     </div>

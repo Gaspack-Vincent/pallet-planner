@@ -163,6 +163,13 @@ function getKlantProfiel(klantNaam, projNr){
 // ═══ STATE ═══
 let known=[], unknwn=[], plan=[], projNr='', klant='';
 let checkedItems = {};
+// Losse kratten in de zending ({l,b,h,kg}), puur documentatie naast de pallets — geen
+// verdeling van profielen, telt alleen mee in de samenvatting en gewichtenlijst-export.
+let kratten = [];
+// true zodra bekend is dat de Supabase-kolom projects.kratten bestaat (geladen project had
+// het veld). Tot dan wordt kratten alleen meegestuurd als er kratten zijn, zodat opslaan
+// zonder die kolom niet stukloopt voor projecten zonder kratten.
+let krattenKolomBestaat = false;
 let psi66222Mode = null; // null=niet gevraagd, true=160st vaste NM6, false=vrij aantal
 let psi66222Qty  = 160;  // aantal als vrij gekozen
 
@@ -987,7 +994,7 @@ function updatePalWerkelijk(inputEl){
 function renderSummarySidebar(){
   const el = document.getElementById('summaryArea');
   if(!el) return;
-  const totK = plan.reduce((s,p)=>s+(p.werkelijkKg!=null?p.werkelijkKg:p.totalKg),0);
+  const totK = plan.reduce((s,p)=>s+(p.werkelijkKg!=null?p.werkelijkKg:p.totalKg),0) + krattenKg();
   const ovl = plan.filter(p=>p.overloaded).length;
   let sumH=`
     ${projNr?`<div class="sum-block"><div class="sum-label">Projectnummer</div><div class="sum-val" style="font-size:16px">${esc(projNr)}</div></div>`:''}
@@ -1005,6 +1012,7 @@ function renderSummarySidebar(){
       <tr><td style="color:var(--g500)">5900mm pallets</td><td>${plan.filter(p=>p.t==='short').length}</td></tr>
       <tr><td style="color:var(--g500)">X-pallets</td><td>${plan.filter(p=>p.x).length}</td></tr>
       <tr><td style="color:var(--g500)">Norm. pallets</td><td>${plan.filter(p=>!p.x).length}</td></tr>
+      <tr><td style="color:var(--g500)">Kratten</td><td>${kratten.length}</td></tr>
     </table>
     <div class="sum-divider"></div>
     <table class="sum-table sum-table-maten">
@@ -1016,9 +1024,114 @@ function renderSummarySidebar(){
     const maat = f => f!=null ? f : '&ndash;';
     sumH+=`<tr><td style="color:var(--g500)">${esc(p.nm)}</td><td>${maat(p.werkelijkL)}</td><td>${maat(p.werkelijkB)}</td><td>${maat(p.werkelijkH)}</td><td>${kgHtml}</td></tr>`;
   });
+  kratten.forEach((k,i)=>{
+    const maat = f => f!=null ? f : '&ndash;';
+    sumH+=`<tr><td style="color:var(--g500)">${kratNaam(i)}</td><td>${maat(k.l)}</td><td>${maat(k.b)}</td><td>${maat(k.h)}</td><td>${k.kg!=null?k.kg.toFixed(1)+' kg':'&ndash;'}</td></tr>`;
+  });
   sumH+='</table>'
      +'<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:10px" onclick="exportGewichtenlijst()">Export gewichtenlijst</button>';
   el.innerHTML=sumH;
+}
+
+// ═══ KRATTEN ═══
+// Losse kratten naast de pallets: alleen maat (L/B/H) en gewicht, geen profielen/verdeling.
+// Naam volgt uit de positie in de lijst, zodat verwijderen geen gaten in de nummering geeft.
+// Bewust géén .pc/.ph/.pb classes op de kaarten: daar hangt de pallet-drag-drop en
+// artikel-drop van de bewerkmode aan (activeerBewerkmode), die op kratten niet van toepassing is.
+const KRAT_MATEN = {
+  small:  {lbl:'Small',  l:1140, b:750, h:1260},
+  medium: {lbl:'Medium', l:2290, b:750, h:1260},
+};
+function kratNaam(i){ return 'Krat '+(i+1); }
+function kratMaatLbl(k){ return KRAT_MATEN[k.maat] ? KRAT_MATEN[k.maat].lbl : ''; }
+function krattenKg(){ return kratten.reduce((s,k)=>s+(k.kg||0),0); }
+
+function kratVeld(k, i, field, placeholder, step, sm){
+  const val = k[field]!=null ? k[field] : '';
+  return `<input type="number" min="0" step="${step}" class="pw-actual-inp${sm?' pw-actual-inp-sm':''}" placeholder="${placeholder}" value="${val}" data-kratidx="${i}" data-field="${field}" onchange="updateKrat(this)">`;
+}
+
+// Kratten-sectie onder de stapels in #palletResults (onderdeel van showResults()).
+function kratSectieHtml(){
+  if(!kratten.length) return '';
+  let h = `<div class="stack-section">
+    <div class="stack-header krat">
+      <div>
+        <div class="stack-name krat">Kratten</div>
+        <div style="font-size:11px;color:var(--g500);margin-top:2px">${kratten.length} krat${kratten.length>1?'ten':''} &middot; geen profielen</div>
+      </div>
+      <div class="stack-weight ok">${Math.round(krattenKg()).toLocaleString('nl-NL')} kg</div>
+    </div>
+    <div class="pallet-row">`;
+  kratten.forEach((k,i)=>{
+    const maatLbl = kratMaatLbl(k);
+    h += `<div class="kc">
+      <div class="kh">
+        <button class="pc-verwijder-btn" onclick="verwijderKrat(${i})" title="Krat verwijderen">&#10005;</button>
+        <div>
+          <span class="pnum">${kratNaam(i)}</span>
+          <div class="ptags" style="margin-top:6px">
+            ${maatLbl?`<span class="ptyp">Krat ${maatLbl}</span>`:''}
+            <span class="pstk-badge krat" style="margin-top:3px">KRAT</span>
+          </div>
+        </div>
+        <div class="pw-actual">
+          <div class="pw-actual-row">
+            <label>Werk. maat</label>
+            ${kratVeld(k,i,'l','L',1,true)}${kratVeld(k,i,'b','B',1,true)}${kratVeld(k,i,'h','H',1,true)}
+          </div>
+          <div class="pw-actual-row">
+            <label>Werk. gewicht</label>
+            ${kratVeld(k,i,'kg','kg',0.1,false)}
+          </div>
+        </div>
+      </div>
+      <div class="kb">Krat &mdash; geen profielen of artikelen</div>
+    </div>`;
+  });
+  return h + '</div></div>';
+}
+
+// Na toevoegen/verwijderen van een krat: alles opnieuw tekenen en bewerkmode herstellen
+// (zelfde stappen als voegPalletToe / verwijderPallet).
+function kratHerrenderInBewerkmode(){
+  showResults();
+  const pr = document.getElementById('palletResults');
+  if(pr) pr.classList.add('bewerk-actief');
+  const bar = document.getElementById('bewerk-bar');
+  if(bar) bar.classList.add('zichtbaar');
+  const btnBewerk = document.getElementById('btn-bewerk');
+  if(btnBewerk) btnBewerk.style.display = 'none';
+  activeerBewerkmode();
+  const addWrap = document.getElementById('add-pallet-wrap');
+  if(addWrap) addWrap.style.display = 'flex';
+}
+
+function voegKratToe(maat){
+  const collapsed = document.getElementById('add-pallet-collapsed');
+  const picker    = document.getElementById('add-pallet-picker');
+  if(picker)    picker.style.display    = 'none';
+  if(collapsed) collapsed.style.display = '';
+
+  const m = KRAT_MATEN[maat];
+  kratten.push({maat, l:m.l, b:m.b, h:m.h}); // standaardmaat vooringevuld, gewicht nog leeg
+  kratHerrenderInBewerkmode(); // showResults() slaat het project ook op
+}
+
+function verwijderKrat(i){
+  kratten.splice(i,1);
+  kratHerrenderInBewerkmode();
+}
+
+// Veldwijziging ververst alleen de samenvatting (niet de kaarten), zodat de invoerfocus
+// tijdens het typen behouden blijft — zelfde aanpak als updatePalWerkelijk.
+function updateKrat(inputEl){
+  const k = kratten[parseInt(inputEl.dataset.kratidx, 10)];
+  if(!k) return;
+  const field = inputEl.dataset.field;
+  if(inputEl.value==='') delete k[field]; else k[field] = parseFloat(inputEl.value);
+  renderSummarySidebar();
+  saveCurrentProject();
 }
 
 // ═══ RENDER RESULTS ═══
@@ -1134,6 +1247,7 @@ function showResults(){
     });
     html+='</div></div>';
   }
+  html+=kratSectieHtml();
   document.getElementById('palletResults').innerHTML=html;
 
   // Toon overflow-waarschuwing als er niet-geplaatste items zijn
@@ -1226,17 +1340,20 @@ function dismissUnplacedCard(){
 // ═══ GEWICHTENLIJST EXPORT ═══
 // Zelfde lay-out als "Voorbeeld export (.xlsx) gewichtenlijst.xlsx": kolom A leeg,
 // projectnummer in B2/C2, headers in rij 4 (C=Lengte, D=Breedte, E=Hoogte, G=Gewicht,
-// kolom F leeg als scheiding), daarna één rij per pallet. Kolom H (Type pallet:
-// X-pallet/Normaal, op basis van pal.x) is een toevoeging t.o.v. het voorbeeldbestand.
+// kolom F leeg als scheiding), daarna één rij per pallet en per krat. Kolom H (Type:
+// X-pallet/Normaal op basis van pal.x, of Krat) is een toevoeging t.o.v. het voorbeeldbestand.
 function exportGewichtenlijst(){
   const rows=[];
   rows.push([]);
   rows.push([null,'Projectnummer: ',projNr||'']);
   rows.push([]);
-  rows.push([null,null,'Lengte','Breedte','Hoogte',null,'Gewicht','Type pallet']);
+  rows.push([null,null,'Lengte','Breedte','Hoogte',null,'Gewicht','Type']);
   plan.forEach(p=>{
     const kg = p.werkelijkKg!=null ? p.werkelijkKg : p.totalKg;
     rows.push([null,p.nm,p.werkelijkL!=null?p.werkelijkL:null,p.werkelijkB!=null?p.werkelijkB:null,p.werkelijkH!=null?p.werkelijkH:null,null,Math.round(kg)+' kg',p.x?'X-pallet':'Normaal']);
+  });
+  kratten.forEach((k,i)=>{
+    rows.push([null,kratNaam(i),k.l!=null?k.l:null,k.b!=null?k.b:null,k.h!=null?k.h:null,null,k.kg!=null?Math.round(k.kg)+' kg':null,('Krat '+kratMaatLbl(k)).trim()]);
   });
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.aoa_to_sheet(rows);
@@ -1590,12 +1707,13 @@ async function saveCurrentProject(){
     klant: klant,
     datum: new Date().toISOString(),
     pallets: plan.length,
-    total_kg: Math.round(plan.reduce((s,p)=>s+(p.werkelijkKg!=null?p.werkelijkKg:p.totalKg),0)),
+    total_kg: Math.round(plan.reduce((s,p)=>s+(p.werkelijkKg!=null?p.werkelijkKg:p.totalKg),0) + krattenKg()),
     known: known.map(p=>({art:p.artOrig||p.art,artOrig:p.artOrig||p.art,desc:p.desc,l:p.l,gps:p.gps,qty:p.qty,gew:p.gew,loks:p.loks,palletVoorkeur:p.palletVoorkeur||undefined})),
     plan: plan.map(p=>({nm:p.nm,pType:p.pType,t:p.t,x:p.x,kg:p.kg,art:p.art,lbl:p.lbl,sid:p.sid,spos:p.spos,profW:p.profW,totalKg:p.totalKg,overloaded:p.overloaded,stackViolation:p.stackViolation,items:p.items,werkelijkKg:p.werkelijkKg,werkelijkL:p.werkelijkL,werkelijkB:p.werkelijkB,werkelijkH:p.werkelijkH})),
     checked_items: checkedItems,
     status: 'not_started'
   };
+  if(kratten.length || krattenKolomBestaat) entry.kratten = kratten;
   await sbUpsert(entry);
   await koppelProjectAanContainer();
   try{ await renderDB(); } catch(e){ console.warn("DB:", e); }
@@ -1625,6 +1743,8 @@ function loadProject(entry){
   });
   plan   = entry.plan  || [];
   checkedItems = entry.checked_items || {};
+  kratten = Array.isArray(entry.kratten) ? entry.kratten : [];
+  if('kratten' in entry) krattenKolomBestaat = true;
   psi66222Mode = null; // reset PSI-keuze bij nieuw project laden
 
   document.getElementById('inp-proj').value = projNr;
@@ -1799,7 +1919,7 @@ async function showDB(){
   document.getElementById('download-bar').classList.add('hidden');
   document.getElementById('sec-upload').classList.remove('hidden');
   document.getElementById('proj-display').style.display='none';
-  known=[];unknwn=[];plan=[];projNr='';klant='';checkedItems={};
+  known=[];unknwn=[];plan=[];projNr='';klant='';checkedItems={};kratten=[];
   document.getElementById('inp-proj').value='';
   document.getElementById('inp-klant').value='';
   document.getElementById('fileInput').value='';
@@ -3183,9 +3303,18 @@ function toggleAddPalletPicker(){
   const collapsed = document.getElementById('add-pallet-collapsed');
   const picker    = document.getElementById('add-pallet-picker');
   if(!collapsed || !picker) return;
-  const isOpen = picker.style.display !== 'none';
+  const isOpen = picker.style.display !== 'none' && picker.style.display !== '';
   collapsed.style.display = isOpen ? '' : 'none';
   picker.style.display    = isOpen ? 'none' : 'flex';
+  if(!isOpen) toonAddStap('keuze'); // altijd beginnen bij de keuze pallet / krat
+}
+
+// Toont één stap van de toevoeg-picker: 'keuze' (pallet of krat), 'pallet' of 'krat'.
+function toonAddStap(stap){
+  ['keuze','pallet','krat'].forEach(s=>{
+    const el = document.getElementById('add-stap-'+s);
+    if(el) el.classList.toggle('actief', s===stap);
+  });
 }
 
 function voegPalletToe(type){
@@ -3273,8 +3402,6 @@ function loadProjectEnBewerk(entry){
   loadProject(entry);
   setTimeout(function(){ openBewerkPanel(); }, 150);
 }
-
-async 
 
 // ═══════════════════════════════════════════════════
 // EIGEN ARTIKELDATABASE (localStorage)

@@ -147,6 +147,13 @@ tbody td.r{text-align:right}
 .pstk-badge.xp{background:var(--g700);color:#fff}
 .pstk-badge.nm6special{background:#6A1B9A;color:#fff}
 .pb{padding:12px 16px;border-left:1px solid var(--g200)}
+/* KRAT CARDS — zelfde opbouw als .pc/.ph/.pb, eigen classes zodat de pallet-drag-drop er niet aan hangt */
+.stack-header.krat{background:#E3F2FD;border-left:4px solid var(--blue)}
+.stack-name.krat{color:#0D47A1}
+.kc{border:1px solid var(--g300);border-top:3px solid var(--blue);overflow:hidden;position:relative;display:grid;grid-template-columns:220px 1fr;align-items:stretch}
+.kh{background:var(--g800);color:#fff;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;position:relative}
+.kb{padding:12px 16px;border-left:1px solid var(--g200);font-size:12px;color:var(--g400);font-style:italic;display:flex;align-items:center}
+.pstk-badge.krat{background:var(--blue);color:#fff}
 .pr-item{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--g100);font-size:12px}
 .bewerk-actief .pr-item{cursor:grab;transition:background .15s}
 .bewerk-actief .pr-item:hover{background:var(--g50)}
@@ -248,6 +255,10 @@ tbody td.r{text-align:right}
 .add-pallet-type-btn.short .sn-add{color:#80DEEA}
 .add-pallet-type-btn.long{border-left:3px solid #69F0AE}
 .add-pallet-type-btn.short{border-left:3px solid #80DEEA}
+.add-pallet-type-btn.krat .sn-add{color:#90CAF9}
+.add-pallet-type-btn.krat{border-left:3px solid #90CAF9}
+.add-stap{display:none;flex:1;flex-direction:row}
+.add-stap.actief{display:flex}
 .add-pallet-type-btn:hover{background:#1e3e52}
 .add-pallet-cancel-btn{padding:9px 16px;background:var(--g800);color:var(--g500);border:none;border-left:1px solid rgba(255,255,255,.08);font-family:var(--fc);font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background .15s}
 .add-pallet-cancel-btn:hover{background:#1e3e52;color:var(--g300)}
