@@ -1066,7 +1066,7 @@ function kratVeld(k, i, field, placeholder, step, sm){
 // Kratten-sectie onder de stapels in #palletResults (onderdeel van showResults()).
 function kratSectieHtml(){
   if(!kratten.length) return '';
-  let h = `<div class="stack-section">
+  let h = `<div class="stack-section" id="krat-sectie">
     <div class="stack-header krat">
       <div>
         <div class="stack-name krat">Kratten</div>
@@ -1077,6 +1077,22 @@ function kratSectieHtml(){
     <div class="pallet-row">`;
   kratten.forEach((k,i)=>{
     const maatLbl = kratMaatLbl(k);
+    // Geminimaliseerd (k.klaar, gezet via de OK-knop naast het gewicht) — zelfde compacte
+    // weergave als een afgevinkte pallet (.pallet-done), met TOON om weer uit te klappen.
+    if(k.klaar){
+      const maat = [k.l,k.b,k.h].every(v=>v!=null) ? k.l+'&times;'+k.b+'&times;'+k.h+' mm' : '';
+      h += `<div class="kc krat-done">
+        <div class="kh">
+          <button class="pc-verwijder-btn" onclick="verwijderKrat(${i})" title="Krat verwijderen">&#10005;</button>
+          <span class="pnum">${esc(kratNaam(k,i))}</span>
+        </div>
+        <div class="kb">
+          <div class="pallet-done-label">&#10003; KLAAR${maatLbl?' &mdash; Krat '+maatLbl:''}${maat?' &nbsp;|&nbsp; '+maat:''} &nbsp;|&nbsp; <span style="font-weight:700">${(k.kg||0).toFixed(1)} kg</span></div>
+          <button class="pallet-expand-btn" onclick="toonKrat(${i})">TOON</button>
+        </div>
+      </div>`;
+      return;
+    }
     h += `<div class="kc">
       <div class="kh">
         <button class="pc-verwijder-btn" onclick="verwijderKrat(${i})" title="Krat verwijderen">&#10005;</button>
@@ -1096,6 +1112,7 @@ function kratSectieHtml(){
           <div class="pw-actual-row">
             <label>Werk. gewicht</label>
             ${kratVeld(k,i,'kg','kg',0.1,false)}
+            <button class="krat-ok-btn" onclick="kratKlaar(${i})" title="Krat klaar — minimaliseren">OK</button>
           </div>
         </div>
       </div>
@@ -1103,6 +1120,39 @@ function kratSectieHtml(){
     </div>`;
   });
   return h + '</div></div>';
+}
+
+// Alleen de kratten-sectie opnieuw tekenen (minimaliseren/uitklappen), zodat de pallets
+// hun staat (afgevinkt/geminimaliseerd, bewerkmode) behouden.
+function renderKratSectie(){
+  const el = document.getElementById('krat-sectie');
+  if(el) el.outerHTML = kratSectieHtml();
+}
+
+// OK-knop naast het gewicht: alleen minimaliseren als er een gewicht is ingevuld.
+function kratKlaar(i){
+  const k = kratten[i];
+  if(!k) return;
+  // Waarde direct uit het veld lezen, voor het geval de change-event nog niet gevuurd is
+  const inp = document.querySelector(`#krat-sectie .pw-actual-inp[data-kratidx="${i}"][data-field="kg"]`);
+  if(inp && inp.value!=='') k.kg = parseFloat(inp.value);
+  if(k.kg==null || isNaN(k.kg)){
+    alert('Vul eerst het gewicht van de krat in.');
+    if(inp) inp.focus();
+    return;
+  }
+  k.klaar = true;
+  renderKratSectie();
+  renderSummarySidebar();
+  saveCurrentProject();
+}
+
+function toonKrat(i){
+  const k = kratten[i];
+  if(!k) return;
+  delete k.klaar;
+  renderKratSectie();
+  saveCurrentProject();
 }
 
 // Na toevoegen/verwijderen van een krat: alles opnieuw tekenen en bewerkmode herstellen
