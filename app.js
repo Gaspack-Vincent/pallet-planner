@@ -1438,10 +1438,10 @@ function exportGewichtenlijst(){
   rows.push([null,null,'Lengte','Breedte','Hoogte',null,'Gewicht','Type']);
   plan.forEach(p=>{
     const kg = p.werkelijkKg!=null ? p.werkelijkKg : p.totalKg;
-    rows.push([null,p.nm,p.werkelijkL!=null?p.werkelijkL:null,p.werkelijkB!=null?p.werkelijkB:null,p.werkelijkH!=null?p.werkelijkH:null,null,Math.round(kg)+' kg',p.x?'X-pallet':'Normaal']);
+    rows.push([null,p.nm,p.werkelijkL!=null?p.werkelijkL:null,p.werkelijkB!=null?p.werkelijkB:null,p.werkelijkH!=null?p.werkelijkH:null,null,Math.round(kg),p.x?'X-pallet':'Normaal']);
   });
   kratten.forEach((k,i)=>{
-    rows.push([null,kratNaam(k,i),k.l!=null?k.l:null,k.b!=null?k.b:null,k.h!=null?k.h:null,null,k.kg!=null?Math.round(k.kg)+' kg':null,('Krat '+kratMaatLbl(k)).trim()]);
+    rows.push([null,kratNaam(k,i),k.l!=null?k.l:null,k.b!=null?k.b:null,k.h!=null?k.h:null,null,k.kg!=null?Math.round(k.kg):null,('Krat '+kratMaatLbl(k)).trim()]);
   });
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.aoa_to_sheet(rows);
